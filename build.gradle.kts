@@ -21,10 +21,10 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.0.0")
 }
 
-//tasks.test {
-//    useJUnitPlatform()
-//}
-//
+tasks.test {
+    useJUnitPlatform()
+}
+
 //tasks.withType<KotlinCompile>() {
 //    kotlinOptions.jvmTarget = "13"
 //}
