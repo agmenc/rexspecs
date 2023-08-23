@@ -4,8 +4,8 @@ plugins {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "6.8.3"
-//    gradleVersion = "8.1.1"
+//    gradleVersion = "6.8.3"
+    gradleVersion = "8.1.1"
 }
 
 group = "what.does.this.mean"
