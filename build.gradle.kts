@@ -1,11 +1,7 @@
 plugins {
     kotlin("jvm") version "1.6.20"
+//        kotlin("jvm") version "1.9.0"
     application
-}
-
-tasks.withType<Wrapper> {
-//    gradleVersion = "6.8.3"
-    gradleVersion = "8.1.1"
 }
 
 group = "what.does.this.mean"
