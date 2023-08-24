@@ -1,5 +1,4 @@
 plugins {
-//    kotlin("jvm") version "1.6.20"
         kotlin("jvm") version "1.9.0"
     application
 }
@@ -14,11 +13,10 @@ repositories {
 dependencies {
 
     // SystemUnderTest
-//    implementation(platform("org.http4k:http4k-bom:5.7.2.0"))
-//    implementation("org.http4k:http4k-core")
-//    implementation("org.http4k:http4k-server-undertow")
-//    implementation("org.http4k:http4k-client-apache")
-
+    implementation(platform("org.http4k:http4k-bom:5.7.2.0"))
+    implementation("org.http4k:http4k-core")
+    implementation("org.http4k:http4k-server-undertow")
+    implementation("org.http4k:http4k-client-apache")
 
 //    testImplementation(kotlin("test"))
 //    testImplementation("com.natpryce:hamkrest:1.8.0.1")
