@@ -71,30 +71,37 @@ internal class RexSpecTest {
 
     @Test
     fun `Can call methods on a fixture based on data in table cells`() {
-        data class Params(val firstParam: Int, val operator: String, val secondParam: Int)
+        data class Params(val firstParam: String, val operator: String, val secondParam: String)
         val actualParams = mutableListOf<Params>()
         val expectedParams = mutableListOf<Params>(
-            Params(7, "+", 8),
-            Params(7, "*", 8)
+            Params("7", "+", "8"),
+            Params("7", "x", "8")
         )
 
-        fun fakeCalculatorFixture(firstParam: Int, operator: String, secondParam: Int): Result {
+        fun fakeCalculatorFixture(firstParam: String, operator: String, secondParam: String): Result {
             actualParams.add(Params(firstParam, operator, secondParam))
             return Result(500, "Bang")
         }
 
-        val fakeIndex = mapOf<String,(Int, String, Int) -> Result>("Calculator" to ::fakeCalculatorFixture)
+        val fakeIndex = mapOf<String,(String, String, String) -> Result>("Calculator" to ::fakeCalculatorFixture)
 
         execute(sampleInput, fakeIndex)
 
         assertEquals(expectedParams, actualParams)
     }
 
-    fun execute(input: String, index: Map<String,(Int, String, Int) -> Result>) {
+    fun execute(input: String, index: Map<String,(String, String, String) -> Result>) {
         Jsoup.parse(input).allElements
             .toList()
             .filter { it.tagName() == "table" }
             .map { testify(it) }
+            .map { testRep -> Pair(testRep, executeSingleTableTest(testRep, index)) }
+    }
+
+    private fun executeSingleTableTest(testRep: TestRep, index: Map<String, (String, String, String) -> Result>): List<Result> {
+        val function: ((String, String, String) -> Result) = index[testRep.fixtureName]!!
+        return testRep.testRows
+            .map{ row -> function(row.inputParams[0], row.inputParams[1], row.inputParams[2]) }
     }
 
     @Test
@@ -115,7 +122,7 @@ internal class RexSpecTest {
     }
 
     data class TestRep(val fixtureName: String, val testRows: List<TestRow>)
-    data class TestRow(val inputParams: List<String>, val expectedResult: Result)
+    data class TestRow(val inputParams: List<String>, val result: Result)
     data class Result(val httpResponse: Int, val result: String)
 
     fun testify(table: Element): TestRep {
@@ -138,7 +145,6 @@ internal class RexSpecTest {
     }
 
 //    TODO - better way: strip the test out as a structure, execute it, then write it back in when it is done
-
 //    data class TestResult(val pass: Int)
 //    data class ExeSpecResult(val output: String, val testResult: TestResult)
 //    fun theWholeThing(input: String, fixturator: FixtureMap):
