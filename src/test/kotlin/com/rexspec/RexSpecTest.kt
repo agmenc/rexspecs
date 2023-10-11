@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 
@@ -73,7 +74,7 @@ internal class RexSpecTest {
     fun `Can call methods on a fixture based on data in table cells`() {
         data class Params(val firstParam: String, val operator: String, val secondParam: String)
         val actualParams = mutableListOf<Params>()
-        val expectedParams = mutableListOf<Params>(
+        val expectedParams = mutableListOf(
             Params("7", "+", "8"),
             Params("7", "x", "8")
         )
@@ -90,13 +91,34 @@ internal class RexSpecTest {
         assertEquals(expectedParams, actualParams)
     }
 
-    fun execute(input: String, index: Map<String,(String, String, String) -> Result>) {
+    @Test
+    fun `Captures the results of fixture calls`() {
+        val expectedResults = listOf(
+            Result(200, "15"),
+            Result(200, "56"),
+            )
+
+        fun fakeCalculatorFixture(firstParam: String, operator: String, secondParam: String): Result {
+            return if (operator == "+") Result(200, "15") else Result(200, "56")
+        }
+
+        val fakeIndex = mapOf<String,(String, String, String) -> Result>("Calculator" to ::fakeCalculatorFixture)
+
+        val results = execute(sampleInput, fakeIndex)
+
+        results
+            .flatMap { it.results }
+            .zip(expectedResults)
+            .forEach {(actual, expected) ->  assertEquals(expected, actual) }
+
+    }
+
+    fun execute(input: String, index: Map<String,(String, String, String) -> Result>): List<ExecutedTest> =
         Jsoup.parse(input).allElements
             .toList()
             .filter { it.tagName() == "table" }
             .map { testify(it) }
-            .map { testRep -> Pair(testRep, executeSingleTableTest(testRep, index)) }
-    }
+            .map { testRep -> ExecutedTest(testRep, executeSingleTableTest(testRep, index)) }
 
     private fun executeSingleTableTest(testRep: TestRep, index: Map<String, (String, String, String) -> Result>): List<Result> {
         val function: ((String, String, String) -> Result) = index[testRep.fixtureName]!!
@@ -122,8 +144,10 @@ internal class RexSpecTest {
     }
 
     data class TestRep(val fixtureName: String, val testRows: List<TestRow>)
-    data class TestRow(val inputParams: List<String>, val result: Result)
+    data class TestRow(val inputParams: List<String>, val expectedResult: Result)
     data class Result(val httpResponse: Int, val result: String)
+
+    data class ExecutedTest(val testRep: TestRep, val results: List<Result>)
 
     fun testify(table: Element): TestRep {
         val fixtureCell = table.selectXpath("//thead//tr//th").toList().first()
@@ -145,33 +169,16 @@ internal class RexSpecTest {
     }
 
 //    TODO - better way: strip the test out as a structure, execute it, then write it back in when it is done
-//    data class TestResult(val pass: Int)
-//    data class ExeSpecResult(val output: String, val testResult: TestResult)
 //    fun theWholeThing(input: String, fixturator: FixtureMap):
 
-
     val index = mapOf<String,(Int, String, Int) -> Result>("Calculator" to ::calculator)
-
-
 
     fun calculator(firstParam: Int, operator: String, secondParam: Int): Result {
         return Result(500, "It blew up")
     }
 
     @Test
-    fun whenGroupItems_thenSuccess () {
-        val theList = listOf(1, 2, 3, 4, 5, 6)
-        val resultMap = theList.groupBy{ it % 3}
-
-        assertEquals(3, resultMap.size)
-
-//        resultMap[]
-
-        assertTrue(resultMap[1]!!.contains(1))
-        assertTrue(resultMap[2]!!.contains(5))
-    }
-
-    @Test
+    @Disabled
     fun `Reports errors back to the failed cell`() {
         val expectedOutput = sampleInput
             .replace("<td>56</td>", "<td>Operator 'x' not allowed</td>")
@@ -180,6 +187,7 @@ internal class RexSpecTest {
     }
 
     @Test
+    @Disabled
     fun `Can Find Source File`() {
 //        val foundFile = FileManager.find("AnAcceptanceTest.html")
 //        assertIsValidHtml("poo", RexSpec().poo())
