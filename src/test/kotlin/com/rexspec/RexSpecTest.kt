@@ -3,8 +3,7 @@ package com.rexspec
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -53,76 +52,60 @@ internal class RexSpecTest {
 
     @Test
     fun `Can decorate a document by colouring in some cells`() {
-        val expectedOutput = sampleInput
-            .replace("<td>56</td>", "<td style=\"color: red\">56</td>")
+        val expectedOutput = sampleInput.replace("<td>56</td>", "<td style=\"color: red\">56</td>")
 
-        val doc: Document = Jsoup.parse(sampleInput)
-
-        doc.allElements.map(::testDecorator)
-
-        assertEquals(expectedOutput, doc.toString())
-    }
-
-    fun testDecorator(elem: Element): Element {
-        return when (elem.tagName()) {
-            "td" -> if (elem.text() == "56") elem.attr("style", elem.attr("style") + "color: red") else elem
-            else -> elem
-        }
-    }
-
-    @Test
-    fun `Can call methods on a fixture based on data in table cells`() {
-        data class Params(val firstParam: String, val operator: String, val secondParam: String)
-        val actualParams = mutableListOf<Params>()
-        val expectedParams = mutableListOf(
-            Params("7", "+", "8"),
-            Params("7", "x", "8")
-        )
-
-        fun fakeCalculatorFixture(firstParam: String, operator: String, secondParam: String): Result {
-            actualParams.add(Params(firstParam, operator, secondParam))
-            return Result(500, "Bang")
+        val elements = Jsoup.parse(sampleInput).allElements.map {
+            when (it.tagName()) {
+                "td" -> if (it.text() == "56") it.attr("style", it.attr("style") + "color: red") else it
+                else -> it
+            }
         }
 
-        val fakeIndex = mapOf<String,(String, String, String) -> Result>("Calculator" to ::fakeCalculatorFixture)
-
-        execute(sampleInput, fakeIndex)
-
-        assertEquals(expectedParams, actualParams)
+        assertEquals(expectedOutput, elements.first().toString())
     }
 
     @Test
     fun `Captures the results of fixture calls`() {
         val expectedResults = listOf(
-            Result(200, "15"),
-            Result(200, "56"),
-            )
+            RexResult(200, "15"),
+            RexResult(200, "56"),
+        )
 
-        fun fakeCalculatorFixture(firstParam: String, operator: String, secondParam: String): Result {
-            return if (operator == "+") Result(200, "15") else Result(200, "56")
-        }
-
-        val fakeIndex = mapOf<String,(String, String, String) -> Result>("Calculator" to ::fakeCalculatorFixture)
-
-        val results = execute(sampleInput, fakeIndex)
+        val results = execute(sampleInput, fakeFixtureReturning { operator -> if (operator == "+") RexResult(200, "15") else RexResult(200, "56") })
 
         results
             .flatMap { it.results }
             .zip(expectedResults)
             .forEach {(actual, expected) ->  assertEquals(expected, actual) }
-
     }
 
-    fun execute(input: String, index: Map<String,(String, String, String) -> Result>): List<ExecutedTest> =
+    private fun fakeFixtureReturning(function: (String) -> RexResult): Map<String, (String, String, String) -> RexResult> {
+        fun fakeCalculatorFixture(firstParam: String, operator: String, secondParam: String): RexResult = function(operator)
+
+        return mapOf<String,(String, String, String) -> RexResult>("Calculator" to ::fakeCalculatorFixture)
+    }
+
+    @Test
+    fun `We know if a test has passed or failed`() {
+        val passingResults = execute(sampleInput, fakeFixtureReturning { if (it == "+") RexResult(200, "15") else RexResult(200, "56") })
+
+        assertTrue(passingResults.first().success())
+
+        val failingResults = execute(sampleInput, fakeFixtureReturning { if (it == "+") RexResult(200, "15") else RexResult(500, "It go BOOM!!") })
+
+        assertFalse(failingResults.first().success())
+    }
+
+    fun execute(input: String, index: Map<String,(String, String, String) -> RexResult>): List<ExecutedTest> =
         Jsoup.parse(input).allElements
             .toList()
             .filter { it.tagName() == "table" }
             .map { testify(it) }
             .map { testRep -> ExecutedTest(testRep, executeSingleTableTest(testRep, index)) }
 
-    private fun executeSingleTableTest(testRep: TestRep, index: Map<String, (String, String, String) -> Result>): List<Result> {
-        val function: ((String, String, String) -> Result) = index[testRep.fixtureName]!!
-        return testRep.testRows
+    private fun executeSingleTableTest(rexTestRep: RexTestRep, index: Map<String, (String, String, String) -> RexResult>): List<RexResult> {
+        val function: ((String, String, String) -> RexResult) = index[rexTestRep.fixtureName]!!
+        return rexTestRep.rexTestRows
             .map{ row -> function(row.inputParams[0], row.inputParams[1], row.inputParams[2]) }
     }
 
@@ -132,49 +115,58 @@ internal class RexSpecTest {
             .toList()
             .first { it.tagName() == "table" }
 
-        val expectedResult = TestRep(
+        val expectedResult = RexTestRep(
             "Calculator",
             listOf(
-                TestRow(listOf("7", "+", "8"), Result(200, "15")),
-                TestRow(listOf("7", "x", "8"), Result(200, "56"))
+                RexTestRow(listOf("7", "+", "8"), RexResult(200, "15")),
+                RexTestRow(listOf("7", "x", "8"), RexResult(200, "56"))
             )
         )
 
         assertEquals(expectedResult, testify(tableElement))
     }
 
-    data class TestRep(val fixtureName: String, val testRows: List<TestRow>)
-    data class TestRow(val inputParams: List<String>, val expectedResult: Result)
-    data class Result(val httpResponse: Int, val result: String)
+    data class RexTestRep(val fixtureName: String, val rexTestRows: List<RexTestRow>)
+    data class RexTestRow(val inputParams: List<String>, val expectedResult: RexResult)
+    data class RexResult(val httpResponse: Int, val result: String)
 
-    data class ExecutedTest(val testRep: TestRep, val results: List<Result>)
+    data class ExecutedTest(val rexTestRep: RexTestRep, val results: List<RexResult>)
 
-    fun testify(table: Element): TestRep {
+    fun ExecutedTest.success(): Boolean {
+        rexTestRep.rexTestRows
+            .map { it.expectedResult }
+            .zip(results)
+            .forEach { (exp, act) -> if (exp != act) return false }
+
+        return true
+    }
+
+    fun testify(table: Element): RexTestRep {
         val fixtureCell = table.selectXpath("//thead//tr//th").toList().first()
         val hardcodedHeadifiers = listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result")
-        val testRows: List<TestRow> = table.selectXpath("//tbody//tr")
+        val rexTestRows: List<RexTestRow> = table.selectXpath("//tbody//tr")
             .toList()
             .map {
                 val (result, params) = it.children()
                     .toList()
                     .zip(hardcodedHeadifiers)
                     .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
-                TestRow(
+                RexTestRow(
                     params.map { (elem, _) -> elem.text() },
-                    Result(result.first().first.text().toInt(), result.last().first.text())
+                    RexResult(result.first().first.text().toInt(), result.last().first.text())
                 )
             }
 
-        return TestRep(fixtureCell.text(), testRows)
+        return RexTestRep(fixtureCell.text(), rexTestRows)
     }
 
 //    TODO - better way: strip the test out as a structure, execute it, then write it back in when it is done
 //    fun theWholeThing(input: String, fixturator: FixtureMap):
 
-    val index = mapOf<String,(Int, String, Int) -> Result>("Calculator" to ::calculator)
+    val index = mapOf<String,(Int, String, Int) -> RexResult>("Calculator" to ::calculator)
 
-    fun calculator(firstParam: Int, operator: String, secondParam: Int): Result {
-        return Result(500, "It blew up")
+    fun calculator(firstParam: Int, operator: String, secondParam: Int): RexResult {
+        return RexResult(500, "It blew up")
     }
 
     @Test
