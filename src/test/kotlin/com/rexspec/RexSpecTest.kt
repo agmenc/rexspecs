@@ -1,11 +1,11 @@
 package com.rexspec
 
 import com.rexspec.fixtures.calculatorFixture
+import org.http4k.core.*
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-
 
 val sampleInput = """
             |<html>
@@ -47,12 +47,12 @@ val sampleInput = """
             |</html>
         """.trimMargin()
 
+val expectedOutput = sampleInput.replace("<td>56</td>", "<td style=\"color: red\">56</td>")
+
 internal class RexSpecTest {
 
     @Test
     fun `Can decorate a document by colouring in some cells`() {
-        val expectedOutput = sampleInput.replace("<td>56</td>", "<td style=\"color: red\">56</td>")
-
         val elements = Jsoup.parse(sampleInput).allElements.map {
             when (it.tagName()) {
                 "td" -> if (it.text() == "56") it.attr("style", it.attr("style") + "color: red") else it
@@ -87,12 +87,16 @@ internal class RexSpecTest {
             RexResult(200, "56"),
         )
 
-        val results = execute(sampleInput, fakeFixtureReturning { operator -> if (operator == "+") RexResult(200, "15") else RexResult(200, "56") })
+        val spec = RexSpec(
+            sampleInput,
+            fakeFixtureReturning { if (it == "+") RexResult(200, "15") else RexResult(200, "56") },
+            allOkHttpHandler()
+        )
 
-        results
+        spec.execute()
             .flatMap { it.results }
             .zip(expectedResults)
-            .forEach {(actual, expected) ->  assertEquals(expected, actual) }
+            .forEach { (actual, expected) -> assertEquals(expected, actual) }
     }
 
     private fun fakeFixtureReturning(function: (String) -> RexResult): Map<String, (List<String>) -> RexResult> {
@@ -103,18 +107,49 @@ internal class RexSpecTest {
 
     @Test
     fun `We know if a test has passed or failed`() {
-        val passingResults = execute(sampleInput, fakeFixtureReturning { if (it == "+") RexResult(200, "15") else RexResult(200, "56") })
+        val passingSpec = RexSpec(
+            sampleInput,
+            fakeFixtureReturning { if (it == "+") RexResult(200, "15") else RexResult(200, "56") },
+            allOkHttpHandler()
+        )
 
-        assertTrue(passingResults.first().success())
+        assertTrue(passingSpec.execute().first().success())
 
-        val failingResults = execute(sampleInput, fakeFixtureReturning { if (it == "+") RexResult(200, "15") else RexResult(500, "It go BOOM!!") })
+        val failingSpec = RexSpec(
+            sampleInput,
+            fakeFixtureReturning { if (it == "+") RexResult(200, "15") else RexResult(500, "It go BOOM!!") },
+            allOkHttpHandler()
+        )
 
-        assertFalse(failingResults.first().success())
+        assertFalse(failingSpec.execute().first().success())
     }
 
     @Test
-    fun `Can Call a real fixture using a real index`() {
-        execute(sampleInput, mapOf("Calculator" to ::calculatorFixture))
+    fun `Can take my skeleton for a walk`() {
+        // parse the doc into test reps
+        // Use the fixture to get an HTML request
+        // Make the HTTP request
+        // Mock the response
+        // Convert the HTTP response into an ExecutedTestRep
+        // Generate the output doc
+        // Return (RexStatus, OutputDoc)
+
+        val index = mapOf("Calculator" to ::calculatorFixture)
+        val httpHandler: HttpHandler = stubbedHttpHandler(MemoryResponse(Status.OK, body = MemoryBody("monkeys")))
+        RexSpec(sampleInput, index, httpHandler).execute()
+
+//        val (status: RexStatus, sampleOutput: String) =
+//
+//        assertEquals(RexStatus.PASSED, status)
+//        assertEquals(expectedOutput, sampleOutput)
+    }
+
+    private fun allOkHttpHandler(): HttpHandler {
+        return { _: Request -> MemoryResponse(Status.OK, body = MemoryBody("Hello World")) }
+    }
+
+    private fun stubbedHttpHandler(stubbedResponse: Response): HttpHandler {
+        return { _: Request -> stubbedResponse }
     }
 
 //    TODO - better way: strip the test out as a structure, execute it, then write it back in when it is done
