@@ -89,7 +89,7 @@ internal class RexSpecTest {
 
         val spec = RexSpec(
             sampleInput,
-            fakeFixtureReturning { if (it == "+") RexResult(200, "15") else RexResult(200, "56") },
+            fakeFixtureReturning { Request(Method.POST, "localhost") },
             allOkHttpHandler()
         )
 
@@ -99,17 +99,23 @@ internal class RexSpecTest {
             .forEach { (actual, expected) -> assertEquals(expected, actual) }
     }
 
-    private fun fakeFixtureReturning(function: (String) -> RexResult): Map<String, (List<String>) -> RexResult> {
-        fun fakeCalculatorFixture(params: List<String>): RexResult = function(params[1])
+    private fun fakeFixtureReturning(function: (String) -> Request): Map<String, (List<String>) -> Request> {
+        fun fakeCalculatorFixture(params: List<String>): Request = function(params[1])
 
-        return mapOf<String,(List<String>) -> RexResult>("Calculator" to ::fakeCalculatorFixture)
+        return mapOf<String,(List<String>) -> Request>("Calculator" to ::fakeCalculatorFixture)
     }
 
     @Test
     fun `We know if a test has passed or failed`() {
+
+        val charset = Charsets.UTF_8
+        val byteArray: ByteArray = "Hello".toByteArray(charset)
+        println(byteArray.contentToString()) // [72, 101, 108, 108, 111]
+        println(byteArray.toString(charset)) // Hello
+
         val passingSpec = RexSpec(
             sampleInput,
-            fakeFixtureReturning { if (it == "+") RexResult(200, "15") else RexResult(200, "56") },
+            fakeFixtureReturning { Request(Method.POST, "localhost") },
             allOkHttpHandler()
         )
 
@@ -117,7 +123,7 @@ internal class RexSpecTest {
 
         val failingSpec = RexSpec(
             sampleInput,
-            fakeFixtureReturning { if (it == "+") RexResult(200, "15") else RexResult(500, "It go BOOM!!") },
+            fakeFixtureReturning { Request(Method.POST, "localhost") },
             allOkHttpHandler()
         )
 
@@ -134,6 +140,7 @@ internal class RexSpecTest {
         // Generate the output doc
         // Return (RexStatus, OutputDoc)
 
+        Request(Method.POST, "localhost")
         val index = mapOf("Calculator" to ::calculatorFixture)
         val httpHandler: HttpHandler = stubbedHttpHandler(MemoryResponse(Status.OK, body = MemoryBody("monkeys")))
         RexSpec(sampleInput, index, httpHandler).execute()

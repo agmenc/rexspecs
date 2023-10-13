@@ -1,12 +1,16 @@
 package com.rexspec
 
 import org.http4k.core.HttpHandler
+import org.http4k.core.Request
+import org.http4k.core.Response
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
+import java.nio.ByteBuffer
+import kotlin.text.Charsets.UTF_8
 
 data class RexSpec(
     val input: String,
-    val index: Map<String, (List<String>) -> RexResult>,
+    val index: Map<String, (List<String>) -> Request>,
     val httpHandler: HttpHandler
 ) {
     fun execute(): List<ExecutedTest> =
@@ -16,10 +20,27 @@ data class RexSpec(
             .map { testify(it) }
             .map { testRep -> ExecutedTest(testRep, executeSingleTableTest(testRep, index)) }
 
-    private fun executeSingleTableTest(rexTestRep: RexTestRep, index: Map<String, (List<String>) -> RexResult>): List<RexResult> {
-        val function: ((List<String>) -> RexResult) = index[rexTestRep.fixtureName]!!
+    private fun executeSingleTableTest(rexTestRep: RexTestRep, index: Map<String, (List<String>) -> Request>): List<RexResult> {
+        val function: ((List<String>) -> Request) = index[rexTestRep.fixtureName]!!
         return rexTestRep.rexTestRows
             .map{ row -> function(listOf(row.inputParams[0], row.inputParams[1], row.inputParams[2])) }
+            .map{ req -> hitTheApi(req) }
+            .map{ res -> toRexResults(res) }
+    }
+
+    private fun hitTheApi(request: Request): Response {
+        return httpHandler(request)
+    }
+
+    private fun toRexResults(response: Response): RexResult {
+        return RexResult(response.status.code, toByteArray(response.body.payload).toString(UTF_8))
+    }
+
+    // Horrible mutating Java use of get() that actually does a set() on the parameter
+    private fun toByteArray(byteBuf: ByteBuffer): ByteArray {
+        val byteArray = ByteArray(byteBuf.capacity())
+        byteBuf.get(byteArray)
+        return byteArray
     }
 }
 
