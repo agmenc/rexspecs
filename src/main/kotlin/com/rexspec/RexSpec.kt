@@ -36,10 +36,13 @@ data class RexSpec(
         return RexResult(response.status.code, toByteArray(response.body.payload).toString(UTF_8))
     }
 
-    // Horrible mutating Java use of get() that actually does a set() on the parameter
+    // Horrible mutating Java. Note that:
+    //  - get() actually does a set() on the parameter
+    //  - rewind() is necessary if we are re-using the response
     private fun toByteArray(byteBuf: ByteBuffer): ByteArray {
         val byteArray = ByteArray(byteBuf.capacity())
         byteBuf.get(byteArray)
+        byteBuf.rewind()
         return byteArray
     }
 }

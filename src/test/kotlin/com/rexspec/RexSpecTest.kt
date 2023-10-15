@@ -1,6 +1,6 @@
 package com.rexspec
 
-import com.rexspec.fixtures.calculatorFixture
+import com.rexspec.fixtures.calculatorRequestBuilder
 import org.http4k.core.*
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Assertions.*
@@ -89,8 +89,19 @@ internal class RexSpecTest {
 
         val spec = RexSpec(
             sampleInput,
-            fakeFixtureReturning { Request(Method.POST, "localhost") },
-            allOkHttpHandler()
+            mapOf("Calculator" to urlParamsRequestBuilder()),
+            stubbedHttpHandler(
+                mapOf(
+                    Request(Method.GET, "http://someserver.com/target?p0=7&p1=%2b&p2=8") to MemoryResponse(
+                        Status.OK,
+                        body = MemoryBody("15")
+                    ),
+                    Request(Method.GET, "http://someserver.com/target?p0=7&p1=x&p2=8") to MemoryResponse(
+                        Status.OK,
+                        body = MemoryBody("56")
+                    )
+                )
+            )
         )
 
         spec.execute()
@@ -99,51 +110,55 @@ internal class RexSpecTest {
             .forEach { (actual, expected) -> assertEquals(expected, actual) }
     }
 
-    private fun fakeFixtureReturning(function: (String) -> Request): Map<String, (List<String>) -> Request> {
-        fun fakeCalculatorFixture(params: List<String>): Request = function(params[1])
+    private fun urlParamsRequestBuilder(): (List<String>) -> Request = { params: List<String> ->
+        Request(Method.GET, "http://someserver.com/target?p0=${params[0]}&p1=${encodePlus(params[1])}&p2=${params[2]}")
+    }
 
-        return mapOf<String,(List<String>) -> Request>("Calculator" to ::fakeCalculatorFixture)
+    private fun encodePlus(param: String) = if (param == "+") "%2b" else param
+
+    @Test
+    fun `We know that a passing test has passed`() {
+        val passingSpec = RexSpec(
+            sampleInput,
+            mapOf("Calculator" to urlParamsRequestBuilder()),
+            stubbedHttpHandler(
+                mapOf(
+                    Request(Method.GET, "http://someserver.com/target?p0=7&p1=%2b&p2=8") to MemoryResponse(
+                        Status.OK,
+                        body = MemoryBody("15")
+                    ),
+                    Request(Method.GET, "http://someserver.com/target?p0=7&p1=x&p2=8") to MemoryResponse(
+                        Status.OK,
+                        body = MemoryBody("56")
+                    )
+                )
+            )
+        )
+
+        assertTrue(passingSpec.execute().fold(true, { allGood, nextTest -> allGood && nextTest.success() }))
     }
 
     @Test
-    fun `We know if a test has passed or failed`() {
-
-        val charset = Charsets.UTF_8
-        val byteArray: ByteArray = "Hello".toByteArray(charset)
-        println(byteArray.contentToString()) // [72, 101, 108, 108, 111]
-        println(byteArray.toString(charset)) // Hello
-
-        val passingSpec = RexSpec(
-            sampleInput,
-            fakeFixtureReturning { Request(Method.POST, "localhost") },
-            allOkHttpHandler()
-        )
-
-        assertTrue(passingSpec.execute().first().success())
-
+    fun `We know that a failing test has failed`() {
         val failingSpec = RexSpec(
             sampleInput,
-            fakeFixtureReturning { Request(Method.POST, "localhost") },
-            allOkHttpHandler()
+            mapOf("Calculator" to urlParamsRequestBuilder()),
+            stubbedHttpHandler(mapOf())
         )
 
-        assertFalse(failingSpec.execute().first().success())
+        assertFalse(failingSpec.execute().fold(true, { allGood, nextTest -> allGood && nextTest.success() }))
     }
 
     @Test
     fun `Can take my skeleton for a walk`() {
-        // parse the doc into test reps
-        // Use the fixture to get an HTML request
-        // Make the HTTP request
-        // Mock the response
+        val index = mapOf("Calculator" to ::calculatorRequestBuilder)
+        val calls = mapOf(Request(Method.POST, "localhost") to MemoryResponse(Status.OK, body = MemoryBody("monkeys")))
+        val httpHandler: HttpHandler = stubbedHttpHandler(calls)
+        RexSpec(sampleInput, index, httpHandler).execute()
+
         // Convert the HTTP response into an ExecutedTestRep
         // Generate the output doc
         // Return (RexStatus, OutputDoc)
-
-        Request(Method.POST, "localhost")
-        val index = mapOf("Calculator" to ::calculatorFixture)
-        val httpHandler: HttpHandler = stubbedHttpHandler(MemoryResponse(Status.OK, body = MemoryBody("monkeys")))
-        RexSpec(sampleInput, index, httpHandler).execute()
 
 //        val (status: RexStatus, sampleOutput: String) =
 //
@@ -151,12 +166,8 @@ internal class RexSpecTest {
 //        assertEquals(expectedOutput, sampleOutput)
     }
 
-    private fun allOkHttpHandler(): HttpHandler {
-        return { _: Request -> MemoryResponse(Status.OK, body = MemoryBody("Hello World")) }
-    }
-
-    private fun stubbedHttpHandler(stubbedResponse: Response): HttpHandler {
-        return { _: Request -> stubbedResponse }
+    private fun stubbedHttpHandler(calls: Map<Request, Response>): HttpHandler = { req: Request ->
+        calls.getOrDefault(req, MemoryResponse(Status.EXPECTATION_FAILED, body = MemoryBody("Unstubbed API call")))
     }
 
 //    TODO - better way: strip the test out as a structure, execute it, then write it back in when it is done
