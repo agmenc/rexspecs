@@ -69,22 +69,22 @@ internal class RexSpecTest {
             .toList()
             .first { it.tagName() == "table" }
 
-        val expectedResult = RexTestRep(
+        val expectedResult = TableRep(
             "Calculator",
             listOf(
-                RexTestRow(listOf("7", "+", "8"), RexResult(200, "15")),
-                RexTestRow(listOf("7", "x", "8"), RexResult(200, "56"))
+                RowRep(listOf("7", "+", "8"), RowResult(200, "15")),
+                RowRep(listOf("7", "x", "8"), RowResult(200, "56"))
             )
         )
 
-        assertEquals(expectedResult, testify(tableElement))
+        assertEquals(expectedResult, convertTablesToTestReps(tableElement))
     }
 
     @Test
     fun `Captures the results of fixture calls`() {
         val expectedResults = listOf(
-            RexResult(200, "15"),
-            RexResult(200, "56"),
+            RowResult(200, "15"),
+            RowResult(200, "56"),
         )
 
         val spec = RexSpec(
@@ -104,8 +104,8 @@ internal class RexSpecTest {
             )
         )
 
-        spec.execute()
-            .flatMap { it.results }
+        spec.execute().tables
+            .flatMap { it.rowResults }
             .zip(expectedResults)
             .forEach { (actual, expected) -> assertEquals(expected, actual) }
     }
@@ -135,7 +135,7 @@ internal class RexSpecTest {
             )
         )
 
-        assertTrue(passingSpec.execute().fold(true, { allGood, nextTest -> allGood && nextTest.success() }))
+        assertTrue(passingSpec.execute().success())
     }
 
     @Test
@@ -146,15 +146,15 @@ internal class RexSpecTest {
             stubbedHttpHandler(mapOf())
         )
 
-        assertFalse(failingSpec.execute().fold(true, { allGood, nextTest -> allGood && nextTest.success() }))
+        assertFalse(failingSpec.execute().success())
     }
 
     @Test
     fun `Can take my skeleton for a walk`() {
-        val index = mapOf("Calculator" to ::calculatorRequestBuilder)
         val calls = mapOf(Request(Method.POST, "localhost") to MemoryResponse(Status.OK, body = MemoryBody("monkeys")))
-        val httpHandler: HttpHandler = stubbedHttpHandler(calls)
-        RexSpec(sampleInput, index, httpHandler).execute()
+        val spec = RexSpec(sampleInput, mapOf("Calculator" to ::calculatorRequestBuilder), stubbedHttpHandler(calls))
+
+        val results: ExecutedSpec = spec.execute()
 
         // Convert the HTTP response into an ExecutedTestRep
         // Generate the output doc

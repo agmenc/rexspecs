@@ -13,27 +13,28 @@ data class RexSpec(
     val index: Map<String, (List<String>) -> Request>,
     val httpHandler: HttpHandler
 ) {
-    fun execute(): List<ExecutedTest> =
+    fun execute(): ExecutedSpec = ExecutedSpec(
         Jsoup.parse(input).allElements
             .toList()
             .filter { it.tagName() == "table" }
-            .map { testify(it) }
-            .map { testRep -> ExecutedTest(testRep, executeSingleTableTest(testRep, index)) }
+            .map { convertTablesToTestReps(it) }
+            .map { testRep -> ExecutedTable(testRep, executeTable(testRep, index)) }
+    )
 
-    private fun executeSingleTableTest(rexTestRep: RexTestRep, index: Map<String, (List<String>) -> Request>): List<RexResult> {
-        val function: ((List<String>) -> Request) = index[rexTestRep.fixtureName]!!
-        return rexTestRep.rexTestRows
-            .map{ row -> function(listOf(row.inputParams[0], row.inputParams[1], row.inputParams[2])) }
-            .map{ req -> hitTheApi(req) }
-            .map{ res -> toRexResults(res) }
+    private fun executeTable(tableRep: TableRep, index: Map<String, (List<String>) -> Request>): List<RowResult> {
+        val function: ((List<String>) -> Request) = index[tableRep.fixtureName]!!
+        return tableRep.rowReps
+            .map { row -> function(listOf(row.inputParams[0], row.inputParams[1], row.inputParams[2])) }
+            .map { req -> hitTheApi(req) }
+            .map { res -> toRexResults(res) }
     }
 
     private fun hitTheApi(request: Request): Response {
         return httpHandler(request)
     }
 
-    private fun toRexResults(response: Response): RexResult {
-        return RexResult(response.status.code, toByteArray(response.body.payload).toString(UTF_8))
+    private fun toRexResults(response: Response): RowResult {
+        return RowResult(response.status.code, toByteArray(response.body.payload).toString(UTF_8))
     }
 
     // Horrible mutating Java. Note that:
@@ -47,36 +48,42 @@ data class RexSpec(
     }
 }
 
-data class RexTestRep(val fixtureName: String, val rexTestRows: List<RexTestRow>)
-data class RexTestRow(val inputParams: List<String>, val expectedResult: RexResult)
-data class RexResult(val httpResponse: Int, val result: String)
-data class ExecutedTest(val rexTestRep: RexTestRep, val results: List<RexResult>)
-enum class RexStatus { PASSED, FAILED, IGNORED }
+data class TableRep(val fixtureName: String, val rowReps: List<RowRep>)
+data class RowRep(val inputParams: List<String>, val expectedResult: RowResult)
+data class RowResult(val httpResponse: Int, val result: String)
 
-fun ExecutedTest.success(): Boolean {
-    rexTestRep.rexTestRows
+enum class RowStatus { PASSED, FAILED, IGNORED }
+
+data class ExecutedSpec(val tables: List<ExecutedTable>)
+
+fun ExecutedSpec.success(): Boolean = tables.fold(true) { allGood, nextTest -> allGood && nextTest.success() }
+
+data class ExecutedTable(val tableRep: TableRep, val rowResults: List<RowResult>)
+
+fun ExecutedTable.success(): Boolean {
+    tableRep.rowReps
         .map { it.expectedResult }
-        .zip(results)
+        .zip(rowResults)
         .forEach { (exp, act) -> if (exp != act) return false }
 
     return true
 }
 
-fun testify(table: Element): RexTestRep {
+fun convertTablesToTestReps(table: Element): TableRep {
     val fixtureCell = table.selectXpath("//thead//tr//th").toList().first()
     val hardcodedHeadifiers = listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result")
-    val rexTestRows: List<RexTestRow> = table.selectXpath("//tbody//tr")
+    val rowReps: List<RowRep> = table.selectXpath("//tbody//tr")
         .toList()
         .map {
             val (result, params) = it.children()
                 .toList()
                 .zip(hardcodedHeadifiers)
                 .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
-            RexTestRow(
+            RowRep(
                 params.map { (elem, _) -> elem.text() },
-                RexResult(result.first().first.text().toInt(), result.last().first.text())
+                RowResult(result.first().first.text().toInt(), result.last().first.text())
             )
         }
 
-    return RexTestRep(fixtureCell.text(), rexTestRows)
+    return TableRep(fixtureCell.text(), rowReps)
 }
