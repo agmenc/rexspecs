@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-val sampleInput = """
+private val sampleInput = """
             |<html>
             | <head></head>
             | <body>
@@ -47,9 +47,20 @@ val sampleInput = """
             |</html>
         """.trimMargin()
 
-val expectedOutput = sampleInput
+private val expectedOutput = sampleInput
     .replace("<td>56</td>",  "<td style=\"color: red\">Expected [56] but was [Unsupported operator: \"x\"]</td>")
     .replace("<td>201</td>", "<td style=\"color: red\">Expected [200] but was: [500]</td>")
+
+private val calculationsSucceed = mapOf(
+    Request(Method.GET, "http://someserver.com/target?p0=7&p1=%2b&p2=8") to MemoryResponse(
+        Status.OK,
+        body = MemoryBody("15")
+    ),
+    Request(Method.GET, "http://someserver.com/target?p0=7&p1=x&p2=8") to MemoryResponse(
+        Status.CREATED,
+        body = MemoryBody("56")
+    )
+)
 
 internal class RexSpecTest {
 
@@ -75,24 +86,13 @@ internal class RexSpecTest {
     fun `Captures the results of fixture calls`() {
         val expectedResults = listOf(
             RowResult("200", "15"),
-            RowResult("200", "56"),
+            RowResult("201", "56"),
         )
 
         val spec = RexSpec(
             sampleInput,
             mapOf("Calculator" to urlParamsRequestBuilder()),
-            stubbedHttpHandler(
-                mapOf(
-                    Request(Method.GET, "http://someserver.com/target?p0=7&p1=%2b&p2=8") to MemoryResponse(
-                        Status.OK,
-                        body = MemoryBody("15")
-                    ),
-                    Request(Method.GET, "http://someserver.com/target?p0=7&p1=x&p2=8") to MemoryResponse(
-                        Status.OK,
-                        body = MemoryBody("56")
-                    )
-                )
-            )
+            stubbedHttpHandler(calculationsSucceed)
         )
 
         spec.execute().executedTables
@@ -112,18 +112,7 @@ internal class RexSpecTest {
         val passingSpec = RexSpec(
             sampleInput,
             mapOf("Calculator" to urlParamsRequestBuilder()),
-            stubbedHttpHandler(
-                mapOf(
-                    Request(Method.GET, "http://someserver.com/target?p0=7&p1=%2b&p2=8") to MemoryResponse(
-                        Status.OK,
-                        body = MemoryBody("15")
-                    ),
-                    Request(Method.GET, "http://someserver.com/target?p0=7&p1=x&p2=8") to MemoryResponse(
-                        Status.CREATED,
-                        body = MemoryBody("56")
-                    )
-                )
-            )
+            stubbedHttpHandler(calculationsSucceed)
         )
 
         val executedSpec = passingSpec.execute()
@@ -143,7 +132,7 @@ internal class RexSpecTest {
     }
 
     @Test
-    fun `I can redraw tables into the output doc`() {
+    fun `Can redraw tables into the output doc`() {
         val expectedRow1 = RowRep(listOf("7", "+", "8"), RowResult("200", "15"))
         val expectedRow2 = RowRep(listOf("7", "x", "8"), RowResult("200", "56"))
         val actualRow1 = RowResult("200", "15")
@@ -167,28 +156,22 @@ internal class RexSpecTest {
     }
 
     @Test
-    fun `Can take my skeleton for a walk`() {
-        val calls = mapOf(Request(Method.POST, "localhost") to MemoryResponse(Status.OK, body = MemoryBody("monkeys")))
-        val spec = RexSpec(sampleInput, mapOf("Calculator" to ::calculatorRequestBuilder), stubbedHttpHandler(calls))
+    fun `Can use Fixture to build HTTP requests`() {
+        val spec = RexSpec(
+            sampleInput,
+            mapOf("Calculator" to ::calculatorRequestBuilder),
+            stubbedHttpHandler(calculationsSucceed)
+        )
 
-        val results: ExecutedSpec = spec.execute()
+        val executedSpec = spec.execute()
 
-        // Generate the output doc
-
-        // Return (RexStatus, OutputDoc)
-
-//        val (status: RexStatus, sampleOutput: String) =
-//
-//        assertEquals(RexStatus.PASSED, status)
-//        assertEquals(expectedOutput, sampleOutput)
+        assertEquals(sampleInput, executedSpec.output())
+        assertTrue(executedSpec.success())
     }
 
     private fun stubbedHttpHandler(calls: Map<Request, Response>): HttpHandler = { req: Request ->
         calls.getOrDefault(req, MemoryResponse(Status.EXPECTATION_FAILED, body = MemoryBody("Unstubbed API call")))
     }
-
-//    TODO - better way: strip the test out as a structure, execute it, then write it back in when it is done
-//    fun theWholeThing(input: String, fixturator: FixtureMap):
 
     @Test
     @Disabled
