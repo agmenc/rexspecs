@@ -37,7 +37,7 @@ val sampleInput = """
             |     <td>7</td>
             |     <td>x</td>
             |     <td>8</td>
-            |     <td>200</td>
+            |     <td>201</td>
             |     <td>56</td>
             |    </tr>
             |   </tbody>
@@ -47,7 +47,9 @@ val sampleInput = """
             |</html>
         """.trimMargin()
 
-val expectedOutput = sampleInput.replace("<td>56</td>", "<td style=\"color: red\">Expected [56] but was [Unsupported operator: \"x\"]</td>")
+val expectedOutput = sampleInput
+    .replace("<td>56</td>",  "<td style=\"color: red\">Expected [56] but was [Unsupported operator: \"x\"]</td>")
+    .replace("<td>201</td>", "<td style=\"color: red\">Expected [200] but was: [500]</td>")
 
 internal class RexSpecTest {
 
@@ -151,10 +153,10 @@ internal class RexSpecTest {
 
     @Test
     fun `I can redraw tables into the output doc`() {
-        val expectedRow1 = RowRep(listOf("param1", "param2", "param3"), RowResult("200", "It worked"))
-        val expectedRow2 = RowRep(listOf("param1", "param2", "param3"), RowResult("200", "It worked again"))
-        val actualRow1 = RowResult("200", "It worked")
-        val actualRow2 = RowResult("500", "It go BOOM")
+        val expectedRow1 = RowRep(listOf("7", "+", "8"), RowResult("200", "15"))
+        val expectedRow2 = RowRep(listOf("7", "x", "8"), RowResult("200", "56"))
+        val actualRow1 = RowResult("200", "15")
+        val actualRow2 = RowResult("500", "Unsupported operator: \"x\"")
 
         val executedSpec = ExecutedSpec(
             sampleInput,

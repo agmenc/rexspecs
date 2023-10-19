@@ -80,6 +80,7 @@ fun RowRep.toTableRow(resultRow: RowResult): Element {
     val paramsCells = inputParams.map { param -> Element("td").html(param) }
     val responseCell = Element("td").html(expectedButWas(expectedResult.httpResponse, resultRow.httpResponse))
     val resultCell = Element("td").html(expectedButWas(expectedResult.result, resultRow.result))
+    println("xxx")
     return Element("tr").appendChildren(paramsCells + responseCell + resultCell)
 }
 
