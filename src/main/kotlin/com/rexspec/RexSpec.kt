@@ -56,16 +56,16 @@ fun htmlToTables(inputDocument: Document) = inputDocument.allElements
 data class TableRep(val fixtureName: String, val columnNames: List<String>, val rowReps: List<RowRep>)
 
 fun convertTablesToTableReps(table: Element): TableRep {
-    val headerRows = table.selectXpath("//thead//tr").toList()
+    val headerRows = table.selectXpath("thead//tr").toList()
     val (first, second) = headerRows
-    val fixtureCell = first.selectXpath("//thead//tr//th").toList().first()
-    val headers = second.selectXpath("//thead//tr//th").toList().map { it.text() }
-    val rowReps: List<RowRep> = table.selectXpath("//tbody//tr")
+    val fixtureCell = first.selectXpath("th").toList().first()
+    val columnHeaders = second.selectXpath("th").toList().map { it.text() }
+    val rowReps: List<RowRep> = table.selectXpath("tbody//tr")
         .toList()
         .map {
             val (result, params) = it.children()
                 .toList()
-                .zip(headers)
+                .zip(columnHeaders)
                 .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
             RowRep(
                 params.map { (elem, _) -> elem.text() },
@@ -73,7 +73,7 @@ fun convertTablesToTableReps(table: Element): TableRep {
             )
         }
 
-    return TableRep(fixtureCell.text(), headers, rowReps)
+    return TableRep(fixtureCell.text(), columnHeaders, rowReps)
 }
 
 data class RowRep(val inputParams: List<String>, val expectedResult: RowResult)

@@ -54,18 +54,6 @@ val expectedOutput = sampleInput
 internal class RexSpecTest {
 
     @Test
-    fun `Can decorate a document by colouring in some cells`() {
-        val elements = Jsoup.parse(sampleInput).allElements.map {
-            when (it.tagName()) {
-                "td" -> if (it.text() == "56") it.attr("style", it.attr("style") + "color: red") else it
-                else -> it
-            }
-        }
-
-        assertEquals(expectedOutput, elements.first().toString())
-    }
-
-    @Test
     fun `Can convert a table to a test representation`() {
         val tableElement = Jsoup.parse(sampleInput).allElements
             .toList()
@@ -76,7 +64,7 @@ internal class RexSpecTest {
             listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
             listOf(
                 RowRep(listOf("7", "+", "8"), RowResult("200", "15")),
-                RowRep(listOf("7", "x", "8"), RowResult("200", "56"))
+                RowRep(listOf("7", "x", "8"), RowResult("201", "56"))
             )
         )
 
@@ -131,14 +119,16 @@ internal class RexSpecTest {
                         body = MemoryBody("15")
                     ),
                     Request(Method.GET, "http://someserver.com/target?p0=7&p1=x&p2=8") to MemoryResponse(
-                        Status.OK,
+                        Status.CREATED,
                         body = MemoryBody("56")
                     )
                 )
             )
         )
 
-        assertTrue(passingSpec.execute().success())
+        val executedSpec = passingSpec.execute()
+        assertEquals(sampleInput, executedSpec.output())
+        assertTrue(executedSpec.success())
     }
 
     @Test
