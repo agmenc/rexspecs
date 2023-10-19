@@ -73,6 +73,7 @@ internal class RexSpecTest {
 
         val expectedResult = TableRep(
             "Calculator",
+            listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
             listOf(
                 RowRep(listOf("7", "+", "8"), RowResult("200", "15")),
                 RowRep(listOf("7", "x", "8"), RowResult("200", "56"))
@@ -162,7 +163,11 @@ internal class RexSpecTest {
             sampleInput,
             listOf(
                 ExecutedTable(
-                    TableRep("Calculator", listOf(expectedRow1, expectedRow2)),
+                    TableRep(
+                        "Calculator",
+                        listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
+                        listOf(expectedRow1, expectedRow2)
+                    ),
                     listOf(actualRow1, actualRow2)
                 )
             )

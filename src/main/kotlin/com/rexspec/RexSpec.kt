@@ -53,17 +53,19 @@ fun htmlToTables(inputDocument: Document) = inputDocument.allElements
     .toList()
     .filter { it.tagName() == "table" }
 
-data class TableRep(val fixtureName: String, val rowReps: List<RowRep>)
+data class TableRep(val fixtureName: String, val columnNames: List<String>, val rowReps: List<RowRep>)
 
 fun convertTablesToTableReps(table: Element): TableRep {
-    val fixtureCell = table.selectXpath("//thead//tr//th").toList().first()
-    val hardcodedHeadifiers = listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result")
+    val headerRows = table.selectXpath("//thead//tr").toList()
+    val (first, second) = headerRows
+    val fixtureCell = first.selectXpath("//thead//tr//th").toList().first()
+    val headers = second.selectXpath("//thead//tr//th").toList().map { it.text() }
     val rowReps: List<RowRep> = table.selectXpath("//tbody//tr")
         .toList()
         .map {
             val (result, params) = it.children()
                 .toList()
-                .zip(hardcodedHeadifiers)
+                .zip(headers)
                 .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
             RowRep(
                 params.map { (elem, _) -> elem.text() },
@@ -71,7 +73,7 @@ fun convertTablesToTableReps(table: Element): TableRep {
             )
         }
 
-    return TableRep(fixtureCell.text(), rowReps)
+    return TableRep(fixtureCell.text(), headers, rowReps)
 }
 
 data class RowRep(val inputParams: List<String>, val expectedResult: RowResult)
@@ -80,7 +82,6 @@ fun RowRep.toTableRow(resultRow: RowResult): Element {
     val paramsCells = inputParams.map { param -> Element("td").html(param) }
     val responseCell = Element("td").html(expectedButWas(expectedResult.httpResponse, resultRow.httpResponse))
     val resultCell = Element("td").html(expectedButWas(expectedResult.result, resultRow.result))
-    println("xxx")
     return Element("tr").appendChildren(paramsCells + responseCell + resultCell)
 }
 
@@ -111,7 +112,7 @@ data class ExecutedTable(val tableRep: TableRep, val actualRowResults: List<RowR
 fun ExecutedTable.toTable(): MutableCollection<out Node> {
     val header = Element("thead")
     header.appendElement("tr").appendElement("th").html(tableRep.fixtureName)
-    header.appendElement("tr").appendElement("th").html("Need to record the bloody column names")
+    header.appendElement("tr").appendChildren(tableRep.columnNames.map { Element("th").html(it) })
 
     val body = Element("tbody")
     val bodyRows: List<Element> = tableRep.rowReps
