@@ -80,13 +80,18 @@ data class RowRep(val inputParams: List<String>, val expectedResult: RowResult)
 
 fun RowRep.toTableRow(resultRow: RowResult): Element {
     val paramsCells = inputParams.map { param -> Element("td").html(param) }
-    val responseCell = Element("td").html(expectedButWas(expectedResult.httpResponse, resultRow.httpResponse))
-    val resultCell = Element("td").html(expectedButWas(expectedResult.result, resultRow.result))
+    val responseCell = expectedButWas(expectedResult.httpResponse, resultRow.httpResponse)
+    val resultCell = expectedButWas(expectedResult.result, resultRow.result)
     return Element("tr").appendChildren(paramsCells + responseCell + resultCell)
 }
 
-fun expectedButWas(expected: String, actual: String): String =
-    if (expected == actual) actual else "Expected [$expected] but was: [$actual]"
+fun expectedButWas(expected: String, actual: String): Element =
+    if (expected == actual)
+        Element("td").html(actual)
+    else
+        Element("td")
+            .attr("style", "color: red")
+            .html("Expected [$expected] but was: [$actual]")
 
 data class RowResult(val httpResponse: String, val result: String)
 

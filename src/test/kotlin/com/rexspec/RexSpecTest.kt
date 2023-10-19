@@ -48,7 +48,7 @@ private val sampleInput = """
         """.trimMargin()
 
 private val expectedOutput = sampleInput
-    .replace("<td>56</td>",  "<td style=\"color: red\">Expected [56] but was [Unsupported operator: \"x\"]</td>")
+    .replace("<td>56</td>",  "<td style=\"color: red\">Expected [56] but was: [Unsupported operator: \"x\"]</td>")
     .replace("<td>201</td>", "<td style=\"color: red\">Expected [200] but was: [500]</td>")
 
 private val calculationsSucceed = mapOf(
