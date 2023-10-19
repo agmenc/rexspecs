@@ -4,7 +4,9 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.jsoup.nodes.Node
 import java.nio.ByteBuffer
 import kotlin.text.Charsets.UTF_8
 
@@ -14,10 +16,9 @@ data class RexSpec(
     val httpHandler: HttpHandler
 ) {
     fun execute(): ExecutedSpec = ExecutedSpec(
-        Jsoup.parse(input).allElements
-            .toList()
-            .filter { it.tagName() == "table" }
-            .map { convertTablesToTestReps(it) }
+        input,
+        htmlToTables(Jsoup.parse(input))
+            .map { convertTablesToTableReps(it) }
             .map { testRep -> ExecutedTable(testRep, executeTable(testRep, index)) }
     )
 
@@ -34,7 +35,7 @@ data class RexSpec(
     }
 
     private fun toRexResults(response: Response): RowResult {
-        return RowResult(response.status.code, toByteArray(response.body.payload).toString(UTF_8))
+        return RowResult(response.status.code.toString(), toByteArray(response.body.payload).toString(UTF_8))
     }
 
     // Horrible mutating Java. Note that:
@@ -48,28 +49,13 @@ data class RexSpec(
     }
 }
 
+fun htmlToTables(inputDocument: Document) = inputDocument.allElements
+    .toList()
+    .filter { it.tagName() == "table" }
+
 data class TableRep(val fixtureName: String, val rowReps: List<RowRep>)
-data class RowRep(val inputParams: List<String>, val expectedResult: RowResult)
-data class RowResult(val httpResponse: Int, val result: String)
 
-enum class RowStatus { PASSED, FAILED, IGNORED }
-
-data class ExecutedSpec(val tables: List<ExecutedTable>)
-
-fun ExecutedSpec.success(): Boolean = tables.fold(true) { allGood, nextTest -> allGood && nextTest.success() }
-
-data class ExecutedTable(val tableRep: TableRep, val rowResults: List<RowResult>)
-
-fun ExecutedTable.success(): Boolean {
-    tableRep.rowReps
-        .map { it.expectedResult }
-        .zip(rowResults)
-        .forEach { (exp, act) -> if (exp != act) return false }
-
-    return true
-}
-
-fun convertTablesToTestReps(table: Element): TableRep {
+fun convertTablesToTableReps(table: Element): TableRep {
     val fixtureCell = table.selectXpath("//thead//tr//th").toList().first()
     val hardcodedHeadifiers = listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result")
     val rowReps: List<RowRep> = table.selectXpath("//tbody//tr")
@@ -81,9 +67,66 @@ fun convertTablesToTestReps(table: Element): TableRep {
                 .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
             RowRep(
                 params.map { (elem, _) -> elem.text() },
-                RowResult(result.first().first.text().toInt(), result.last().first.text())
+                RowResult(result.first().first.text(), result.last().first.text())
             )
         }
 
     return TableRep(fixtureCell.text(), rowReps)
+}
+
+data class RowRep(val inputParams: List<String>, val expectedResult: RowResult)
+
+fun RowRep.toTableRow(resultRow: RowResult): Element {
+    val paramsCells = inputParams.map { param -> Element("td").html(param) }
+    val responseCell = Element("td").html(expectedButWas(expectedResult.httpResponse, resultRow.httpResponse))
+    val resultCell = Element("td").html(expectedButWas(expectedResult.result, resultRow.result))
+    return Element("tr").appendChildren(paramsCells + responseCell + resultCell)
+}
+
+fun expectedButWas(expected: String, actual: String): String =
+    if (expected == actual) actual else "Expected [$expected] but was: [$actual]"
+
+data class RowResult(val httpResponse: String, val result: String)
+
+enum class RowStatus { PASSED, FAILED, IGNORED }
+
+data class ExecutedSpec(val input: String, val executedTables: List<ExecutedTable>)
+
+fun ExecutedSpec.output(): String {
+    val document = Jsoup.parse(input)
+    htmlToTables(document)
+        .zip(executedTables)
+        .map { (tableElem, result) ->
+            tableElem.empty()
+            tableElem.appendChildren(result.toTable())}
+
+    return document.toString()
+}
+
+fun ExecutedSpec.success(): Boolean = executedTables.fold(true) { allGood, nextTest -> allGood && nextTest.success() }
+
+data class ExecutedTable(val tableRep: TableRep, val actualRowResults: List<RowResult>)
+
+fun ExecutedTable.toTable(): MutableCollection<out Node> {
+    val header = Element("thead")
+    header.appendElement("tr").appendElement("th").html(tableRep.fixtureName)
+    header.appendElement("tr").appendElement("th").html("Need to record the bloody column names")
+
+    val body = Element("tbody")
+    val bodyRows: List<Element> = tableRep.rowReps
+        .zip(actualRowResults)
+        .map { (inputRow, resultRow) -> inputRow.toTableRow(resultRow) }
+
+    body.appendChildren(bodyRows)
+
+    return mutableListOf(header, body)
+}
+
+fun ExecutedTable.success(): Boolean {
+    tableRep.rowReps
+        .map { it.expectedResult }
+        .zip(actualRowResults)
+        .forEach { (expected, actual) -> if (expected != actual) return false }
+
+    return true
 }

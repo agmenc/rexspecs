@@ -47,7 +47,7 @@ val sampleInput = """
             |</html>
         """.trimMargin()
 
-val expectedOutput = sampleInput.replace("<td>56</td>", "<td style=\"color: red\">56</td>")
+val expectedOutput = sampleInput.replace("<td>56</td>", "<td style=\"color: red\">Expected [56] but was [Unsupported operator: \"x\"]</td>")
 
 internal class RexSpecTest {
 
@@ -72,19 +72,19 @@ internal class RexSpecTest {
         val expectedResult = TableRep(
             "Calculator",
             listOf(
-                RowRep(listOf("7", "+", "8"), RowResult(200, "15")),
-                RowRep(listOf("7", "x", "8"), RowResult(200, "56"))
+                RowRep(listOf("7", "+", "8"), RowResult("200", "15")),
+                RowRep(listOf("7", "x", "8"), RowResult("200", "56"))
             )
         )
 
-        assertEquals(expectedResult, convertTablesToTestReps(tableElement))
+        assertEquals(expectedResult, convertTablesToTableReps(tableElement))
     }
 
     @Test
     fun `Captures the results of fixture calls`() {
         val expectedResults = listOf(
-            RowResult(200, "15"),
-            RowResult(200, "56"),
+            RowResult("200", "15"),
+            RowResult("200", "56"),
         )
 
         val spec = RexSpec(
@@ -104,8 +104,8 @@ internal class RexSpecTest {
             )
         )
 
-        spec.execute().tables
-            .flatMap { it.rowResults }
+        spec.execute().executedTables
+            .flatMap { it.actualRowResults }
             .zip(expectedResults)
             .forEach { (actual, expected) -> assertEquals(expected, actual) }
     }
@@ -150,14 +150,34 @@ internal class RexSpecTest {
     }
 
     @Test
+    fun `I can redraw tables into the output doc`() {
+        val expectedRow1 = RowRep(listOf("param1", "param2", "param3"), RowResult("200", "It worked"))
+        val expectedRow2 = RowRep(listOf("param1", "param2", "param3"), RowResult("200", "It worked again"))
+        val actualRow1 = RowResult("200", "It worked")
+        val actualRow2 = RowResult("500", "It go BOOM")
+
+        val executedSpec = ExecutedSpec(
+            sampleInput,
+            listOf(
+                ExecutedTable(
+                    TableRep("Calculator", listOf(expectedRow1, expectedRow2)),
+                    listOf(actualRow1, actualRow2)
+                )
+            )
+        )
+
+        assertEquals(expectedOutput, executedSpec.output())
+    }
+
+    @Test
     fun `Can take my skeleton for a walk`() {
         val calls = mapOf(Request(Method.POST, "localhost") to MemoryResponse(Status.OK, body = MemoryBody("monkeys")))
         val spec = RexSpec(sampleInput, mapOf("Calculator" to ::calculatorRequestBuilder), stubbedHttpHandler(calls))
 
         val results: ExecutedSpec = spec.execute()
 
-        // Convert the HTTP response into an ExecutedTestRep
         // Generate the output doc
+
         // Return (RexStatus, OutputDoc)
 
 //        val (status: RexStatus, sampleOutput: String) =
