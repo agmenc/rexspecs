@@ -52,11 +52,11 @@ private val expectedOutput = sampleInput
     .replace("<td>201</td>", "<td style=\"color: red\">Expected [200] but was: [500]</td>")
 
 private val calculationsSucceed = mapOf(
-    Request(Method.GET, "http://someserver.com/target?p0=7&p1=%2b&p2=8") to MemoryResponse(
+    Request(Method.GET, "http://someserver.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
         Status.OK,
         body = MemoryBody("15")
     ),
-    Request(Method.GET, "http://someserver.com/target?p0=7&p1=x&p2=8") to MemoryResponse(
+    Request(Method.GET, "http://someserver.com/target?First+Param=7&Operator=x&Second+Param=8") to MemoryResponse(
         Status.CREATED,
         body = MemoryBody("56")
     )
@@ -91,7 +91,7 @@ internal class RexSpecTest {
 
         val spec = RexSpec(
             sampleInput,
-            mapOf("Calculator" to urlParamsRequestBuilder()),
+            mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(calculationsSucceed)
         )
 
@@ -101,17 +101,13 @@ internal class RexSpecTest {
             .forEach { (actual, expected) -> assertEquals(expected, actual) }
     }
 
-    private fun urlParamsRequestBuilder(): (List<String>) -> Request = { params: List<String> ->
-        Request(Method.GET, "http://someserver.com/target?p0=${params[0]}&p1=${encodePlus(params[1])}&p2=${params[2]}")
-    }
-
     private fun encodePlus(param: String) = if (param == "+") "%2b" else param
 
     @Test
     fun `We know that a passing test has passed`() {
         val passingSpec = RexSpec(
             sampleInput,
-            mapOf("Calculator" to urlParamsRequestBuilder()),
+            mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(calculationsSucceed)
         )
 
@@ -124,7 +120,7 @@ internal class RexSpecTest {
     fun `We know that a failing test has failed`() {
         val failingSpec = RexSpec(
             sampleInput,
-            mapOf("Calculator" to urlParamsRequestBuilder()),
+            mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf())
         )
 
@@ -170,6 +166,8 @@ internal class RexSpecTest {
     }
 
     private fun stubbedHttpHandler(calls: Map<Request, Response>): HttpHandler = { req: Request ->
+//        println("Request: $req")
+//        println("Calls:   ${calls.map{ (k,v) -> k.toString().trim() }}")
         calls.getOrDefault(req, MemoryResponse(Status.EXPECTATION_FAILED, body = MemoryBody("Unstubbed API call")))
     }
 

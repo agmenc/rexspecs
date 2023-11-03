@@ -2,10 +2,11 @@ package com.rexspec.fixtures
 
 import org.http4k.core.Method
 import org.http4k.core.Request
+import java.net.URLEncoder
 
-// TODO: make params a Map<String, String> so that we have the key as well as the value
-fun calculatorRequestBuilder(params: List<String>): Request {
-    return Request(Method.GET, "http://someserver.com/target?p0=${params[0]}&p1=${encodePlus(params[1])}&p2=${params[2]}")
+fun calculatorRequestBuilder(params: Map<String, String>): Request {
+    return Request(Method.GET, "http://someserver.com/target?${params.map { (k, v) -> "${encodePlus(k)}=${encodePlus(v)}" }.joinToString("&")}")
 }
 
-private fun encodePlus(param: String) = if (param == "+") "%2b" else param
+// TODO URL encode properly, if we thing URL params should be supported
+private fun encodePlus(param: String) = URLEncoder.encode(param, "UTF-8")

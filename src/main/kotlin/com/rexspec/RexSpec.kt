@@ -12,7 +12,7 @@ import kotlin.text.Charsets.UTF_8
 
 data class RexSpec(
     val input: String,
-    val index: Map<String, (List<String>) -> Request>,
+    val index: Map<String, (Map<String, String>) -> Request>,
     val httpHandler: HttpHandler
 ) {
     fun execute(): ExecutedSpec = ExecutedSpec(
@@ -22,12 +22,24 @@ data class RexSpec(
             .map { testRep -> ExecutedTable(testRep, executeTable(testRep, index)) }
     )
 
-    private fun executeTable(tableRep: TableRep, index: Map<String, (List<String>) -> Request>): List<RowResult> {
-        val function: ((List<String>) -> Request) = index[tableRep.fixtureName]!!
+    private fun executeTable(tableRep: TableRep, index: Map<String, (Map<String, String>) -> Request>): List<RowResult> {
+        val function: ((Map<String, String>) -> Request) = index[tableRep.fixtureName]!!
+
         return tableRep.rowReps
-            .map { row -> function(listOf(row.inputParams[0], row.inputParams[1], row.inputParams[2])) }
+            .map { row -> function(zipToMap(tableRep, row)) }
             .map { req -> hitTheApi(req) }
             .map { res -> toRexResults(res) }
+    }
+
+    private fun zipToMap(tableRep: TableRep, row: RowRep): Map<String, String> {
+
+        tableRep.columnNames.zip(row.inputParams)
+
+        return mapOf(
+            tableRep.columnNames[0] to row.inputParams[0],
+            tableRep.columnNames[1] to row.inputParams[1],
+            tableRep.columnNames[2] to row.inputParams[2]
+        )
     }
 
     private fun hitTheApi(request: Request): Response {
