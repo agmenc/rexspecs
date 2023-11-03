@@ -166,8 +166,10 @@ internal class RexSpecTest {
     }
 
     private fun stubbedHttpHandler(calls: Map<Request, Response>): HttpHandler = { req: Request ->
-//        println("Request: $req")
-//        println("Calls:   ${calls.map{ (k,v) -> k.toString().trim() }}")
+        if (!calls.containsKey(req)) {
+            println("Unstubbed request: \n${req.method} ${req.uri}")
+            println("Expected one of: \n${calls.map{ (k,v) -> k.toString().trim() }.joinToString("\n")}")
+        }
         calls.getOrDefault(req, MemoryResponse(Status.EXPECTATION_FAILED, body = MemoryBody("Unstubbed API call")))
     }
 
