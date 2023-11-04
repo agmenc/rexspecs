@@ -47,20 +47,29 @@ private val sampleInput = """
             |</html>
         """.trimMargin()
 
-private val expectedOutput = sampleInput
-    .replace("<td>56</td>",  "<td style=\"color: red\">Expected [56] but was: [Unsupported operator: \"x\"]</td>")
-    .replace("<td>201</td>", "<td style=\"color: red\">Expected [200] but was: [500]</td>")
+private val expectedOutput = decorateWithErrorsAndColours(sampleInput)
 
-private val calculationsSucceed = mapOf(
+private fun decorateWithErrorsAndColours(input: String) = input
+    .replace("<td>56</td>", "<td style=\"color: red\">Expected [56] but was: [Unsupported operator: \"x\"]</td>")
+    .replace("<td>201</td>", "<td style=\"color: red\">Expected [201] but was: [500]</td>")
+
+val calcOneSucceeds =
     Request(Method.GET, "http://someserver.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
         Status.OK,
         body = MemoryBody("15")
-    ),
+    )
+
+val calcTwoSucceeds =
     Request(Method.GET, "http://someserver.com/target?First+Param=7&Operator=x&Second+Param=8") to MemoryResponse(
         Status.CREATED,
         body = MemoryBody("56")
     )
-)
+
+val calcTwoFails =
+    Request(Method.GET, "http://someserver.com/target?First+Param=7&Operator=x&Second+Param=8") to MemoryResponse(
+        Status.INTERNAL_SERVER_ERROR,
+        body = MemoryBody("Unsupported operator: \"x\"")
+    )
 
 internal class RexSpecTest {
 
@@ -92,7 +101,7 @@ internal class RexSpecTest {
         val spec = RexSpec(
             sampleInput,
             mapOf("Calculator" to ::calculatorRequestBuilder),
-            stubbedHttpHandler(calculationsSucceed)
+            stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
 
         spec.execute().executedTables
@@ -101,14 +110,12 @@ internal class RexSpecTest {
             .forEach { (actual, expected) -> assertEquals(expected, actual) }
     }
 
-    private fun encodePlus(param: String) = if (param == "+") "%2b" else param
-
     @Test
     fun `We know that a passing test has passed`() {
         val passingSpec = RexSpec(
             sampleInput,
             mapOf("Calculator" to ::calculatorRequestBuilder),
-            stubbedHttpHandler(calculationsSucceed)
+            stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
 
         val executedSpec = passingSpec.execute()
@@ -128,9 +135,9 @@ internal class RexSpecTest {
     }
 
     @Test
-    fun `Can redraw tables into the output doc`() {
+    fun `Can redraw tables - with errors and highlighting - into the output doc`() {
         val expectedRow1 = RowRep(listOf("7", "+", "8"), RowResult("200", "15"))
-        val expectedRow2 = RowRep(listOf("7", "x", "8"), RowResult("200", "56"))
+        val expectedRow2 = RowRep(listOf("7", "x", "8"), RowResult("201", "56"))
         val actualRow1 = RowResult("200", "15")
         val actualRow2 = RowResult("500", "Unsupported operator: \"x\"")
 
@@ -156,7 +163,7 @@ internal class RexSpecTest {
         val spec = RexSpec(
             sampleInput,
             mapOf("Calculator" to ::calculatorRequestBuilder),
-            stubbedHttpHandler(calculationsSucceed)
+            stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
 
         val executedSpec = spec.execute()
@@ -168,23 +175,41 @@ internal class RexSpecTest {
     private fun stubbedHttpHandler(calls: Map<Request, Response>): HttpHandler = { req: Request ->
         if (!calls.containsKey(req)) {
             println("Unstubbed request: \n${req.method} ${req.uri}")
-            println("Expected one of: \n${calls.map{ (k,v) -> k.toString().trim() }.joinToString("\n")}")
+            println("Expected one of: \n${calls.map{ (k,_) -> k.toString().trim() }.joinToString("\n")}")
         }
         calls.getOrDefault(req, MemoryResponse(Status.EXPECTATION_FAILED, body = MemoryBody("Unstubbed API call")))
     }
 
     @Test
+    fun `Can use a source file as input`() {
+        val testFileContents = loadResource("/AnAcceptanceTest.html")
+        val formattedContents = Jsoup.parse(testFileContents).toString()
+
+        val spec = RexSpec(
+            formattedContents,
+            mapOf("Calculator" to ::calculatorRequestBuilder),
+            stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
+        )
+
+        val executedSpec = spec.execute()
+
+        assertFalse(executedSpec.success())
+        assertEquals(decorateWithErrorsAndColours(formattedContents), executedSpec.output())
+    }
+
+    // TODO: Push into a read/write helper, and use a class from the user's test fixtures, so that it can find tests in their resource path
+    private fun loadResource(filePath: String) = {}::class.java.getResource(filePath).readText()
+
+    @Test
     @Disabled
-    fun `Reports errors back to the failed cell`() {
-        val expectedOutput = sampleInput
-            .replace("<td>56</td>", "<td>Operator 'x' not allowed</td>")
+    fun `Can write to a target file as output`() {
 //        val foundFile = FileManager.find("AnAcceptanceTest.html")
 //        assertIsValidHtml("poo", RexSpec().poo())
     }
 
     @Test
     @Disabled
-    fun `Can Find Source File`() {
+    fun `Can call a real HTTP server`() {
 //        val foundFile = FileManager.find("AnAcceptanceTest.html")
 //        assertIsValidHtml("poo", RexSpec().poo())
     }
