@@ -98,7 +98,7 @@ internal class RexSpecTest {
             RowResult("201", "56"),
         )
 
-        val spec = RexSpec(
+        val spec = SpecExecutor(
             sampleInput,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
@@ -112,7 +112,7 @@ internal class RexSpecTest {
 
     @Test
     fun `We know that a passing test has passed`() {
-        val passingSpec = RexSpec(
+        val passingSpec = SpecExecutor(
             sampleInput,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
@@ -125,7 +125,7 @@ internal class RexSpecTest {
 
     @Test
     fun `We know that a failing test has failed`() {
-        val failingSpec = RexSpec(
+        val failingSpec = SpecExecutor(
             sampleInput,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf())
@@ -160,7 +160,7 @@ internal class RexSpecTest {
 
     @Test
     fun `Can use Fixture to build HTTP requests`() {
-        val spec = RexSpec(
+        val spec = SpecExecutor(
             sampleInput,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
@@ -182,10 +182,10 @@ internal class RexSpecTest {
 
     @Test
     fun `Can use a source file as input`() {
-        val testFileContents = loadResource("/AnAcceptanceTest.html")
+        val testFileContents = SingleFileProvider("/AnAcceptanceTest.html").specs().first()
         val formattedContents = Jsoup.parse(testFileContents).toString()
 
-        val spec = RexSpec(
+        val spec = SpecExecutor(
             formattedContents,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
@@ -197,20 +197,27 @@ internal class RexSpecTest {
         assertEquals(decorateWithErrorsAndColours(formattedContents), executedSpec.output())
     }
 
-    // TODO: Push into a read/write helper, and use a class from the user's test fixtures, so that it can find tests in their resource path
-    private fun loadResource(filePath: String) = {}::class.java.getResource(filePath).readText()
-
     @Test
     @Disabled
     fun `Can write to a target file as output`() {
-//        val foundFile = FileManager.find("AnAcceptanceTest.html")
-//        assertIsValidHtml("poo", RexSpec().poo())
+        RexSpec(
+            SingleFileProvider("/AnAcceptanceTest.html"),
+            mapOf("Calculator" to ::calculatorRequestBuilder),
+            stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
+        )
+
+        // Give RexSpec responsibility for writing output files
+    }
+
+    class SingleFileProvider(private val source: String): FileSpecProvider() {
+        override fun specs(): List<String> {
+            return listOf(loadResource(source))
+        }
     }
 
     @Test
     @Disabled
     fun `Can call a real HTTP server`() {
-//        val foundFile = FileManager.find("AnAcceptanceTest.html")
-//        assertIsValidHtml("poo", RexSpec().poo())
+        // Make the SUT and RexSpec totally independent, so that other people can write their own SUT implementations in otger languages
     }
 }

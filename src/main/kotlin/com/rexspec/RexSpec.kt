@@ -10,9 +10,27 @@ import org.jsoup.nodes.Node
 import java.nio.ByteBuffer
 import kotlin.text.Charsets.UTF_8
 
-data class RexSpec(
+typealias FixtureLookup = Map<String, (Map<String, String>) -> Request>
+
+interface SpecProvider {
+    fun specs(): List<String>
+}
+
+open class FileSpecProvider(): SpecProvider {
+    fun loadResource(filePath: String) = {}::class.java.getResource(filePath).readText()
+
+    override fun specs(): List<String> {
+        TODO("Not yet implemented")
+    }
+}
+
+data class RexSpec(val specProvider: SpecProvider, val index: FixtureLookup, val httpHandler: HttpHandler) {
+    fun execute(): List<ExecutedSpec> = specProvider.specs().map { SpecExecutor(it, index, httpHandler).execute() }
+}
+
+class SpecExecutor(
     val input: String,
-    val index: Map<String, (Map<String, String>) -> Request>,
+    val index: FixtureLookup,
     val httpHandler: HttpHandler
 ) {
     fun execute(): ExecutedSpec = ExecutedSpec(
@@ -22,7 +40,7 @@ data class RexSpec(
             .map { testRep -> ExecutedTable(testRep, executeTable(testRep, index)) }
     )
 
-    private fun executeTable(tableRep: TableRep, index: Map<String, (Map<String, String>) -> Request>): List<RowResult> {
+    private fun executeTable(tableRep: TableRep, index: FixtureLookup): List<RowResult> {
         val function: ((Map<String, String>) -> Request) = index[tableRep.fixtureName]!!
 
         return tableRep.rowReps
