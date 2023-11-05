@@ -209,9 +209,9 @@ internal class RexSpecTest {
         // Give RexSpec responsibility for writing output files
     }
 
-    class SingleFileProvider(private val source: String): FileSpecProvider() {
+    class SingleFileProvider(private val sourcePath: String): FileSpecProvider() {
         override fun specs(): List<String> {
-            return listOf(loadResource(source))
+            return listOf(fileAsString(sourcePath))
         }
     }
 
