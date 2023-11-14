@@ -3,7 +3,6 @@ package com.rexspec
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
-import org.intellij.lang.annotations.Identifier
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -29,10 +28,10 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun success(): Boolean = executedSpecs.fold(true) { allGood, nextSpec -> allGood && nextSpec.success() }
 
     // TODO is there a way to mark side-effecting code in Kotlin? Arrow FX and IO<T>, etc?
-    fun writeSpecResults() {
+    fun writeSpecResults(filePath: String) {
         executedSpecs
             .map{ it.output() }
-            .forEach{ writeFile(it, "path monkeys") }
+            .forEach{ writeFile(it, filePath) }
     }
 }
 

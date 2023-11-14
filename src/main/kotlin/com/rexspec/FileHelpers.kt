@@ -7,7 +7,7 @@ import java.util.*
 // TODO: try File(where).readText() and see if it can see the same resources
 //          ==> It uses a different (better) root file location, so need to make that work somehow
 // Look for userDir
-fun fileAsString(filePath: String) = {}::class.java.getResource(filePath).readText()
+fun fileAsString(filePath: String) = File(filePath).readText()
 
 fun writeFile(what: String, where: String) {
     println("Writing to file: $where")

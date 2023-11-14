@@ -202,7 +202,7 @@ internal class RexSpecTest {
     fun `Can write to a target file as output`() {
         val rexSpec = RexSpec(
             RexSpecPropertiesLoader.properties(),
-            SingleSpecFileDatabase("/specs/AnAcceptanceTest.html"),
+            SingleSpecFileDatabase("src/test/resources/specs/AnAcceptanceTest.html"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
@@ -210,11 +210,12 @@ internal class RexSpecTest {
         val executedSuite = rexSpec.execute()
         assertFalse(executedSuite.success())
 
-        executedSuite.writeSpecResults()
-        val expectedOutputFile = fileAsString("/expectations/AnAcceptanceTest.html")
+        executedSuite.writeSpecResults("rexspec-results/AnAcceptanceTest.html")
+
+        val expectedOutputFile = fileAsString("src/test/resources/expectations/AnAcceptanceTest.html")
         printClassPath()
-//        val actualOutputFile = fileAsString("/rexspec-results/AnAcceptanceTest.html")
-//        assertEquals(expectedOutputFile, actualOutputFile)
+        val actualOutputFile = fileAsString("rexspec-results/AnAcceptanceTest.html")
+        assertEquals(expectedOutputFile, actualOutputFile)
     }
 
     class SingleSpecFileDatabase(private val sourcePath: String): FileSpecDatabase() {

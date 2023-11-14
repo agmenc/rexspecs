@@ -1,57 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>An Acceptance Test</title>
-</head>
-<body>
-<h1>Tables Define Tests</h1>
-<p>Text like this is nice but decorative: it doesn't get executed. That means it isn't
-part of the living document*. Less is more.</p>
-<p>* A living document is one that stays up-to-date, instead of becoming irrelevant almost
-    as soon as the first line of code is written (which is the fate of most documents)</p>
-Things to note:
-<ul>
-    <li>The first cell, in the table header, defines the type of test</li>
-    <li>The column headers are parsed for correctness (and the order matters)</li>
-    <li>Each row consists of inputs and expected outputs</li>
-    <li>Each row results in an API call</li>
-    <li>The API call returns a result, which is written back into the output document</li>
-</ul>
-<table>
-    <thead>
+ <head>
+  <meta charset="UTF-8">
+  <title>An Acceptance Test</title>
+ </head>
+ <body>
+  <h1>Tables Define Tests</h1>
+  <p>Text like this is nice but decorative: it doesn't get executed. That means it isn't part of the living document*. Less is more.</p>
+  <p>* A living document is one that stays up-to-date, instead of becoming irrelevant almost as soon as the first line of code is written (which is the fate of most documents)</p> Things to note:
+  <ul>
+   <li>The first cell, in the table header, defines the type of test</li>
+   <li>The column headers are parsed for correctness (and the order matters)</li>
+   <li>Each row consists of inputs and expected outputs</li>
+   <li>Each row results in an API call</li>
+   <li>The API call returns a result, which is written back into the output document</li>
+  </ul>
+  <table>
+   <thead>
     <tr>
-        <th>Calculator</th>
+     <th>Calculator</th>
     </tr>
     <tr>
-        <th>First Param</th>
-        <th>Operator</th>
-        <th>Second Param</th>
-        <th>HTTP Response</th>
-        <th>Result</th>
+     <th>First Param</th>
+     <th>Operator</th>
+     <th>Second Param</th>
+     <th>HTTP Response</th>
+     <th>Result</th>
     </tr>
-    </thead>
-    <tbody>
+   </thead>
+   <tbody>
     <tr>
-        <td>7</td>
-        <td>+</td>
-        <td>8</td>
-        <td>200</td>
-        <td>15</td>
+     <td>7</td>
+     <td>+</td>
+     <td>8</td>
+     <td>200</td>
+     <td>15</td>
     </tr>
     <tr>
-        <td>7</td>
-        <td>x</td>
-        <td>8</td>
-        <td>201</td>
-        <td>56</td>
+     <td>7</td>
+     <td>x</td>
+     <td>8</td>
+     <td style="color: red">Expected [201] but was: [500]</td>
+     <td style="color: red">Expected [56] but was: [Unsupported operator: "x"]</td>
     </tr>
-    </tbody>
-</table>
-
-Some of the cells above should be decorated now
-
-<script>
+   </tbody>
+  </table>
+  <script>
     // TODO - Also support writing tests as JSON data and inject into DOM tables with JavaScript when showing the page in a browser
     const example = {
         "fixtureClass": "Calculator",
@@ -61,5 +55,5 @@ Some of the cells above should be decorated now
         ]
     }
 </script>
-</body>
+ </body>
 </html>
