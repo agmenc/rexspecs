@@ -1,5 +1,6 @@
 package com.rexspec
 
+import com.rexspec.RexSpecPropertiesLoader.printClassPath
 import com.rexspec.fixtures.calculatorRequestBuilder
 import org.http4k.core.*
 import org.jsoup.Jsoup
@@ -99,7 +100,7 @@ internal class RexSpecTest {
         )
 
         val spec = SpecExecutor(
-            sampleInput,
+            IdentifiedSpec(sampleInput, "some/spec/path"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
@@ -113,7 +114,7 @@ internal class RexSpecTest {
     @Test
     fun `We know that a passing test has passed`() {
         val passingSpec = SpecExecutor(
-            sampleInput,
+            IdentifiedSpec(sampleInput, "some/spec/path"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
@@ -126,7 +127,7 @@ internal class RexSpecTest {
     @Test
     fun `We know that a failing test has failed`() {
         val failingSpec = SpecExecutor(
-            sampleInput,
+            IdentifiedSpec(sampleInput, "some/spec/path"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf())
         )
@@ -161,7 +162,7 @@ internal class RexSpecTest {
     @Test
     fun `Can use Fixture to build HTTP requests`() {
         val spec = SpecExecutor(
-            sampleInput,
+            IdentifiedSpec(sampleInput, "some/spec/path"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
@@ -182,11 +183,11 @@ internal class RexSpecTest {
 
     @Test
     fun `Can use a source file as input`() {
-        val testFileContents = SingleFileProvider("/AnAcceptanceTest.html").specs().first()
-        val formattedContents = Jsoup.parse(testFileContents).toString()
+        val testFileContents = SingleSpecFileDatabase("/specs/AnAcceptanceTest.html").specs().first()
+        val formattedContents = Jsoup.parse(testFileContents.specContents).toString()
 
         val spec = SpecExecutor(
-            formattedContents,
+            IdentifiedSpec(formattedContents, "some/spec/path"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
@@ -198,20 +199,27 @@ internal class RexSpecTest {
     }
 
     @Test
-    @Disabled
     fun `Can write to a target file as output`() {
-        RexSpec(
-            SingleFileProvider("/AnAcceptanceTest.html"),
+        val rexSpec = RexSpec(
+            RexSpecPropertiesLoader.properties(),
+            SingleSpecFileDatabase("/specs/AnAcceptanceTest.html"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
-        // Give RexSpec responsibility for writing output files
+        val executedSuite = rexSpec.execute()
+        assertFalse(executedSuite.success())
+
+        executedSuite.writeSpecResults()
+        val expectedOutputFile = fileAsString("/expectations/AnAcceptanceTest.html")
+        printClassPath()
+//        val actualOutputFile = fileAsString("/rexspec-results/AnAcceptanceTest.html")
+//        assertEquals(expectedOutputFile, actualOutputFile)
     }
 
-    class SingleFileProvider(private val sourcePath: String): FileSpecProvider() {
-        override fun specs(): List<String> {
-            return listOf(fileAsString(sourcePath))
+    class SingleSpecFileDatabase(private val sourcePath: String): FileSpecDatabase() {
+        override fun specs(): List<IdentifiedSpec> {
+            return listOf(IdentifiedSpec(fileAsString(sourcePath), sourcePath))
         }
     }
 
@@ -220,4 +228,12 @@ internal class RexSpecTest {
     fun `Can call a real HTTP server`() {
         // Make the SUT and RexSpec totally independent, so that other people can write their own SUT implementations in otger languages
     }
+
+    @Test
+    @Disabled
+    fun `Can run RexSpec as a Gradle test dependency`() {}
+
+    @Test
+    @Disabled
+    fun `Can run RexSpec with CTRL-SHIFT-F10`() {}
 }

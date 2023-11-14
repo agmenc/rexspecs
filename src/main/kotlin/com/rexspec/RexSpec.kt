@@ -3,6 +3,7 @@ package com.rexspec
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
+import org.intellij.lang.annotations.Identifier
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -12,30 +13,41 @@ import kotlin.text.Charsets.UTF_8
 
 typealias FixtureLookup = Map<String, (Map<String, String>) -> Request>
 
-interface SpecProvider {
-    fun specs(): List<String>
+open class IdentifiedSpec(val specContents: String, val specIdentifier: String)
+
+interface SpecDatabase {
+    fun specs(): List<IdentifiedSpec>
 }
 
-open class FileSpecProvider(): SpecProvider {
-    fun loadResource(filePath: String) = {}::class.java.getResource(filePath).readText()
-
-    override fun specs(): List<String> {
+open class FileSpecDatabase : SpecDatabase {
+    override fun specs(): List<IdentifiedSpec> {
         TODO("Not yet implemented")
     }
 }
 
-data class RexSpec(val specProvider: SpecProvider, val index: FixtureLookup, val httpHandler: HttpHandler) {
-    fun execute(): List<ExecutedSpec> = specProvider.specs().map { SpecExecutor(it, index, httpHandler).execute() }
+data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
+    fun success(): Boolean = executedSpecs.fold(true) { allGood, nextSpec -> allGood && nextSpec.success() }
+
+    // TODO is there a way to mark side-effecting code in Kotlin? Arrow FX and IO<T>, etc?
+    fun writeSpecResults() {
+        executedSpecs
+            .map{ it.output() }
+            .forEach{ writeFile(it, "path monkeys") }
+    }
+}
+
+data class RexSpec(val properties: RexSpecProperties, val specProvider: SpecDatabase, val index: FixtureLookup, val httpHandler: HttpHandler) {
+    fun execute(): ExecutedSuite = ExecutedSuite(specProvider.specs().map { SpecExecutor(it, index, httpHandler).execute() })
 }
 
 class SpecExecutor(
-    val input: String,
+    val identifiedSpec: IdentifiedSpec,
     val index: FixtureLookup,
     val httpHandler: HttpHandler
 ) {
     fun execute(): ExecutedSpec = ExecutedSpec(
-        input,
-        htmlToTables(Jsoup.parse(input))
+        identifiedSpec.specContents,
+        htmlToTables(Jsoup.parse(identifiedSpec.specContents))
             .map { convertTablesToTableReps(it) }
             .map { testRep -> ExecutedTable(testRep, executeTable(testRep, index)) }
     )
@@ -140,7 +152,7 @@ fun ExecutedSpec.output(): String {
     return document.toString()
 }
 
-fun ExecutedSpec.success(): Boolean = executedTables.fold(true) { allGood, nextTest -> allGood && nextTest.success() }
+fun ExecutedSpec.success(): Boolean = executedTables.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 
 data class ExecutedTable(val tableRep: TableRep, val actualRowResults: List<RowResult>)
 
