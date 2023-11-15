@@ -1,113 +1,67 @@
-# RexSpec
+# RexSpecs
 
-Executable specifications for any system with an API (HTTP/GraphQL/Events/Whatever)
+Executable specifications for any system with an API (HTTP/GraphQL/Events/Whatever).
 
-### Stories
+### What Is An Executable Specification?
 
-#### Run a Single Test
+Firstly, let's call them RexSpecs, it's easier to type (and say). RexSpecs are easiy-to-read
+documents that can also be understood by a computer and executed as tests against your codebase.
+This keeps your documents constantly up-to-date, because otherwise the tests fail. This is an 
+example of a Living Document - unlike a Word doc or a wiki page, you be sure that it tracks the
+current behaviour of the system.
 
-```
-As a Developer,
+RexSpecs is modelled on Fit - the Framework for Integrated Test. The primary difference is that 
+we focus entirely on te external APIs of your system. I hope this makes it extremely easy to 
+know whether or not your code is delivering on your business rules.
 
-I want to be able to run a single test from my IDE,
+Another difference is interoperability: RexSpecs is designed to allow different input sources, 
+communication protocols, and data formats. Over time, I hope the number of supported variants
+increases to cover everything in the next section.
 
-So that I can iterate towards completing my current task without having to run the whole damn test suite
+### Overall Planned Scope
 
-Acceptance Criteria:
-* Shift-F10 in IntelliJ runs the file against the app
+| Input Format | Input Source | Protocol    | Output Target | Supported |
+|--------------|--------------|-------------|---------------|-----------|
+| HTML         | File         | HTTP        | File          | Yes       |
+| JSON         |              |             |               | No        |
+|              | DB           |             |               | No        |
+|              |              | GraphQL     |               | No        |
+|              |              |             | DB            | No        |
+|              |              | Event Queue |               | No        |
+| DB Tables    |              |             |               | No        |
+|              |              |             |               |           |
 
-```
+### Work in Progress
 
+* Write a simple HTTP/Restful app to test the walking skeleton
+* Fix all the annoyances
+* Tidy up and refactor all the dependencies
+* Add GraphQL support
+* Make it run as part of a Gradle build
+* Make it run with CTRL-SHIFT-F10 in IntelliJ
 
-```mermaid
-sequenceDiagram
-    autonumber
+### Backlog
 
-    actor Coder
-    participant IDE
-    participant Build Tool
-    participant Test Framework
-    participant RexSpec
-    participant System Under Test
-    participant Test Output
+* All the choices in the table above (!)
 
-    rect rgb(50, 100, 50)
-        Note over Coder, IDE: Trigger Single Test
-        Coder ->> IDE: Shift-F10
-        IDE ->> Test Framework: Run acceptance test
-        Test Framework ->> RexSpec: Execute (hook)
-        RexSpec ->> System Under Test: Start Web Server (hook)
-        RexSpec ->> RexSpec: Find test in test resources folder
-        RexSpec ->> RexSpec: Execute test (see next story)
-    end
-```
-
-#### Execute Test
-
-```
-As RexSpec,
-
-I want to be able to call API methods of the System Under Test,
-
-So that I can compare the results with the expectations, and generate an output record
-
-Acceptance Criteria:
-* The Output Record is the same as the source file, but table cells are coloured, to
-represent passing or failing tests 
-
-```
+### How It Works
 
 ```mermaid
 sequenceDiagram
     autonumber
 
+    participant Your Specification Doc
     participant RexSpec
-    participant System Under Test
-    participant Test Output
+    participant Your System
+    participant Executed Specification Doc
 
     rect rgb(50, 100, 100)
-        Note over RexSpec, Test Output: Test Execution
-        RexSpec ->> System Under Test: HTTP Post / GraphQL / Queue Drop
-        System Under Test -->> RexSpec: Result
-        RexSpec ->> RexSpec: compare expected result with actual
-        RexSpec ->> Test Output: Decorate source file with colours for pass/fail/done
+%%        Note over RexSpec, Test Output: Test Execution
+        RexSpec ->> Your Specification Doc: Read spec
+        RexSpec ->> RexSpec: Extract tables as tests
+        RexSpec ->> Your System: Execute each test via Rest API / GraphQL / Event Queue
+        Your System -->> RexSpec: Results
+        RexSpec ->> RexSpec: Compare expected results with actuals
+        RexSpec ->> Executed Specification Doc: Create result specification with colours in tables to show pass/fail
     end
 ```
-
-#### Run All Tests
-
-```
-As a Developer,
-
-I want to be able to run all my acceptance tests as part of the build,
-
-So that I can commit knowing that the whole application works
-
-Acceptance Criteria:
-* The test task in the build fails if any acceptance test fails
-
-```
-
-```mermaid
-sequenceDiagram
-    autonumber
-
-    actor Coder
-    participant IDE
-    participant Build Tool
-    participant Test Framework
-    participant RexSpec
-    participant System Under Test
-    participant Test Output
-    
-    rect rgb(50, 100, 50)
-        Note over Coder, Build Tool: Trigger All Tests
-        Coder ->> Build Tool: Run acceptance tests
-        Build Tool ->> Test Framework: Run acceptance tests
-        Test Framework ->> RexSpec: Execute (hook)
-        RexSpec ->> System Under Test: Start Web Server (hook)
-        RexSpec ->> RexSpec: Execute all tests in target folder
-    end
-```
-
-

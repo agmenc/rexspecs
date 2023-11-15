@@ -183,7 +183,7 @@ internal class RexSpecTest {
 
     @Test
     fun `Can use a source file as input`() {
-        val testFileContents = SingleSpecFileDatabase("/specs/AnAcceptanceTest.html").specs().first()
+        val testFileContents = SingleSpecFileDatabase("src/test/resources/specs/AnAcceptanceTest.html").specs().first()
         val formattedContents = Jsoup.parse(testFileContents.specContents).toString()
 
         val spec = SpecExecutor(
@@ -212,9 +212,8 @@ internal class RexSpecTest {
 
         executedSuite.writeSpecResults("rexspec-results/AnAcceptanceTest.html")
 
-        val expectedOutputFile = fileAsString("src/test/resources/expectations/AnAcceptanceTest.html")
-        printClassPath()
-        val actualOutputFile = fileAsString("rexspec-results/AnAcceptanceTest.html")
+        val expectedOutputFile = htmlSanitised(fileAsString("src/test/resources/expectations/AnAcceptanceTest.html"))
+        val actualOutputFile = htmlSanitised(fileAsString("rexspec-results/AnAcceptanceTest.html"))
         assertEquals(expectedOutputFile, actualOutputFile)
     }
 
