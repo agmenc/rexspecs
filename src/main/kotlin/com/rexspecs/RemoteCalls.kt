@@ -1,4 +1,4 @@
-package com.rexspec
+package com.rexspecs
 
 import org.http4k.client.ApacheClient
 import org.http4k.core.HttpHandler

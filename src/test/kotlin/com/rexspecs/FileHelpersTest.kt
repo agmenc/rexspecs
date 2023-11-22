@@ -1,4 +1,4 @@
-package com.rexspec
+package com.rexspecs
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled

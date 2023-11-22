@@ -1,4 +1,4 @@
-package com.rexspec
+package com.rexspecs
 
 import org.jsoup.Jsoup
 import java.io.File

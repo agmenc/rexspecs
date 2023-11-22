@@ -1,7 +1,7 @@
 package com.app
 
 import org.http4k.core.*
-import org.http4k.core.Status.Companion.INTERNAL_SERVER_ERROR
+import org.http4k.core.Status.Companion.BAD_REQUEST
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.server.SunHttp
@@ -17,9 +17,9 @@ fun main() {
     app.asServer(SunHttp(8000)).start()
 }
 
-// Stops any of the HTTP API gubbins from polluting application code
+// Stop any of the HTTP API gubbins from polluting application code
 fun unpack(calculationResult: CalculationResult): Response {
-    return Response(if (calculationResult.success) OK else INTERNAL_SERVER_ERROR).body(calculationResult.body)
+    return Response(if (calculationResult.success) OK else BAD_REQUEST).body(calculationResult.body)
 }
 
 data class CalculationResult(val success: Boolean, val body: String)

@@ -1,4 +1,4 @@
-package com.rexspec.fixtures
+package com.rexspecs.fixtures
 
 import org.http4k.core.Method
 import org.http4k.core.Request

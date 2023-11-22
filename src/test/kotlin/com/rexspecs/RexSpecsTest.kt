@@ -1,6 +1,6 @@
-package com.rexspec
+package com.rexspecs
 
-import com.rexspec.fixtures.calculatorRequestBuilder
+import com.rexspecs.fixtures.calculatorRequestBuilder
 import org.http4k.core.*
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Assertions.*
@@ -71,7 +71,7 @@ val calcTwoFails =
         body = MemoryBody("Unsupported operator: \"x\"")
     )
 
-internal class RexSpecTest {
+internal class RexSpecsTest {
 
     @Test
     fun `Can convert a table to a test representation`() {
