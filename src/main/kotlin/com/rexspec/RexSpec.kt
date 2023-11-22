@@ -7,6 +7,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
+import java.io.File
 import java.nio.ByteBuffer
 import kotlin.text.Charsets.UTF_8
 
@@ -37,6 +38,15 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
 
 data class RexSpec(val properties: RexSpecProperties, val specProvider: SpecDatabase, val index: FixtureLookup, val httpHandler: HttpHandler) {
     fun execute(): ExecutedSuite = ExecutedSuite(specProvider.specs().map { SpecExecutor(it, index, httpHandler).execute() })
+
+    // TODO: look to bring all IO to the top level
+    fun cleanTargetDir() {
+        File(properties.targetPath).listFiles().map {
+            val didItWork = it.delete()
+            println("Deleted ${it.absolutePath} ==> ${didItWork}")
+            didItWork
+        }
+    }
 }
 
 class SpecExecutor(
@@ -56,7 +66,7 @@ class SpecExecutor(
 
         return tableRep.rowReps
             .map { row -> function(zipToMap(tableRep, row)) }
-            .map { req -> hitTheApi(req) }
+            .map { req -> httpHandler(req) }
             .map { res -> toRexResults(res) }
     }
 

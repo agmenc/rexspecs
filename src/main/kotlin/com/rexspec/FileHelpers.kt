@@ -39,6 +39,6 @@ abstract class PropertiesLoader<T>(val propsFilePath: String) {
 }
 
 object RexSpecPropertiesLoader: PropertiesLoader<RexSpecProperties>("rexspec.props") {
-    override fun buildProps(): RexSpecProperties = RexSpecProperties(prop("target.path", "../"))
+    override fun buildProps(): RexSpecProperties = RexSpecProperties(prop("target.path", "rexspecs/"))
 }
 

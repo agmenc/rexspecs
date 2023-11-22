@@ -1,2 +1,2 @@
-target.path=rexspec-results
+target.path=rexspecs
 source.root=source/test/resources/specs

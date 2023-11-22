@@ -1,6 +1,5 @@
 package com.rexspec
 
-import com.rexspec.RexSpecPropertiesLoader.printClassPath
 import com.rexspec.fixtures.calculatorRequestBuilder
 import org.http4k.core.*
 import org.jsoup.Jsoup
@@ -212,7 +211,7 @@ internal class RexSpecTest {
 
         executedSuite.writeSpecResults("rexspec-results/AnAcceptanceTest.html")
 
-        val expectedOutputFile = htmlSanitised(fileAsString("src/test/resources/expectations/AnAcceptanceTest.html"))
+        val expectedOutputFile = sanified("src/test/resources/expectations/AnAcceptanceTest.html")
         val actualOutputFile = htmlSanitised(fileAsString("rexspec-results/AnAcceptanceTest.html"))
         assertEquals(expectedOutputFile, actualOutputFile)
     }
@@ -224,10 +223,33 @@ internal class RexSpecTest {
     }
 
     @Test
-    @Disabled
     fun `Can call a real HTTP server`() {
-        // Make the SUT and RexSpec totally independent, so that other people can write their own SUT implementations in otger languages
+        val rexSpec = RexSpec(
+            RexSpecPropertiesLoader.properties(),
+            SingleSpecFileDatabase("src/test/resources/specs/AnAcceptanceTest.html"),
+            mapOf("Calculator" to ::calculatorRequestBuilder),
+            HttpClient("a", 8000).handle
+        )
+
+        // TODO: Make part of rexSpec.execute()???
+        rexSpec.cleanTargetDir()
+
+        val executedSuite = rexSpec.execute()
+
+        // TODO: Make rexSpec.execute() do this???
+        executedSuite.writeSpecResults("rexspecs/AnAcceptanceTest.html")
+
+        assertEquals(
+            sanified("src/test/resources/expectations/AnAcceptanceTest.html"),
+            sanified("rexspecs/AnAcceptanceTest.html")
+        )
     }
+
+    private fun sanified(filePath: String) = htmlSanitised(fileAsString(filePath))
+
+    @Test
+    @Disabled
+    fun `We can clean out the target directories, so that we can do the next test run`() {}
 
     @Test
     @Disabled
