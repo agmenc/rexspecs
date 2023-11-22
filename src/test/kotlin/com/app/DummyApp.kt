@@ -17,11 +17,12 @@ fun main() {
     app.asServer(SunHttp(8000)).start()
 }
 
+// Stops any of the HTTP API gubbins from polluting application code
 fun unpack(calculationResult: CalculationResult): Response {
-    return Response(calculationResult.status).body(calculationResult.body)
+    return Response(if (calculationResult.success) OK else INTERNAL_SERVER_ERROR).body(calculationResult.body)
 }
 
-data class CalculationResult(val status: Status, val body: String)
+data class CalculationResult(val success: Boolean, val body: String)
 
 fun calculate(params: Parameters): CalculationResult {
     val lookup = params.map { it.first to it.second }.toMap()
@@ -30,8 +31,8 @@ fun calculate(params: Parameters): CalculationResult {
     val operator = lookup["Operator"] ?: "+"
 
     return when (operator) {
-        "+" -> CalculationResult(OK, (operand1 + operand2).toString())
-        "*" -> CalculationResult(OK, (operand1 + operand2).toString())
-        else -> CalculationResult(INTERNAL_SERVER_ERROR, "Unsupported operator: \"$operator\"")
+        "+" -> CalculationResult(true, (operand1 + operand2).toString())
+        "*" -> CalculationResult(true, (operand1 * operand2).toString())
+        else -> CalculationResult(false, "Unsupported operator: \"$operator\"")
     }
 }
