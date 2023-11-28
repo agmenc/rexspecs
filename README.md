@@ -56,7 +56,7 @@ sequenceDiagram
     participant Executed Specification Doc
 
     rect rgb(50, 100, 100)
-%%        Note over RexSpec, Test Output: Test Execution
+    %%        Note over RexSpec, Test Output: Test Execution
         RexSpec ->> Your Specification Doc: Read spec
         RexSpec ->> RexSpec: Extract tables as tests
         RexSpec ->> Your System: Execute each test via Rest API / GraphQL / Event Queue
@@ -65,3 +65,12 @@ sequenceDiagram
         RexSpec ->> Executed Specification Doc: Create result specification with colours in tables to show pass/fail
     end
 ```
+
+### Episode IV: A New Choice
+
+Instead of supporting all the interfacing methods (GraphQL, queues, HTTP, etc), we could use a standard HTTP interface
+and require that the target system provides certain endpoints, which allow the developers to translate to their own
+protocol and either fire at their APIs, or call their application code directly.
+
+This means that fixture code becomes language-independent. It is simply a translation from RESTful calls (to begin with)
+to whatever protocol the codebase uses. 
