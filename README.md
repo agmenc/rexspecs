@@ -1,10 +1,16 @@
 # RexSpecs
 
-Executable specifications for any system with an API (HTTP/GraphQL/Events/Whatever).
+RexSpecs is a library for running executable specifications against the API surface of your applications or services. 
+Executable specifications look like clear, well-formatted documents, yet they can also be executed as tests. This allows 
+them to be used to specify, build and regression-test software, while acting as a repository for institutional product 
+knowledge. They can even become a help or HowTo guide for the system, and are the perfect inputs for prompt-engineering 
+to support a chat bot or SaaS help tool.
+
+RexSpecs aims to support HTTP, GraphQL and queue-based events APIs. You can see progress below.
 
 ### What Is An Executable Specification?
 
-Firstly, let's call them RexSpecs, it's easier to type (and say). RexSpecs are easiy-to-read
+We'll call them `RexSpecs`, because it's easier to type. RexSpecs are easy-to-read
 documents that can also be understood by a computer and executed as tests against your codebase.
 This keeps your documents constantly up-to-date, because otherwise the tests fail. This is an 
 example of a Living Document - unlike a Word doc or a wiki page, you be sure that it tracks the
@@ -74,3 +80,23 @@ protocol and either fire at their APIs, or call their application code directly.
 
 This means that fixture code becomes language-independent. It is simply a translation from RESTful calls (to begin with)
 to whatever protocol the codebase uses. 
+
+Placeholder for later:
+```mermaid
+flowchart LR
+
+    subgraph Input Format Choices
+        A[Zero Fixture] -->|Declare hosts| B(Protocol)
+    end
+    
+    subgraph Protocol Choices
+        X --> B
+    end
+    
+    B ==>|Direct API| D[Laptop]
+    B -->|Two| E[iPhone]
+    B -->|Three| F[fa:fa-car Car]
+  
+
+
+```

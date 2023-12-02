@@ -1,6 +1,7 @@
 plugins {
-        kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.0"
     application
+    `maven-publish`
 }
 
 group = "what.does.this.mean"
@@ -45,3 +46,57 @@ tasks.test {
 //application {
 //    mainClassName = "MainKt"
 //}
+
+publishing{
+    publications {
+        create<MavenPublication>("Maven") {
+            from(components["java"])
+            groupId = "io.github.agmenc"
+            artifactId = "rexspecs"
+            description = "Execute specification documents as tests"
+        }
+        withType<MavenPublication> {
+            pom {
+                packaging = "jar"
+                name.set("rexspecs")
+                description.set("Executable Specifications")
+                url.set("https://github.com/agmenc/rexspecs/")
+                inceptionYear.set("2023")
+                licenses {
+                    license {
+                        name.set("MIT license")
+                        url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("agmenc")
+                        name.set("Chris Agmen-Smith")
+                        email.set("chris.agmen-smith@email.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git@github.com:agmenc/rexspecs.git")
+                    developerConnection.set("scm:git:ssh:git@github.com:agmenc/rexspecs.git")
+                    url.set("https://github.com/agmenc/rexspecs")
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir("staging-deploy").get().asFile.toURI()
+        }
+    }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+tasks.jar{
+    enabled = true
+    // Remove `plain` postfix from jar file name
+    archiveClassifier.set("")
+}
