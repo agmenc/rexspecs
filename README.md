@@ -82,6 +82,7 @@ This means that fixture code becomes language-independent. It is simply a transl
 to whatever protocol the codebase uses. 
 
 Placeholder for later:
+
 ```mermaid
 flowchart LR
 
