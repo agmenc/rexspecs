@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 class FileHelpersTest {
     @Test
     fun `Can load the target path from a props file in the test resources directory`() {
-        assertEquals("rexspec-results", RexSpecPropertiesLoader.properties().targetPath)
+        assertEquals("rexspecs", RexSpecPropertiesLoader.properties().targetPath)
     }
 
     @Test
@@ -42,4 +42,10 @@ class FileHelpersTest {
     @Test
     @Disabled
     fun `Load props from the environment`() { TODO("This thing") }
+
+    @Test
+    @Disabled
+    fun `Creates rexspecs results folder, if it doesn't exist`() { TODO("[]rexspecs/results/") }
+
+    fun `Creates rexspecs docs folder, if it doesn't exist`() { TODO("This thing") }
 }

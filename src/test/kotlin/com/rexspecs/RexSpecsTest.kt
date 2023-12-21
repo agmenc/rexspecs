@@ -51,23 +51,23 @@ private val expectedOutput = decorateWithErrorsAndColours(sampleInput)
 
 private fun decorateWithErrorsAndColours(input: String) = input
     .replace("<td>56</td>", "<td style=\"color: red\">Expected [56] but was: [Unsupported operator: \"x\"]</td>")
-    .replace("<td>201</td>", "<td style=\"color: red\">Expected [201] but was: [500]</td>")
+    .replace("<td>201</td>", "<td style=\"color: red\">Expected [201] but was: [400]</td>")
 
 val calcOneSucceeds =
-    Request(Method.GET, "http://someserver.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
+    Request(Method.GET, "http://not-actually-a-real-host.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
         Status.OK,
         body = MemoryBody("15")
     )
 
 val calcTwoSucceeds =
-    Request(Method.GET, "http://someserver.com/target?First+Param=7&Operator=x&Second+Param=8") to MemoryResponse(
+    Request(Method.GET, "http://not-actually-a-real-host.com/target?First+Param=7&Operator=x&Second+Param=8") to MemoryResponse(
         Status.CREATED,
         body = MemoryBody("56")
     )
 
 val calcTwoFails =
-    Request(Method.GET, "http://someserver.com/target?First+Param=7&Operator=x&Second+Param=8") to MemoryResponse(
-        Status.INTERNAL_SERVER_ERROR,
+    Request(Method.GET, "http://not-actually-a-real-host.com/target?First+Param=7&Operator=x&Second+Param=8") to MemoryResponse(
+        Status.BAD_REQUEST,
         body = MemoryBody("Unsupported operator: \"x\"")
     )
 
@@ -139,7 +139,7 @@ internal class RexSpecsTest {
         val expectedRow1 = RowRep(listOf("7", "+", "8"), RowResult("200", "15"))
         val expectedRow2 = RowRep(listOf("7", "x", "8"), RowResult("201", "56"))
         val actualRow1 = RowResult("200", "15")
-        val actualRow2 = RowResult("500", "Unsupported operator: \"x\"")
+        val actualRow2 = RowResult("400", "Unsupported operator: \"x\"")
 
         val executedSpec = ExecutedSpec(
             sampleInput,
@@ -174,11 +174,13 @@ internal class RexSpecsTest {
 
     private fun stubbedHttpHandler(calls: Map<Request, Response>): HttpHandler = { req: Request ->
         if (!calls.containsKey(req)) {
-            println("Unstubbed request: \n${req.method} ${req.uri}")
-            println("Expected one of: \n${calls.map{ (k,_) -> k.toString().trim() }.joinToString("\n")}")
+            println("Unstubbed request: \n${prettify(req)}")
+            println("Expected one of: \n${calls.map{ (k,_) -> prettify(k) }.joinToString("\n")}")
         }
         calls.getOrDefault(req, MemoryResponse(Status.EXPECTATION_FAILED, body = MemoryBody("Unstubbed API call")))
     }
+
+    private fun prettify(req: Request): String  = "${req.method} ${req.uri} ${req.uri.path}"
 
     @Test
     fun `Can use a source file as input`() {
@@ -209,10 +211,10 @@ internal class RexSpecsTest {
         val executedSuite = rexSpec.execute()
         assertFalse(executedSuite.success())
 
-        executedSuite.writeSpecResults("rexspec-results/AnAcceptanceTest.html")
+        executedSuite.writeSpecResults("rexspecs/AnAcceptanceTest.html")
 
         val expectedOutputFile = sanified("src/test/resources/expectations/AnAcceptanceTest.html")
-        val actualOutputFile = htmlSanitised(fileAsString("rexspec-results/AnAcceptanceTest.html"))
+        val actualOutputFile = htmlSanitised(fileAsString("rexspecs/AnAcceptanceTest.html"))
         assertEquals(expectedOutputFile, actualOutputFile)
     }
 
@@ -224,11 +226,13 @@ internal class RexSpecsTest {
 
     @Test
     fun `Can call a real HTTP server`() {
+        val props = RexSpecPropertiesLoader.properties()
+
         val rexSpec = RexSpec(
-            RexSpecPropertiesLoader.properties(),
+            props,
             SingleSpecFileDatabase("src/test/resources/specs/AnAcceptanceTest.html"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
-            HttpClient("a", 8000).handle
+            HttpClient(props.host, props.port).handle
         )
 
         // TODO: Make part of rexSpec.execute()???

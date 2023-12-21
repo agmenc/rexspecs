@@ -1,19 +1,26 @@
+import org.jreleaser.model.Active
+
 plugins {
     kotlin("jvm") version "1.9.0"
     application
     `maven-publish`
+
+    // TODO - upgrade to 1.9.0
+    id("org.jreleaser") version "1.5.1"
+
+    id("signing")
 }
 
-group = "what.does.this.mean"
+group = "io.github.agmenc"
 version = "0.1-SNAPSHOT"
 
 //Franck Rasolo - This snippet will also make the Gradle/IntelliJ integration set up the matching SDK automatically in your project structure:
-//kotlin {
-//    jvmToolchain {
-//        languageVersion.set(JavaLanguageVersion.of(20))
-//        vendor.set(JvmVendorSpec.ADOPTIUM)
-//    }
-//}
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(20))
+        vendor.set(JvmVendorSpec.ADOPTIUM)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -47,6 +54,9 @@ tasks.test {
 //    mainClassName = "MainKt"
 //}
 
+// -------------------------------------------------------------------------------------------------------------------
+// Taken from https://dev.to/tschuehly/how-to-publish-a-kotlinjava-spring-boot-library-with-gradle-to-maven-central-complete-guide-402a#52-configure-jreleaser-maven-plugin
+// -------------------------------------------------------------------------------------------------------------------
 publishing{
     publications {
         create<MavenPublication>("Maven") {
@@ -100,3 +110,32 @@ tasks.jar{
     // Remove `plain` postfix from jar file name
     archiveClassifier.set("")
 }
+
+jreleaser {
+    project {
+        copyright.set("Chris Agmen-Smith")
+    }
+    gitRootSearch.set(true)
+    signing {
+        active.set(Active.ALWAYS)
+        armored.set(true)
+    }
+    deploy {
+        maven {
+            nexus2 {
+                create("maven-central") {
+                    active.set(Active.ALWAYS)
+                    url.set("https://s01.oss.sonatype.org/service/local")
+
+                    // TODO: Set to true once it all works
+                    closeRepository.set(false)
+                    releaseRepository.set(false)
+
+                    stagingRepositories.add("build/staging-deploy")
+                }
+            }
+        }
+    }
+}
+
+// -------------------------------------------------------------------------------------------------------------------

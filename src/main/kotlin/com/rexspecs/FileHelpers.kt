@@ -11,7 +11,7 @@ fun writeFile(what: String, where: String) = File(where).writeText(what)
 
 fun htmlSanitised(contents: String): String = Jsoup.parse(contents).outerHtml()
 
-data class RexSpecProperties(val targetPath: String)
+data class RexSpecProperties(val targetPath: String, val host: String, val port: Int)
 
 // Extracted a parent class so that we can easily test some corner cases, e.g. missing files, props, etc
 abstract class PropertiesLoader<T>(val propsFilePath: String) {
@@ -39,6 +39,10 @@ abstract class PropertiesLoader<T>(val propsFilePath: String) {
 }
 
 object RexSpecPropertiesLoader: PropertiesLoader<RexSpecProperties>("rexspec.props") {
-    override fun buildProps(): RexSpecProperties = RexSpecProperties(prop("target.path", "rexspecs/"))
+    override fun buildProps(): RexSpecProperties = RexSpecProperties(
+        prop("target.path", "rexspecs/"),
+        prop("host", "http://localhost"),
+        prop("port", "80").toInt()
+    )
 }
 

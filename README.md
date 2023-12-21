@@ -59,45 +59,44 @@ sequenceDiagram
     participant Your Specification Doc
     participant RexSpec
     participant Your System
-    participant Executed Specification Doc
+    participant Output Doc
 
     rect rgb(50, 100, 100)
     %%        Note over RexSpec, Test Output: Test Execution
         RexSpec ->> Your Specification Doc: Read spec
         RexSpec ->> RexSpec: Extract tables as tests
-        RexSpec ->> Your System: Execute each test via Rest API / GraphQL / Event Queue
+        RexSpec ->> Your System: Execute each test
         Your System -->> RexSpec: Results
         RexSpec ->> RexSpec: Compare expected results with actuals
-        RexSpec ->> Executed Specification Doc: Create result specification with colours in tables to show pass/fail
+        RexSpec ->> Output Doc: Decorate your specification to show pass/fail
     end
 ```
 
-### Episode IV: A New Choice
+### Three Ways To Connect To Your Target System
 
-Instead of supporting all the interfacing methods (GraphQL, queues, HTTP, etc), we could use a standard HTTP interface
-and require that the target system provides certain endpoints, which allow the developers to translate to their own
-protocol and either fire at their APIs, or call their application code directly.
+#### (1) RexSpecs sends you JSON via HTTP
+You extend your HTTP API, or create a new one, to accept JSON from RexSpecs. You can then call your own APIs (GraphQL, queues, HTTP, etc) . This approach requires no Kotlin test fixtures but will require you to write some code to translate the JSON into your own API calls.
 
-This means that fixture code becomes language-independent. It is simply a translation from RESTful calls (to begin with)
-to whatever protocol the codebase uses. 
+#### (2) RexSpecs sends your handler JSON, and your handler converts it to an API call
+In Kotlin, you write a handler that accepts JSON from RexSpecs, and then calls your own APIs (GraphQL, queues, HTTP, etc)
 
-Placeholder for later:
+#### (3) RexSpecs sends your handler JSON, and your handler calls your domain directly
+
+In a Kotlin codebase, there is no need for an API call. You can call your domain directly, without calling your API layer.
 
 ```mermaid
 flowchart LR
-
-    subgraph Input Format Choices
-        A[Zero Fixture] -->|Declare hosts| B(Protocol)
-    end
+    classDef User fill:#f9f,stroke:#333,stroke-width:4px;
+    class H User;
     
-    subgraph Protocol Choices
-        X --> B
-    end
-    
-    B ==>|Direct API| D[Laptop]
-    B -->|Two| E[iPhone]
-    B -->|Three| F[fa:fa-car Car]
-  
+    A(Test) ==> B(RexSpecs)
+    B --> D(RexSpecs HTTP CLient)
+    B -->|"(2) Each row as JSON"| E(API Handler)
+    B -->|"(3) Each row as JSON"| F(Direct Domain Handler)
 
-
+    D(RexSpecs HTTP Client) -->|"(1) JSON over HTTP"| G(Proxy Server)
+    G(Proxy HTTP Server) --> H(Your API)
+    H --> I
+    E --> H
+    F(Direct Domain Handler) --> I(Your Core Domain)
 ```
