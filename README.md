@@ -75,28 +75,62 @@ sequenceDiagram
 ### Three Ways To Connect To Your Target System
 
 #### (1) RexSpecs sends you JSON via HTTP
-You extend your HTTP API, or create a new one, to accept JSON from RexSpecs. You can then call your own APIs (GraphQL, queues, HTTP, etc) . This approach requires no Kotlin test fixtures but will require you to write some code to translate the JSON into your own API calls.
+You extend your HTTP API, or create a proxy one, to accept JSON from RexSpecs. You can then call your own APIs (GraphQL, queues, HTTP, etc) . This approach requires no Kotlin test fixtures but will require you to write some code to translate the JSON into your own API calls.
 
 #### (2) RexSpecs sends your handler JSON, and your handler converts it to an API call
 In Kotlin, you write a handler that accepts JSON from RexSpecs, and then calls your own APIs (GraphQL, queues, HTTP, etc)
 
 #### (3) RexSpecs sends your handler JSON, and your handler calls your domain directly
 
-In a Kotlin codebase, there is no need for an API call. You can call your domain directly, without calling your API layer.
+In a Kotlin codebase, there is no need for an API call. You can call your domain directly, without calling your API layer. You also don't need to spin up a server, which makes it easier to run single tests quickly
 
 ```mermaid
 flowchart LR
-    classDef User fill:#f9f,stroke:#333,stroke-width:4px;
-    class H User;
-    
     A(Test) ==> B(RexSpecs)
     B --> D(RexSpecs HTTP CLient)
     B -->|"(2) Each row as JSON"| E(API Handler)
     B -->|"(3) Each row as JSON"| F(Direct Domain Handler)
 
-    D(RexSpecs HTTP Client) -->|"(1) JSON over HTTP"| G(Proxy Server)
+    D -->|"(1) JSON over HTTP"| G(Proxy Server)
     G(Proxy HTTP Server) --> H(Your API)
     H --> I
     E --> H
     F(Direct Domain Handler) --> I(Your Core Domain)
+
+    classDef User fill:#22F,stroke:#333,stroke-width:4px;
+    class H,I User;
+    
+    classDef Fixture fill:#252,stroke:#333,stroke-width:4px;
+    class A,E,F,G Fixture;
+    
+    classDef RexSpecs fill:#515,stroke:#333,stroke-width:4px;
+    class B,D RexSpecs;
+```
+
+### Three Ways To Write Tests
+
+#### (1) As An HTML Document
+This is the recommended option, because it allows informed users to collaborate with you in the definition of your system behaviour. 
+
+#### (2) As JSON, In Test Code
+To get to Hello World super quickly, send the JSON straight to RexSpecs, then enjoy the beautiful HTML output.
+
+#### (3) As JSON, In A DB
+Your test specifications are also a form of data. Until I get around to writing an app to host your tests, you can do it yourself. 
+
+
+```mermaid
+flowchart LR
+    A(HTML) --> B(RexSpecs Parser) --> C(RexSpecs Processor) -->|JSON| D(Target)
+    E(Test) --> C
+    F(DB) --> C
+
+    classDef TestInput fill:#252,stroke:#333,stroke-width:4px;
+    class A,E,F TestInput;
+
+    classDef RexSpecs fill:#515,stroke:#333,stroke-width:4px;
+    class B,C RexSpecs;
+
+    classDef JSON fill:#22F,stroke:#333,stroke-width:4px;
+    class D JSON;
 ```

@@ -14,9 +14,9 @@ plugins {
 group = "io.github.agmenc"
 version = "0.1-SNAPSHOT"
 
-//Franck Rasolo - This snippet will also make the Gradle/IntelliJ integration set up the matching SDK automatically in your project structure:
 kotlin {
     jvmToolchain {
+        // TODO - upgrade to 21
         languageVersion.set(JavaLanguageVersion.of(20))
         vendor.set(JvmVendorSpec.ADOPTIUM)
     }

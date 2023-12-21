@@ -3,7 +3,6 @@ package com.rexspecs
 import org.http4k.client.ApacheClient
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
-import org.http4k.core.Uri
 
 //TODO use the root and port.
 open class HttpClient(val hostUrl: String, val hostPort: Int) {
