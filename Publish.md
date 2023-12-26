@@ -47,3 +47,7 @@ plugins {
 }
 ```
 
+Creating a tag:
+```bash
+git tag -a v0.0.1-SNAPSHOT -m "Test Maven publishing toolchain"
+```
