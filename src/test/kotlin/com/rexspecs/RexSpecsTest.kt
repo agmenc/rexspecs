@@ -253,6 +253,10 @@ internal class RexSpecsTest {
 
     @Test
     @Disabled
+    fun `Can run RexSpec by passing in JSON directly`() {}
+
+    @Test
+    @Disabled
     fun `We can clean out the target directories, so that we can do the next test run`() {}
 
     @Test
