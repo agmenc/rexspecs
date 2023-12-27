@@ -75,14 +75,16 @@ sequenceDiagram
 ### Three Ways To Connect To Your Target System
 
 #### (1) RexSpecs sends you JSON via HTTP
-You extend your HTTP API, or create a proxy one, to accept JSON from RexSpecs. You can then call your own APIs (GraphQL, queues, HTTP, etc) . This approach requires no Kotlin test fixtures but will require you to write some code to translate the JSON into your own API calls.
+You extend your HTTP API, or create a proxy one, to accept JSON from RexSpecs. You can then call your own APIs (GraphQL,
+queues, HTTP, etc) . This approach requires no Kotlin test fixtures but will require you to write some code to translate
+the JSON into your own API calls. When you configure your tests, you will need to start up a server. RexSpecs will use
+configuration to know how to find your server.
 
 #### (2) RexSpecs sends your handler JSON, and your handler converts it to an API call
 In Kotlin, you write a handler that accepts JSON from RexSpecs, and then calls your own APIs (GraphQL, queues, HTTP, etc)
 
 #### (3) RexSpecs sends your handler JSON, and your handler calls your domain directly
-
-In a Kotlin codebase, there is no need for an API call. You can call your domain directly, without calling your API layer. You also don't need to spin up a server, which makes it easier to run single tests quickly
+In a Kotlin codebase, you can call your domain directly, without calling your API layer. You also don't need to spin up a server, which makes it easier to run single tests quickly
 
 ```mermaid
 flowchart LR

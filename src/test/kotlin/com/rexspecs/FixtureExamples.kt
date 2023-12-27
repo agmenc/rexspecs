@@ -1,4 +1,4 @@
-package com.rexspecs.fixtures
+package com.rexspecs
 
 import org.http4k.core.HttpMessage
 import org.http4k.core.Method
@@ -6,7 +6,6 @@ import org.http4k.core.Request
 import org.http4k.core.Uri
 import java.net.URLEncoder
 
-// TODO: Move to test source root
 fun calculatorRequestBuilder(params: Map<String, String>): Request {
     val uri = Uri.of("http://not-actually-a-real-host.com/")
         .path("/target")

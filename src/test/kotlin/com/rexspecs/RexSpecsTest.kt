@@ -1,6 +1,7 @@
 package com.rexspecs
 
-import com.rexspecs.fixtures.calculatorRequestBuilder
+import com.rexspecs.inputs.FileInputReader
+import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.http4k.core.*
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Assertions.*
@@ -184,7 +185,7 @@ internal class RexSpecsTest {
 
     @Test
     fun `Can use a source file as input`() {
-        val testFileContents = SingleSpecFileDatabase("src/test/resources/specs/AnAcceptanceTest.html").specs().first()
+        val testFileContents = SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html").specs().first()
         val formattedContents = Jsoup.parse(testFileContents.specContents).toString()
 
         val spec = SpecExecutor(
@@ -203,7 +204,7 @@ internal class RexSpecsTest {
     fun `Can write to a target file as output`() {
         val rexSpec = RexSpec(
             RexSpecPropertiesLoader.properties(),
-            SingleSpecFileDatabase("src/test/resources/specs/AnAcceptanceTest.html"),
+            SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
@@ -218,7 +219,7 @@ internal class RexSpecsTest {
         assertEquals(expectedOutputFile, actualOutputFile)
     }
 
-    class SingleSpecFileDatabase(private val sourcePath: String): FileSpecDatabase() {
+    class SingleInputReader(private val sourcePath: String): FileInputReader() {
         override fun specs(): List<IdentifiedSpec> {
             return listOf(IdentifiedSpec(fileAsString(sourcePath), sourcePath))
         }
@@ -230,7 +231,7 @@ internal class RexSpecsTest {
 
         val rexSpec = RexSpec(
             props,
-            SingleSpecFileDatabase("src/test/resources/specs/AnAcceptanceTest.html"),
+            SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             HttpClient(props.host, props.port).handle
         )
@@ -253,7 +254,9 @@ internal class RexSpecsTest {
 
     @Test
     @Disabled
-    fun `Can run RexSpec by passing in JSON directly`() {}
+    fun `Can run RexSpec by passing in JSON directly`() {
+//        RexSpecs.executeSuite()
+    }
 
     @Test
     @Disabled

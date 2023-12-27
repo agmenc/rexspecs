@@ -1,5 +1,7 @@
 package com.rexspecs
 
+import com.rexspecs.inputs.InputReader
+import com.rexspecs.utils.RexSpecProperties
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -15,16 +17,6 @@ typealias FixtureLookup = Map<String, (Map<String, String>) -> Request>
 
 open class IdentifiedSpec(val specContents: String, val specIdentifier: String)
 
-interface SpecDatabase {
-    fun specs(): List<IdentifiedSpec>
-}
-
-open class FileSpecDatabase : SpecDatabase {
-    override fun specs(): List<IdentifiedSpec> {
-        TODO("Not yet implemented")
-    }
-}
-
 data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun success(): Boolean = executedSpecs.fold(true) { allGood, nextSpec -> allGood && nextSpec.success() }
 
@@ -36,15 +28,25 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     }
 }
 
-data class RexSpec(val properties: RexSpecProperties, val specProvider: SpecDatabase, val index: FixtureLookup, val httpHandler: HttpHandler) {
+// InputReader: there is a thing that knows about specs
+// Specs: specs are identified in a tree structure (regardless of filesystem, DB, or whatever source
+// Specs: specs emit JSON, line by line
+// TestRunner (built-in): reads JSON from the reader and sends it to the HttpHandler
+// TestRunner (built-in): Receives a JSON result from the HttpHandler
+// TestRunner (built-in): Sends both input and output to the OutputWriter
+// HttpHandler: a type of Connector, that accepts JSON, makes an API call, and translates the response back into JSON
+// OutputWriter: generates an annotated output, based on the expected vs actual results
+// FixtureLookup: matches table names to test fixtures.
+// Dependencies: InputReader, OutputWriter, FixtureLookup, HttpHandler
+// SuiteExecutor (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.
+class RexSpec(val properties: RexSpecProperties, val specProvider: InputReader, val index: FixtureLookup, val httpHandler: HttpHandler) {
     fun execute(): ExecutedSuite = ExecutedSuite(specProvider.specs().map { SpecExecutor(it, index, httpHandler).execute() })
 
     // TODO: look to bring all IO to the top level
     fun cleanTargetDir() {
-        File(properties.targetPath).listFiles().map {
+        File(properties.targetPath).listFiles()?.forEach {
             val didItWork = it.delete()
             println("Deleted ${it.absolutePath} ==> ${didItWork}")
-            didItWork
         }
     }
 }
