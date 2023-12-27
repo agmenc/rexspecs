@@ -1,9 +1,26 @@
 Publishing to Sonatype
 ======================
 
-Copied steps from here: https://dev.to/tschuehly/how-to-publish-a-kotlinjava-spring-boot-library-with-gradle-to-maven-central-complete-guide-402a#8-when-is-the-library-actually-available-to-use
+I copied most of the steps from [this excellent article][1], and added a few notes and a couple of extra steps.
 
-The gpg steps had complications, so fixed versions are listed in full below
+Repeated Steps (Every time I publish a new version)
+---
+1. Make sure the version number in `build.gradle.kts` is correct
+2. Commit the changes locally
+3. Create a tag for the version:
+```bash
+git tag -a v0.0.1-SNAPSHOT -m "Test Maven publishing toolchain"
+```
+4. Wait a few minutes, then do a [quick Sonatype Search][2] for the artifact
+
+[1]: https://dev.to/tschuehly/how-to-publish-a-kotlinjava-spring-boot-library-with-gradle-to-maven-central-complete-guide-402a#8-when-is-the-library-actually-available-to-use
+[2]: https://s01.oss.sonatype.org/#nexus-search;quick~agmenc
+
+Modifications/Clarifications for One-time Publishing Setup
+---
+
+### GPG setup
+The gpg steps had complications, mostly around getting the correct address of the key server, so updated versions are listed in full below
 
 ```bash
 # Generate a key, using your name, email address, and a descriptive comment that reminds you WTF it is for
@@ -40,6 +57,7 @@ gpg --export-secret-keys <key ID> | base64
 
 ```
 
+### Missing Plugin
 The gradle step needed an extra plugin:
 ```groovy
 plugins {
@@ -47,12 +65,9 @@ plugins {
 }
 ```
 
-Creating a tag:
-```bash
-git tag -a v0.0.1-SNAPSHOT -m "Test Maven publishing toolchain"
-```
-
-Manual release in Somatype:
+### Manual release in Sonatype
+When getting everything set up, you can set `jreleaser` `closeRepository` and `releaseRepository` to false, and then
+manually release the repository in Sonatype. Like this: 
 * Go to https://s01.oss.sonatype.org/#stagingRepositories
 * `Close` the repository
 * `Release` the repository
