@@ -51,3 +51,8 @@ Creating a tag:
 ```bash
 git tag -a v0.0.1-SNAPSHOT -m "Test Maven publishing toolchain"
 ```
+
+Manual release in Somatype:
+* Go to https://s01.oss.sonatype.org/#stagingRepositories
+* `Close` the repository
+* `Release` the repository

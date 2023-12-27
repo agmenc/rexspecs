@@ -126,11 +126,8 @@ jreleaser {
                 create("maven-central") {
                     active.set(Active.ALWAYS)
                     url.set("https://s01.oss.sonatype.org/service/local")
-
-                    // TODO: Set to true once it all works
-                    closeRepository.set(false)
-                    releaseRepository.set(false)
-
+                    closeRepository.set(true)
+                    releaseRepository.set(true)
                     stagingRepositories.add("build/staging-deploy")
                 }
             }
