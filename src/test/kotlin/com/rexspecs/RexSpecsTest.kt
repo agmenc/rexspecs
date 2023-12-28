@@ -202,18 +202,29 @@ internal class RexSpecsTest {
     }
 
     @Test
-    fun `Can write to a target file as output`() {
+    fun `We know when the whole suite fails`() {
         val props = RexSpecPropertiesLoader.properties()
-        val outputWriter = FileOutputWriter(props.targetPath)
 
         val executedSuite = runSuite(
             SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
-            outputWriter,
+            FileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
         assertFalse(executedSuite.success())
+    }
+
+    @Test
+    fun `Can write to a target file as output`() {
+        val props = RexSpecPropertiesLoader.properties()
+
+        runSuite(
+            SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
+            FileOutputWriter(props.targetPath),
+            mapOf("Calculator" to ::calculatorRequestBuilder),
+            stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
+        )
 
         val expectedOutputFile = sanified("src/test/resources/expectations/AnAcceptanceTest.html")
         val actualOutputFile = htmlSanitised(fileAsString("rexspecs/AnAcceptanceTest.html"))
@@ -223,11 +234,10 @@ internal class RexSpecsTest {
     @Test
     fun `Can call a real HTTP server`() {
         val props = RexSpecPropertiesLoader.properties()
-        val outputWriter = FileOutputWriter(props.targetPath)
 
         runSuite(
             SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
-            outputWriter,
+            FileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             HttpClient(props.host, props.port).handle
         )
