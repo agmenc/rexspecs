@@ -9,7 +9,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
-import java.io.File
 import java.nio.ByteBuffer
 import kotlin.text.Charsets.UTF_8
 
@@ -25,20 +24,33 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
 // InputReader: knows where to find specs, and how to read them
 // Specs: are identified in a tree structure (regardless of filesystem, DB, or whatever source)
 // Specs: emit JSON, line by line
-// TestRunner (built-in): reads JSON from the reader and sends it to the HttpHandler
-// TestRunner (built-in): Receives a JSON result from the HttpHandler
-// TestRunner (built-in): Sends both input and output to the OutputWriter
+// SpecRunner (built-in): reads JSON from the reader and sends it to the HttpHandler
+// SpecRunner (built-in): Receives a JSON result from the HttpHandler
+// SpecRunner (built-in): Sends both input and output to the OutputWriter
 // HttpHandler: a type of Connector, that accepts JSON, makes an API call, and translates the response back into JSON
 // OutputWriter: generates an annotated output, based on the expected vs actual results
 // FixtureLookup: matches table names to test fixtures.
 // Dependencies: InputReader, OutputWriter, FixtureLookup, HttpHandler
 // SuiteRunner (built-in): moves through the list of specs identified by the InputReader, and executes them one-by-one
 // SuiteRunner (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.
-class RexSpec(val testSourceRoot: String, val specProvider: InputReader, val outputWriter: OutputWriter, val index: FixtureLookup, val httpHandler: HttpHandler) {
-    fun execute(): ExecutedSuite = ExecutedSuite(specProvider.specs().map { SpecExecutor(it, index, httpHandler).execute() })
+fun runSuite(
+    specProvider: InputReader,
+    outputWriter: OutputWriter,
+    index: FixtureLookup,
+    httpHandler: HttpHandler
+): ExecutedSuite {
+    outputWriter.cleanTargetDir()
+    return ExecutedSuite(specProvider.specs().map { SpecRunner(it, index, httpHandler).execute() })
+        .also { executedSuite ->
+            // TODO: make this part of single-spec execution
+            outputWriter.writeSpecResults(executedSuite.firstSpec(), "rexspecs/AnAcceptanceTest.html")
+        }
+        .also { executedSuite ->
+            println("RexSpecs: ${if (executedSuite.success()) "SUCCESS" else "FAILURE"}")
+        }
 }
 
-class SpecExecutor(
+class SpecRunner(
     val identifiedSpec: IdentifiedSpec,
     val index: FixtureLookup,
     val httpHandler: HttpHandler

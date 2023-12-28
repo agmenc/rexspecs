@@ -100,7 +100,7 @@ internal class RexSpecsTest {
             RowResult("201", "56"),
         )
 
-        val spec = SpecExecutor(
+        val spec = SpecRunner(
             IdentifiedSpec(sampleInput, "some/spec/path"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
@@ -114,7 +114,7 @@ internal class RexSpecsTest {
 
     @Test
     fun `We know that a passing test has passed`() {
-        val passingSpec = SpecExecutor(
+        val passingSpec = SpecRunner(
             IdentifiedSpec(sampleInput, "some/spec/path"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
@@ -127,7 +127,7 @@ internal class RexSpecsTest {
 
     @Test
     fun `We know that a failing test has failed`() {
-        val failingSpec = SpecExecutor(
+        val failingSpec = SpecRunner(
             IdentifiedSpec(sampleInput, "some/spec/path"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf())
@@ -162,7 +162,7 @@ internal class RexSpecsTest {
 
     @Test
     fun `Can use Fixture to build HTTP requests`() {
-        val spec = SpecExecutor(
+        val spec = SpecRunner(
             IdentifiedSpec(sampleInput, "some/spec/path"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
@@ -189,7 +189,7 @@ internal class RexSpecsTest {
         val testFileContents = SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html").specs().first()
         val formattedContents = Jsoup.parse(testFileContents.specContents).toString()
 
-        val spec = SpecExecutor(
+        val spec = SpecRunner(
             IdentifiedSpec(formattedContents, "some/spec/path"),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
@@ -206,18 +206,14 @@ internal class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
         val outputWriter = FileOutputWriter(props.targetPath)
 
-        val rexSpec = RexSpec(
-            props.targetPath,
+        val executedSuite = runSuite(
             SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
             outputWriter,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
-        val executedSuite = rexSpec.execute()
         assertFalse(executedSuite.success())
-
-        outputWriter.writeSpecResults(executedSuite.firstSpec(), "rexspecs/AnAcceptanceTest.html")
 
         val expectedOutputFile = sanified("src/test/resources/expectations/AnAcceptanceTest.html")
         val actualOutputFile = htmlSanitised(fileAsString("rexspecs/AnAcceptanceTest.html"))
@@ -229,21 +225,12 @@ internal class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
         val outputWriter = FileOutputWriter(props.targetPath)
 
-        val rexSpec = RexSpec(
-            props.targetPath,
+        runSuite(
             SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
             outputWriter,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             HttpClient(props.host, props.port).handle
         )
-
-        // TODO: Make part of SuiteRunner
-        outputWriter.cleanTargetDir()
-
-        val executedSuite = rexSpec.execute()
-
-        // TODO: the TestRunner should use the OutputWriter to do this
-        outputWriter.writeSpecResults(executedSuite.firstSpec(), "rexspecs/AnAcceptanceTest.html")
 
         assertEquals(
             sanified("src/test/resources/expectations/AnAcceptanceTest.html"),
