@@ -7,12 +7,12 @@ import java.io.File
 
 interface OutputWriter {
     fun writeSpecResults(executedSpec: ExecutedSpec, filePath: String)
-    fun cleanTargetDir(): Unit
+    fun cleanTargetDir()
 }
 
 open class FileOutputWriter(private val testSourceRoot: String) : OutputWriter {
     // TODO: move filePath into ExecutedSpec
-    override fun writeSpecResults(executedSpec: ExecutedSpec, filePath: String): Unit {
+    override fun writeSpecResults(executedSpec: ExecutedSpec, filePath: String) {
         writeFile(executedSpec.output(), filePath)
     }
 

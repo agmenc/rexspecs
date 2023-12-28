@@ -21,26 +21,26 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun firstSpec(): ExecutedSpec = executedSpecs.first()
 }
 
-// InputReader: knows where to find specs, and how to read them
+// InputReader: knows where to find specs, and how to read them into their JSON representation
 // Specs: are identified in a tree structure (regardless of filesystem, DB, or whatever source)
 // Specs: emit JSON, line by line
 // SpecRunner (built-in): reads JSON from the reader and sends it to the HttpHandler
 // SpecRunner (built-in): Receives a JSON result from the HttpHandler
 // SpecRunner (built-in): Sends both input and output to the OutputWriter
-// HttpHandler: a type of Connector, that accepts JSON, makes an API call, and translates the response back into JSON
-// OutputWriter: generates an annotated output, based on the expected vs actual results
+// HttpHandler: a type of ***Connector***, that accepts JSON, makes an API call, and translates the response back into JSON
+// OutputWriter: outputs a decorated version of the input, highlighting expected vs actual results
 // FixtureLookup: matches table names to test fixtures.
 // Dependencies: InputReader, OutputWriter, FixtureLookup, HttpHandler
 // SuiteRunner (built-in): moves through the list of specs identified by the InputReader, and executes them one-by-one
 // SuiteRunner (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.
 fun runSuite(
-    specProvider: InputReader,
+    inputReader: InputReader,
     outputWriter: OutputWriter,
-    index: FixtureLookup,
+    fixtureLookup: FixtureLookup,
     httpHandler: HttpHandler
 ): ExecutedSuite {
     outputWriter.cleanTargetDir()
-    return ExecutedSuite(specProvider.specs().map { SpecRunner(it, index, httpHandler).execute() })
+    return ExecutedSuite(inputReader.specs().map { SpecRunner(it, fixtureLookup, httpHandler).execute() })
         .also { executedSuite ->
             // TODO: make this part of single-spec execution
             outputWriter.writeSpecResults(executedSuite.firstSpec(), "rexspecs/AnAcceptanceTest.html")
@@ -87,6 +87,7 @@ class SpecRunner(
     }
 
     private fun toRexResults(response: Response): RowResult {
+        // TODO: Move HTTP gubbins elsewhere
         return RowResult(response.status.code.toString(), toByteArray(response.body.payload).toString(UTF_8))
     }
 

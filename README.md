@@ -88,16 +88,14 @@ In a Kotlin codebase, you can call your domain directly, without calling your AP
 
 ```mermaid
 flowchart LR
-    A(Test) ==> B(RexSpecs)
-    B --> D(RexSpecs HTTP CLient)
-    B -->|"(2) Each row as JSON"| E(API Handler)
-    B -->|"(3) Each row as JSON"| F(Direct Domain Handler)
+    A(Test) ==> B(SpecRunner)
+    B --> |"(1) Each row as JSON"| E(API Connector) --> H
+    B -.-> D(RexSpecs HTTP Connector) -.-> |"(2) JSON over HTTP"| G(Proxy Server)
+    B -.-> |"(3) Each row as JSON"| F(Domain Connector)
 
-    D -->|"(1) JSON over HTTP"| G(Proxy Server)
-    G(Proxy HTTP Server) --> H(Your API)
+    G -.-> H(Your API)
     H --> I
-    E --> H
-    F(Direct Domain Handler) --> I(Your Core Domain)
+    F -.-> I(Your Core Domain)
 
     classDef User fill:#22F,stroke:#333,stroke-width:4px;
     class H,I User;
@@ -123,9 +121,9 @@ Your test specifications are also a form of data. Until I get around to writing 
 
 ```mermaid
 flowchart LR
-    A(HTML) --> B(RexSpecs Parser) --> C(RexSpecs Processor) -->|JSON| D(Target)
-    E(Test) --> C
-    F(DB) --> C
+    A(HTML) --> B(InputReader) --> C(SpecRunner) -->|JSON| D(Target)
+    E(Test) --> X(InputReader) --> C
+    F(DB) --> Y(InputReader) --> C
 
     classDef TestInput fill:#252,stroke:#333,stroke-width:4px;
     class A,E,F TestInput;
