@@ -1,7 +1,7 @@
 package com.rexspecs
 
 import com.rexspecs.inputs.InputReader
-import com.rexspecs.utils.RexSpecProperties
+import com.rexspecs.outputs.OutputWriter
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -19,18 +19,12 @@ open class IdentifiedSpec(val specContents: String, val specIdentifier: String)
 
 data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun success(): Boolean = executedSpecs.fold(true) { allGood, nextSpec -> allGood && nextSpec.success() }
-
-    // TODO is there a way to mark side-effecting code in Kotlin? Arrow FX and IO<T>, etc?
-    fun writeSpecResults(filePath: String) {
-        executedSpecs
-            .map{ it.output() }
-            .forEach{ writeFile(it, filePath) }
-    }
+    fun firstSpec(): ExecutedSpec = executedSpecs.first()
 }
 
-// InputReader: there is a thing that knows about specs
-// Specs: specs are identified in a tree structure (regardless of filesystem, DB, or whatever source
-// Specs: specs emit JSON, line by line
+// InputReader: knows where to find specs, and how to read them
+// Specs: are identified in a tree structure (regardless of filesystem, DB, or whatever source)
+// Specs: emit JSON, line by line
 // TestRunner (built-in): reads JSON from the reader and sends it to the HttpHandler
 // TestRunner (built-in): Receives a JSON result from the HttpHandler
 // TestRunner (built-in): Sends both input and output to the OutputWriter
@@ -38,17 +32,10 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
 // OutputWriter: generates an annotated output, based on the expected vs actual results
 // FixtureLookup: matches table names to test fixtures.
 // Dependencies: InputReader, OutputWriter, FixtureLookup, HttpHandler
-// SuiteExecutor (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.
-class RexSpec(val properties: RexSpecProperties, val specProvider: InputReader, val index: FixtureLookup, val httpHandler: HttpHandler) {
+// SuiteRunner (built-in): moves through the list of specs identified by the InputReader, and executes them one-by-one
+// SuiteRunner (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.
+class RexSpec(val testSourceRoot: String, val specProvider: InputReader, val outputWriter: OutputWriter, val index: FixtureLookup, val httpHandler: HttpHandler) {
     fun execute(): ExecutedSuite = ExecutedSuite(specProvider.specs().map { SpecExecutor(it, index, httpHandler).execute() })
-
-    // TODO: look to bring all IO to the top level
-    fun cleanTargetDir() {
-        File(properties.targetPath).listFiles()?.forEach {
-            val didItWork = it.delete()
-            println("Deleted ${it.absolutePath} ==> ${didItWork}")
-        }
-    }
 }
 
 class SpecExecutor(

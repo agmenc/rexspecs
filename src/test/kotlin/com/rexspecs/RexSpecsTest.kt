@@ -1,6 +1,7 @@
 package com.rexspecs
 
-import com.rexspecs.inputs.FileInputReader
+import com.rexspecs.inputs.SingleInputReader
+import com.rexspecs.outputs.FileOutputWriter
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.http4k.core.*
 import org.jsoup.Jsoup
@@ -202,9 +203,13 @@ internal class RexSpecsTest {
 
     @Test
     fun `Can write to a target file as output`() {
+        val props = RexSpecPropertiesLoader.properties()
+        val outputWriter = FileOutputWriter(props.targetPath)
+
         val rexSpec = RexSpec(
-            RexSpecPropertiesLoader.properties(),
+            props.targetPath,
             SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
+            outputWriter,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
@@ -212,37 +217,33 @@ internal class RexSpecsTest {
         val executedSuite = rexSpec.execute()
         assertFalse(executedSuite.success())
 
-        executedSuite.writeSpecResults("rexspecs/AnAcceptanceTest.html")
+        outputWriter.writeSpecResults(executedSuite.firstSpec(), "rexspecs/AnAcceptanceTest.html")
 
         val expectedOutputFile = sanified("src/test/resources/expectations/AnAcceptanceTest.html")
         val actualOutputFile = htmlSanitised(fileAsString("rexspecs/AnAcceptanceTest.html"))
         assertEquals(expectedOutputFile, actualOutputFile)
     }
 
-    class SingleInputReader(private val sourcePath: String): FileInputReader() {
-        override fun specs(): List<IdentifiedSpec> {
-            return listOf(IdentifiedSpec(fileAsString(sourcePath), sourcePath))
-        }
-    }
-
     @Test
     fun `Can call a real HTTP server`() {
         val props = RexSpecPropertiesLoader.properties()
+        val outputWriter = FileOutputWriter(props.targetPath)
 
         val rexSpec = RexSpec(
-            props,
+            props.targetPath,
             SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
+            outputWriter,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             HttpClient(props.host, props.port).handle
         )
 
-        // TODO: Make part of rexSpec.execute()???
-        rexSpec.cleanTargetDir()
+        // TODO: Make part of SuiteRunner
+        outputWriter.cleanTargetDir()
 
         val executedSuite = rexSpec.execute()
 
-        // TODO: Make rexSpec.execute() do this???
-        executedSuite.writeSpecResults("rexspecs/AnAcceptanceTest.html")
+        // TODO: the TestRunner should use the OutputWriter to do this
+        outputWriter.writeSpecResults(executedSuite.firstSpec(), "rexspecs/AnAcceptanceTest.html")
 
         assertEquals(
             sanified("src/test/resources/expectations/AnAcceptanceTest.html"),
