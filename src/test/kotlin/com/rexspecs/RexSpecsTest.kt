@@ -1,6 +1,6 @@
 package com.rexspecs
 
-import com.rexspecs.inputs.SingleInputReader
+import com.rexspecs.inputs.SingleHtmlInputReader
 import com.rexspecs.outputs.FileOutputWriter
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.http4k.core.*
@@ -73,7 +73,7 @@ val calcTwoFails =
         body = MemoryBody("Unsupported operator: \"x\"")
     )
 
-internal class RexSpecsTest {
+class RexSpecsTest {
 
     @Test
     fun `Can convert a table to a test representation`() {
@@ -186,7 +186,7 @@ internal class RexSpecsTest {
 
     @Test
     fun `Can use a source file as input`() {
-        val testFileContents = SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html").specs().first()
+        val testFileContents = SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html").specs().first()
         val formattedContents = Jsoup.parse(testFileContents.specContents).toString()
 
         val spec = SpecRunner(
@@ -206,7 +206,7 @@ internal class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         val executedSuite = runSuite(
-            SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
+            SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
             FileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
@@ -220,7 +220,7 @@ internal class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
+            SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
             FileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
@@ -236,7 +236,7 @@ internal class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
+            SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
             FileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             HttpClient(props.host, props.port).handle

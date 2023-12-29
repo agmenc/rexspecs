@@ -23,9 +23,9 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
 
 // InputReader: knows where to find specs, and how to read them into their JSON representation
 // Specs: are identified in a tree structure (regardless of filesystem, DB, or whatever source)
-// Specs: emit JSON, line by line
-// SpecRunner (built-in): reads JSON from the reader and sends it to the HttpHandler
-// SpecRunner (built-in): Receives a JSON result from the HttpHandler
+// Specs: emit, or are composed of JSON, processed row by row (e.g. from HTML tables)
+// SpecRunner (built-in): Reads JSON from the reader and sends it to the Connector
+// SpecRunner (built-in): Receives a JSON result from the Connector
 // SpecRunner (built-in): Sends both input and output to the OutputWriter
 // HttpHandler: a type of ***Connector***, that accepts JSON, makes an API call, and translates the response back into JSON
 // OutputWriter: outputs a decorated version of the input, highlighting expected vs actual results
