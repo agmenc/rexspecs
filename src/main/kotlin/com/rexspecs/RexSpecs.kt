@@ -15,8 +15,6 @@ import kotlin.text.Charsets.UTF_8
 
 typealias FixtureLookup = Map<String, (Map<String, String>) -> Request>
 
-open class IdentifiedSpec(val specContents: String, val specIdentifier: String)
-
 data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun success(): Boolean = executedSpecs.fold(true) { allGood, nextSpec -> allGood && nextSpec.success() }
     fun firstSpec(): ExecutedSpec = executedSpecs.first()
