@@ -6,18 +6,19 @@
 </head>
 <body>
 <h1>Tables Define Tests</h1>
-<p>Text like this is nice but decorative: it doesn't get executed. That means it isn't
-part of the living document*. Less is more.</p>
-<p>* A living document is one that stays up-to-date, instead of becoming irrelevant almost
-    as soon as the first line of code is written (which is the fate of most documents)</p>
-Things to note:
-<ul>
-    <li>The first cell, in the table header, defines the type of test</li>
-    <li>The column headers are parsed for correctness (and the order matters)</li>
-    <li>Each row consists of inputs and expected outputs</li>
-    <li>Each row results in an API call</li>
-    <li>The API call returns a result, which is written back into the output document</li>
-</ul>
+<p>
+    Text like this is nice but decorative: it doesn't get executed. Living documents are forced to stay up-to-date,
+    because your tests fail if they are wrong.
+</p>
+<p>
+    Things to note: <br/>
+    * The first cell, in the table header, defines the type of test <br/>
+    * The column headers are parsed for correctness (and the order matters) <br/>
+    * Each row consists of inputs and expected outputs <br/>
+    * Each row results in an API call <br/>
+    * The API call returns a result, which is written back into the output document
+</p>
+
 <table>
     <thead>
     <tr>
@@ -48,16 +49,5 @@ Things to note:
     </tr>
     </tbody>
 </table>
-
-<script>
-    // TODO - Also support writing tests as JSON data and inject into DOM tables with JavaScript when showing the page in a browser
-    const example = {
-        "fixtureClass": "Calculator",
-        "header": ["First Param", "Operator", "Second Param"],
-        "testRows": [
-            [7, "+", 8, 200, "13"]
-        ]
-    }
-</script>
 </body>
 </html>

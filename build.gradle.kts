@@ -34,6 +34,7 @@ dependencies {
     implementation("org.http4k:http4k-core")
     implementation("org.http4k:http4k-server-undertow")
     implementation("org.http4k:http4k-client-apache")
+    implementation("org.http4k:http4k-format-kotlinx-serialization")
     implementation("org.jsoup:jsoup:1.16.1")
 
 //    testImplementation(kotlin("test"))

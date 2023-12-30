@@ -2,6 +2,7 @@ package com.rexspecs
 
 import com.rexspecs.inputs.SingleHtmlInputReader
 import com.rexspecs.outputs.FileOutputWriter
+import com.rexspecs.specs.HackyHtmlSpec
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.http4k.core.*
 import org.jsoup.Jsoup
@@ -100,13 +101,13 @@ class RexSpecsTest {
             RowResult("201", "56"),
         )
 
-        val spec = SpecRunner(
-            IdentifiedSpec(sampleInput, "some/spec/path"),
+        val executedSpec = SpecRunner(
+            HackyHtmlSpec(sampleInput),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
 
-        spec.execute().executedTables
+        executedSpec.execute().executedTables
             .flatMap { it.actualRowResults }
             .zip(expectedResults)
             .forEach { (actual, expected) -> assertEquals(expected, actual) }
@@ -115,7 +116,7 @@ class RexSpecsTest {
     @Test
     fun `We know that a passing test has passed`() {
         val passingSpec = SpecRunner(
-            IdentifiedSpec(sampleInput, "some/spec/path"),
+            HackyHtmlSpec(sampleInput),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
@@ -128,7 +129,7 @@ class RexSpecsTest {
     @Test
     fun `We know that a failing test has failed`() {
         val failingSpec = SpecRunner(
-            IdentifiedSpec(sampleInput, "some/spec/path"),
+            HackyHtmlSpec(sampleInput),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf())
         )
@@ -163,7 +164,7 @@ class RexSpecsTest {
     @Test
     fun `Can use Fixture to build HTTP requests`() {
         val spec = SpecRunner(
-            IdentifiedSpec(sampleInput, "some/spec/path"),
+            HackyHtmlSpec(sampleInput),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
@@ -186,11 +187,11 @@ class RexSpecsTest {
 
     @Test
     fun `Can use a source file as input`() {
-        val testFileContents = SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html").specs().first()
-        val formattedContents = Jsoup.parse(testFileContents.specContents).toString()
+        val testFileContents = SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html").speccies().first()
+        val formattedContents = Jsoup.parse(testFileContents.guts()).toString()
 
         val spec = SpecRunner(
-            IdentifiedSpec(formattedContents, "some/spec/path"),
+            testFileContents,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )

@@ -1,4 +1,5 @@
 # RexSpecs
+## Executable Specifications Made Easy
 
 RexSpecs is a library for running executable specifications against the API surface of your applications or services. 
 Executable specifications look like clear, well-formatted documents, yet they can also be executed as tests. This allows 

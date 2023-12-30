@@ -1,7 +1,6 @@
 package com.rexspecs.outputs
 
 import com.rexspecs.ExecutedSpec
-import com.rexspecs.output
 import com.rexspecs.writeFile
 import java.io.File
 

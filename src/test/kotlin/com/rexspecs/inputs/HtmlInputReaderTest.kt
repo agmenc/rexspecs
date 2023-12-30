@@ -1,6 +1,8 @@
 package com.rexspecs.inputs
 
+import com.rexspecs.specs.Spec
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
@@ -11,11 +13,30 @@ class HtmlInputReaderTest {
 
         assertEquals(
             listOf("rexspecs/specs/AcceptanceTestOne.html", "rexspecs/specs/nesting/AcceptanceTestTwo.html"),
-            inputReader.rexspecs()
+            inputReader.specIdentifiers()
         )
     }
 
     @Test
+    fun `Can find a Spec by ID`() {
+        val inputReader = HtmlInputReader("rexspecs")
+
+        val spec: Spec = inputReader.speccies().first()
+
+        assertEquals("An Acceptance Test", spec.title)
+    }
+
+    @Test
     @Disabled
-    fun `Barfs when the source root doesn't contain a specs folder or a results folder`() {}
+    fun `Can iterate through a Spec`() {
+        val inputReader = HtmlInputReader("rexspecs")
+
+        val spec: Spec = inputReader.speccies().first()
+
+        assertTrue(spec.components().hasNext())
+    }
+
+    @Test
+    @Disabled
+    fun `DirectoryManager barfs when the source root doesn't contain a specs folder or a results folder`() {}
 }

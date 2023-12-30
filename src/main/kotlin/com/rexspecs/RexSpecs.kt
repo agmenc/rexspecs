@@ -2,6 +2,7 @@ package com.rexspecs
 
 import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
+import com.rexspecs.specs.Spec
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -21,6 +22,8 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun firstSpec(): ExecutedSpec = executedSpecs.first()
 }
 
+// SuiteRunner (built-in): moves through the list of specs identified by the InputReader, and executes them one-by-one
+// SuiteRunner (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.
 // InputReader: knows where to find specs, and how to read them into their JSON representation
 // Specs: are identified in a tree structure (regardless of filesystem, DB, or whatever source)
 // Specs: emit, or are composed of JSON, processed row by row (e.g. from HTML tables)
@@ -31,8 +34,6 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
 // OutputWriter: outputs a decorated version of the input, highlighting expected vs actual results
 // FixtureLookup: matches table names to test fixtures.
 // Dependencies: InputReader, OutputWriter, FixtureLookup, HttpHandler
-// SuiteRunner (built-in): moves through the list of specs identified by the InputReader, and executes them one-by-one
-// SuiteRunner (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.
 fun runSuite(
     inputReader: InputReader,
     outputWriter: OutputWriter,
@@ -40,7 +41,7 @@ fun runSuite(
     httpHandler: HttpHandler
 ): ExecutedSuite {
     outputWriter.cleanTargetDir()
-    return ExecutedSuite(inputReader.specs().map { SpecRunner(it, fixtureLookup, httpHandler).execute() })
+    return ExecutedSuite(inputReader.speccies().map { SpecRunner(it, fixtureLookup, httpHandler).execute() })
         .also { executedSuite ->
             // TODO: make this part of single-spec execution
             outputWriter.writeSpecResults(executedSuite.firstSpec(), "rexspecs/AnAcceptanceTest.html")
@@ -51,13 +52,13 @@ fun runSuite(
 }
 
 class SpecRunner(
-    val identifiedSpec: IdentifiedSpec,
+    val spec: Spec,
     val index: FixtureLookup,
     val httpHandler: HttpHandler
 ) {
     fun execute(): ExecutedSpec = ExecutedSpec(
-        identifiedSpec.specContents,
-        htmlToTables(Jsoup.parse(identifiedSpec.specContents))
+        spec.guts(),
+        htmlToTables(Jsoup.parse(spec.guts()))
             .map { convertTablesToTableReps(it) }
             .map { testRep -> ExecutedTable(testRep, executeTable(testRep, index)) }
     )
@@ -80,10 +81,6 @@ class SpecRunner(
             tableRep.columnNames[1] to row.inputParams[1],
             tableRep.columnNames[2] to row.inputParams[2]
         )
-    }
-
-    private fun hitTheApi(request: Request): Response {
-        return httpHandler(request)
     }
 
     private fun toRexResults(response: Response): RowResult {
@@ -129,13 +126,13 @@ fun convertTablesToTableReps(table: Element): TableRep {
     return TableRep(fixtureCell.text(), columnHeaders, rowReps)
 }
 
-data class RowRep(val inputParams: List<String>, val expectedResult: RowResult)
-
-fun RowRep.toTableRow(resultRow: RowResult): Element {
-    val paramsCells = inputParams.map { param -> Element("td").html(param) }
-    val responseCell = expectedButWas(expectedResult.httpResponse, resultRow.httpResponse)
-    val resultCell = expectedButWas(expectedResult.result, resultRow.result)
-    return Element("tr").appendChildren(paramsCells + responseCell + resultCell)
+data class RowRep(val inputParams: List<String>, val expectedResult: RowResult) {
+    fun toTableRow(resultRow: RowResult): Element {
+        val paramsCells = inputParams.map { param -> Element("td").html(param) }
+        val responseCell = expectedButWas(expectedResult.httpResponse, resultRow.httpResponse)
+        val resultCell = expectedButWas(expectedResult.result, resultRow.result)
+        return Element("tr").appendChildren(paramsCells + responseCell + resultCell)
+    }
 }
 
 fun expectedButWas(expected: String, actual: String): Element =
@@ -150,43 +147,48 @@ data class RowResult(val httpResponse: String, val result: String)
 
 enum class RowStatus { PASSED, FAILED, IGNORED }
 
-data class ExecutedSpec(val input: String, val executedTables: List<ExecutedTable>)
+// A Spec has a title, some descriptions, and some tests (which have JSON rows)
+data class ExecutedSpec(val input: String, val executedTables: List<ExecutedTable>) {
+    fun output(): String {
+        val document = Jsoup.parse(input)
+        htmlToTables(document)
+            .zip(executedTables)
+            .map { (tableElem, result) ->
+                tableElem.empty()
+                tableElem.appendChildren(result.toTable())}
 
-fun ExecutedSpec.output(): String {
-    val document = Jsoup.parse(input)
-    htmlToTables(document)
-        .zip(executedTables)
-        .map { (tableElem, result) ->
-            tableElem.empty()
-            tableElem.appendChildren(result.toTable())}
+        return document.toString()
+    }
 
-    return document.toString()
+    fun success(): Boolean = executedTables.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 
-fun ExecutedSpec.success(): Boolean = executedTables.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 
-data class ExecutedTable(val tableRep: TableRep, val actualRowResults: List<RowResult>)
 
-fun ExecutedTable.toTable(): MutableCollection<out Node> {
-    val header = Element("thead")
-    header.appendElement("tr").appendElement("th").html(tableRep.fixtureName)
-    header.appendElement("tr").appendChildren(tableRep.columnNames.map { Element("th").html(it) })
+// Take this, but make it work without all the HTML, using a non-judgemental intermediate data structure
 
-    val body = Element("tbody")
-    val bodyRows: List<Element> = tableRep.rowReps
-        .zip(actualRowResults)
-        .map { (inputRow, resultRow) -> inputRow.toTableRow(resultRow) }
+data class ExecutedTable(val tableRep: TableRep, val actualRowResults: List<RowResult>) {
+    fun toTable(): MutableCollection<out Node> {
+        val header = Element("thead")
+        header.appendElement("tr").appendElement("th").html(tableRep.fixtureName)
+        header.appendElement("tr").appendChildren(tableRep.columnNames.map { Element("th").html(it) })
 
-    body.appendChildren(bodyRows)
+        val body = Element("tbody")
+        val bodyRows: List<Element> = tableRep.rowReps
+            .zip(actualRowResults)
+            .map { (inputRow, resultRow) -> inputRow.toTableRow(resultRow) }
 
-    return mutableListOf(header, body)
-}
+        body.appendChildren(bodyRows)
 
-fun ExecutedTable.success(): Boolean {
-    tableRep.rowReps
-        .map { it.expectedResult }
-        .zip(actualRowResults)
-        .forEach { (expected, actual) -> if (expected != actual) return false }
+        return mutableListOf(header, body)
+    }
 
-    return true
+    fun success(): Boolean {
+        tableRep.rowReps
+            .map { it.expectedResult }
+            .zip(actualRowResults)
+            .forEach { (expected, actual) -> if (expected != actual) return false }
+
+        return true
+    }
 }
