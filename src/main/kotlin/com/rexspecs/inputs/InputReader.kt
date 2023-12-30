@@ -7,6 +7,6 @@ import com.rexspecs.specs.Spec
  */
 interface InputReader {
     fun specIdentifiers(): List<String>
-    fun speccies(): List<Spec>
+    fun specs(): List<Spec>
 }
 

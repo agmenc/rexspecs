@@ -2,21 +2,11 @@ package com.rexspecs
 
 import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
-import com.rexspecs.specs.Spec
 import com.rexspecs.specs.SpecComponent
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
-import org.http4k.core.Response
-import org.jsoup.nodes.Document
-import java.nio.ByteBuffer
-import kotlin.text.Charsets.UTF_8
 
 typealias FixtureLookup = Map<String, (Map<String, String>) -> Request>
-
-data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
-    fun success(): Boolean = executedSpecs.fold(true) { allGood, nextSpec -> allGood && nextSpec.success() }
-    fun firstSpec(): ExecutedSpec = executedSpecs.first()
-}
 
 // SuiteRunner (built-in): moves through the list of specs identified by the InputReader, and executes them one-by-one
 // SuiteRunner (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.
@@ -37,7 +27,7 @@ fun runSuite(
     httpHandler: HttpHandler
 ): ExecutedSuite {
     outputWriter.cleanTargetDir()
-    return ExecutedSuite(inputReader.speccies().map { SpecRunner(it, fixtureLookup, httpHandler).execute() })
+    return ExecutedSuite(inputReader.specs().map { SpecRunner(it, fixtureLookup, httpHandler).execute() })
         .also { executedSuite ->
             // TODO: make this part of single-spec execution
             outputWriter.writeSpecResults(executedSuite.firstSpec(), "rexspecs/AnAcceptanceTest.html")
@@ -47,72 +37,25 @@ fun runSuite(
         }
 }
 
-class SpecRunner(
-    val spec: Spec,
-    val index: FixtureLookup,
-    val httpHandler: HttpHandler
-) {
-    fun execute(): ExecutedSpec = ExecutedSpec(
-        spec.guts(),
-        spec.components()
-            .filterIsInstance<Test>()
-            .map { test -> ExecutedTest(test, executeTest(test, index)) }
-    )
-
-    private fun executeTest(test: Test, index: FixtureLookup): List<RowResult> {
-        val function: ((Map<String, String>) -> Request) = index[test.fixtureName]!!
-
-        return test.testRows
-            .map { row -> function(zipToMap(test, row)) }
-            .map { req -> httpHandler(req) }
-            .map { res -> toRexResults(res) }
-    }
-
-    private fun zipToMap(test: Test, row: TestRow): Map<String, String> {
-        test.columnNames.zip(row.inputParams)
-
-        return mapOf(
-            test.columnNames[0] to row.inputParams[0],
-            test.columnNames[1] to row.inputParams[1],
-            test.columnNames[2] to row.inputParams[2]
-        )
-    }
-
-    // TODO: Conversion from an HTTP Response to a RowResult belongs in the Connector
-    private fun toRexResults(response: Response): RowResult {
-        // TODO: Move HTTP gubbins elsewhere
-        return RowResult(response.status.code.toString(), toByteArray(response.body.payload).toString(UTF_8))
-    }
-
-    // Horrible mutating Java. Note that:
-    //  - get() actually does a set() on the parameter
-    //  - rewind() is necessary if we are re-using the response
-    private fun toByteArray(byteBuf: ByteBuffer): ByteArray {
-        val byteArray = ByteArray(byteBuf.capacity())
-        byteBuf.get(byteArray)
-        byteBuf.rewind()
-        return byteArray
-    }
-}
-
-fun htmlToTables(inputDocument: Document) = inputDocument.allElements
-    .toList()
-    .filter { it.tagName() == "table" }
-
-data class Test(val fixtureName: String, val columnNames: List<String>, val testRows: List<TestRow>): SpecComponent
+data class TabularTest(val fixtureName: String, val columnNames: List<String>, val testRows: List<TestRow>): SpecComponent
 
 data class TestRow(val inputParams: List<String>, val expectedResult: RowResult)
 
 data class RowResult(val httpResponse: String, val result: String)
+
+data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
+    fun success(): Boolean = executedSpecs.fold(true) { allGood, nextSpec -> allGood && nextSpec.success() }
+    fun firstSpec(): ExecutedSpec = executedSpecs.first()
+}
 
 // TODO: Should contain a Spec, not the input String
 data class ExecutedSpec(val input: String, val executedTests: List<ExecutedTest>) {
     fun success(): Boolean = executedTests.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 
-data class ExecutedTest(val test: Test, val actualRowResults: List<RowResult>) {
+data class ExecutedTest(val tabularTest: TabularTest, val actualRowResults: List<RowResult>) {
     fun success(): Boolean {
-        test.testRows
+        tabularTest.testRows
             .map { it.expectedResult }
             .zip(actualRowResults)
             .forEach { (expected, actual) -> if (expected != actual) return false }

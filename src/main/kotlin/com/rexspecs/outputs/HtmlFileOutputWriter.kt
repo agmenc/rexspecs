@@ -2,6 +2,7 @@ package com.rexspecs.outputs
 
 import com.rexspecs.*
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import java.io.File
@@ -20,7 +21,7 @@ open class HtmlFileOutputWriter(private val testSourceRoot: String) : OutputWrit
             .zip(executedSpec.executedTests)
             .map { (tableElem, result) ->
                 tableElem.empty()
-                tableElem.appendChildren(toTable(result.test, result.actualRowResults))}
+                tableElem.appendChildren(toTable(result.tabularTest, result.actualRowResults))}
 
         return document.toString()
     }
@@ -33,34 +34,13 @@ open class HtmlFileOutputWriter(private val testSourceRoot: String) : OutputWrit
     }
 }
 
-fun convertTableToTest(table: Element): Test {
-    val headerRows = table.selectXpath("thead//tr").toList()
-    val (first, second) = headerRows
-    val fixtureCell = first.selectXpath("th").toList().first()
-    val columnHeaders = second.selectXpath("th").toList().map { it.text() }
-    val testRows: List<TestRow> = table.selectXpath("tbody//tr")
-        .toList()
-        .map {
-            val (result, params) = it.children()
-                .toList()
-                .zip(columnHeaders)
-                .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
-            TestRow(
-                params.map { (elem, _) -> elem.text() },
-                RowResult(result.first().first.text(), result.last().first.text())
-            )
-        }
-
-    return Test(fixtureCell.text(), columnHeaders, testRows)
-}
-
-fun toTable(test: Test, actualRowResults: List<RowResult>): MutableCollection<out Node> {
+fun toTable(tabularTest: TabularTest, actualRowResults: List<RowResult>): MutableCollection<out Node> {
     val header = Element("thead")
-    header.appendElement("tr").appendElement("th").html(test.fixtureName)
-    header.appendElement("tr").appendChildren(test.columnNames.map { Element("th").html(it) })
+    header.appendElement("tr").appendElement("th").html(tabularTest.fixtureName)
+    header.appendElement("tr").appendChildren(tabularTest.columnNames.map { Element("th").html(it) })
 
     val body = Element("tbody")
-    val bodyRows: List<Element> = test.testRows
+    val bodyRows: List<Element> = tabularTest.testRows
         .zip(actualRowResults)
         .map { (inputRow, resultRow) -> toTableRow(inputRow, resultRow) }
 
@@ -83,3 +63,7 @@ fun expectedButWas(expected: String, actual: String): Element =
         Element("td")
             .attr("style", "color: red")
             .html("Expected [$expected] but was: [$actual]")
+
+fun htmlToTables(inputDocument: Document) = inputDocument.allElements
+    .toList()
+    .filter { it.tagName() == "table" }

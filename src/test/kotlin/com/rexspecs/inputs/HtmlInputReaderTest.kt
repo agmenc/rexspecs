@@ -1,6 +1,11 @@
 package com.rexspecs.inputs
 
+import com.rexspecs.*
+import com.rexspecs.connectors.stubbedHttpHandler
 import com.rexspecs.specs.Spec
+import com.rexspecs.specs.calculationTest
+import org.jsoup.Jsoup
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
@@ -21,7 +26,7 @@ class HtmlInputReaderTest {
     fun `Can find a Spec by ID`() {
         val inputReader = HtmlInputReader("rexspecs")
 
-        assertTrue(inputReader.speccies().iterator().hasNext())
+        assertTrue(inputReader.specs().iterator().hasNext())
     }
 
     @Test
@@ -29,9 +34,36 @@ class HtmlInputReaderTest {
     fun `Can iterate through a Spec's components`() {
         val inputReader = HtmlInputReader("rexspecs")
 
-        val spec: Spec = inputReader.speccies().first()
+        val spec: Spec = inputReader.specs().first()
 
         assertTrue(spec.components().isNotEmpty())
+    }
+
+    @Test
+    fun `Can convert a table to a test representation`() {
+        val tableElement = Jsoup.parse(sampleInput).allElements
+            .toList()
+            .first { it.tagName() == "table" }
+
+        val expectedResult = TabularTest(
+            "Calculator",
+            listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
+            listOf(
+                TestRow(listOf("7", "+", "8"), RowResult("200", "15")),
+                TestRow(listOf("7", "x", "8"), RowResult("201", "56"))
+            )
+        )
+
+        val component = HtmlInputReader("Whatever").convertTableToTest(tableElement)
+
+        assertEquals(expectedResult, component)
+    }
+
+    @Test
+    fun `Can read in a source file as input`() {
+        val spec = SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html").specs().first()
+
+        assertEquals(calculationTest, spec.components().first())
     }
 
     @Test

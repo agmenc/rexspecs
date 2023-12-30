@@ -1,9 +1,5 @@
 package com.rexspecs.specs
 
-import com.rexspecs.htmlToTables
-import com.rexspecs.outputs.convertTableToTest
-import org.jsoup.Jsoup
-
 interface Spec {
     fun components(): List<SpecComponent>
 
@@ -14,12 +10,8 @@ interface Spec {
     fun guts(): String
 }
 
-data class HackyHtmlSpec(val innards: String): Spec {
-    // TODO: Use the InputReader to create the Spec with a List<SpecComponent>
-    override fun components(): List<SpecComponent> {
-        return htmlToTables(Jsoup.parse(guts()))
-            .map { convertTableToTest(it) }
-    }
+data class HackyHtmlSpec(val innards: String, val compies: List<SpecComponent>): Spec {
+    override fun components(): List<SpecComponent> = compies
 
     @Deprecated("Should just be another component")
     override val title: String = "Monkeys"
