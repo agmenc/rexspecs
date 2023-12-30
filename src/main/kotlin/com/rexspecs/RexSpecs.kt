@@ -2,16 +2,12 @@ package com.rexspecs
 
 import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
-import com.rexspecs.outputs.convertTableToTest
-import com.rexspecs.outputs.toTable
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.SpecComponent
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
-import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
 import java.nio.ByteBuffer
 import kotlin.text.Charsets.UTF_8
 
@@ -82,6 +78,7 @@ class SpecRunner(
         )
     }
 
+    // TODO: Conversion from an HTTP Response to a RowResult belongs in the Connector
     private fun toRexResults(response: Response): RowResult {
         // TODO: Move HTTP gubbins elsewhere
         return RowResult(response.status.code.toString(), toByteArray(response.body.payload).toString(UTF_8))
@@ -108,19 +105,8 @@ data class TestRow(val inputParams: List<String>, val expectedResult: RowResult)
 
 data class RowResult(val httpResponse: String, val result: String)
 
-// A Spec has a title, some descriptions, and some tests (which have JSON rows)
+// TODO: Should contain a Spec, not the input String
 data class ExecutedSpec(val input: String, val executedTests: List<ExecutedTest>) {
-    fun output(): String {
-        val document = Jsoup.parse(input)
-        htmlToTables(document)
-            .zip(executedTests)
-            .map { (tableElem, result) ->
-                tableElem.empty()
-                tableElem.appendChildren(toTable(result.test, result.actualRowResults))}
-
-        return document.toString()
-    }
-
     fun success(): Boolean = executedTests.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 

@@ -1,14 +1,28 @@
 package com.rexspecs.outputs
 
 import com.rexspecs.*
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import java.io.File
 
-open class FileOutputWriter(private val testSourceRoot: String) : OutputWriter {
+open class HtmlFileOutputWriter(private val testSourceRoot: String) : OutputWriter {
     // TODO: move filePath into ExecutedSpec
     override fun writeSpecResults(executedSpec: ExecutedSpec, filePath: String) {
-        writeFile(executedSpec.output(), filePath)
+        writeFile(decorateHtml(executedSpec), filePath)
+    }
+
+    fun decorateHtml(executedSpec: ExecutedSpec): String {
+        val document = Jsoup.parse(executedSpec.input)
+
+        // Nasty mutating call to appendChildren()
+        htmlToTables(document)
+            .zip(executedSpec.executedTests)
+            .map { (tableElem, result) ->
+                tableElem.empty()
+                tableElem.appendChildren(toTable(result.test, result.actualRowResults))}
+
+        return document.toString()
     }
 
     override fun cleanTargetDir() {
@@ -16,12 +30,6 @@ open class FileOutputWriter(private val testSourceRoot: String) : OutputWriter {
             val didItWork = it.delete()
             println("Deleted ${it.absolutePath} ==> ${didItWork}")
         }
-    }
-}
-
-open class HtmlFileOutputWriter(private val testSourceRoot: String) : FileOutputWriter(testSourceRoot) {
-    override fun writeSpecResults(executedSpec: ExecutedSpec, filePath: String) {
-        writeFile(executedSpec.output(), filePath)
     }
 }
 

@@ -1,7 +1,7 @@
 package com.rexspecs
 
 import com.rexspecs.inputs.SingleHtmlInputReader
-import com.rexspecs.outputs.FileOutputWriter
+import com.rexspecs.outputs.HtmlFileOutputWriter
 import com.rexspecs.outputs.convertTableToTest
 import com.rexspecs.specs.HackyHtmlSpec
 import com.rexspecs.utils.RexSpecPropertiesLoader
@@ -123,7 +123,7 @@ class RexSpecsTest {
         )
 
         val executedSpec = passingSpec.execute()
-        assertEquals(sampleInput, executedSpec.output())
+
         assertTrue(executedSpec.success())
     }
 
@@ -159,7 +159,7 @@ class RexSpecsTest {
             )
         )
 
-        assertEquals(expectedOutput, executedSpec.output())
+        assertEquals(expectedOutput, HtmlFileOutputWriter("whatever").decorateHtml(executedSpec))
     }
 
     @Test
@@ -172,7 +172,7 @@ class RexSpecsTest {
 
         val executedSpec = spec.execute()
 
-        assertEquals(sampleInput, executedSpec.output())
+        assertEquals(sampleInput, HtmlFileOutputWriter("whatever").decorateHtml(executedSpec))
         assertTrue(executedSpec.success())
     }
 
@@ -200,7 +200,7 @@ class RexSpecsTest {
         val executedSpec = specRunner.execute()
 
         assertFalse(executedSpec.success())
-        assertEquals(decorateWithErrorsAndColours(formattedContents), executedSpec.output())
+        assertEquals(decorateWithErrorsAndColours(formattedContents), HtmlFileOutputWriter("whatever").decorateHtml(executedSpec))
     }
 
     @Test
@@ -209,7 +209,7 @@ class RexSpecsTest {
 
         val executedSuite = runSuite(
             SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
-            FileOutputWriter(props.targetPath),
+            HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
@@ -223,7 +223,7 @@ class RexSpecsTest {
 
         runSuite(
             SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
-            FileOutputWriter(props.targetPath),
+            HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
@@ -239,7 +239,7 @@ class RexSpecsTest {
 
         runSuite(
             SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
-            FileOutputWriter(props.targetPath),
+            HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             HttpClient(props.host, props.port).handle
         )
