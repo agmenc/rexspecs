@@ -2,6 +2,7 @@ package com.rexspecs
 
 import com.rexspecs.inputs.SingleHtmlInputReader
 import com.rexspecs.outputs.FileOutputWriter
+import com.rexspecs.outputs.convertTableToTest
 import com.rexspecs.specs.HackyHtmlSpec
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.http4k.core.*
@@ -107,7 +108,7 @@ class RexSpecsTest {
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
 
-        executedSpec.execute().executedTables
+        executedSpec.execute().executedTests
             .flatMap { it.actualRowResults }
             .zip(expectedResults)
             .forEach { (actual, expected) -> assertEquals(expected, actual) }
@@ -147,7 +148,7 @@ class RexSpecsTest {
         val executedSpec = ExecutedSpec(
             sampleInput,
             listOf(
-                ExecutedTable(
+                ExecutedTest(
                     Test(
                         "Calculator",
                         listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),

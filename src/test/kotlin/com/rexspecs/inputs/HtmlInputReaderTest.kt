@@ -26,12 +26,12 @@ class HtmlInputReaderTest {
 
     @Test
     @Disabled
-    fun `Can iterate through a Spec`() {
+    fun `Can iterate through a Spec's components`() {
         val inputReader = HtmlInputReader("rexspecs")
 
         val spec: Spec = inputReader.speccies().first()
 
-        assertTrue(spec.components().hasNext())
+        assertTrue(spec.components().isNotEmpty())
     }
 
     @Test

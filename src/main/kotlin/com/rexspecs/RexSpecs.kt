@@ -2,6 +2,7 @@ package com.rexspecs
 
 import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
+import com.rexspecs.outputs.convertTableToTest
 import com.rexspecs.outputs.toTable
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.SpecComponent
@@ -11,7 +12,6 @@ import org.http4k.core.Response
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import org.jsoup.nodes.Node
 import java.nio.ByteBuffer
 import kotlin.text.Charsets.UTF_8
 
@@ -58,9 +58,9 @@ class SpecRunner(
 ) {
     fun execute(): ExecutedSpec = ExecutedSpec(
         spec.guts(),
-        htmlToTables(Jsoup.parse(spec.guts()))
-            .map { convertTableToTest(it) }
-            .map { test -> ExecutedTable(test, executeTest(test, index)) }
+        spec.components()
+            .filterIsInstance<Test>()
+            .map { test -> ExecutedTest(test, executeTest(test, index)) }
     )
 
     private fun executeTest(test: Test, index: FixtureLookup): List<RowResult> {
@@ -73,7 +73,6 @@ class SpecRunner(
     }
 
     private fun zipToMap(test: Test, row: TestRow): Map<String, String> {
-
         test.columnNames.zip(row.inputParams)
 
         return mapOf(
@@ -105,52 +104,16 @@ fun htmlToTables(inputDocument: Document) = inputDocument.allElements
 
 data class Test(val fixtureName: String, val columnNames: List<String>, val testRows: List<TestRow>): SpecComponent
 
-fun convertTableToTest(table: Element): Test {
-    val headerRows = table.selectXpath("thead//tr").toList()
-    val (first, second) = headerRows
-    val fixtureCell = first.selectXpath("th").toList().first()
-    val columnHeaders = second.selectXpath("th").toList().map { it.text() }
-    val testRows: List<TestRow> = table.selectXpath("tbody//tr")
-        .toList()
-        .map {
-            val (result, params) = it.children()
-                .toList()
-                .zip(columnHeaders)
-                .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
-            TestRow(
-                params.map { (elem, _) -> elem.text() },
-                RowResult(result.first().first.text(), result.last().first.text())
-            )
-        }
-
-    return Test(fixtureCell.text(), columnHeaders, testRows)
-}
-
-data class TestRow(val inputParams: List<String>, val expectedResult: RowResult) {
-    fun toTableRow(resultRow: RowResult): Element {
-        val paramsCells = inputParams.map { param -> Element("td").html(param) }
-        val responseCell = expectedButWas(expectedResult.httpResponse, resultRow.httpResponse)
-        val resultCell = expectedButWas(expectedResult.result, resultRow.result)
-        return Element("tr").appendChildren(paramsCells + responseCell + resultCell)
-    }
-}
-
-fun expectedButWas(expected: String, actual: String): Element =
-    if (expected == actual)
-        Element("td").html(actual)
-    else
-        Element("td")
-            .attr("style", "color: red")
-            .html("Expected [$expected] but was: [$actual]")
+data class TestRow(val inputParams: List<String>, val expectedResult: RowResult)
 
 data class RowResult(val httpResponse: String, val result: String)
 
 // A Spec has a title, some descriptions, and some tests (which have JSON rows)
-data class ExecutedSpec(val input: String, val executedTables: List<ExecutedTable>) {
+data class ExecutedSpec(val input: String, val executedTests: List<ExecutedTest>) {
     fun output(): String {
         val document = Jsoup.parse(input)
         htmlToTables(document)
-            .zip(executedTables)
+            .zip(executedTests)
             .map { (tableElem, result) ->
                 tableElem.empty()
                 tableElem.appendChildren(toTable(result.test, result.actualRowResults))}
@@ -158,10 +121,10 @@ data class ExecutedSpec(val input: String, val executedTables: List<ExecutedTabl
         return document.toString()
     }
 
-    fun success(): Boolean = executedTables.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
+    fun success(): Boolean = executedTests.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 
-data class ExecutedTable(val test: Test, val actualRowResults: List<RowResult>) {
+data class ExecutedTest(val test: Test, val actualRowResults: List<RowResult>) {
     fun success(): Boolean {
         test.testRows
             .map { it.expectedResult }
