@@ -2,7 +2,9 @@ package com.rexspecs
 
 import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
+import com.rexspecs.outputs.toTable
 import com.rexspecs.specs.Spec
+import com.rexspecs.specs.SpecComponent
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -57,27 +59,27 @@ class SpecRunner(
     fun execute(): ExecutedSpec = ExecutedSpec(
         spec.guts(),
         htmlToTables(Jsoup.parse(spec.guts()))
-            .map { convertTablesToTableReps(it) }
-            .map { testRep -> ExecutedTable(testRep, executeTable(testRep, index)) }
+            .map { convertTableToTest(it) }
+            .map { test -> ExecutedTable(test, executeTest(test, index)) }
     )
 
-    private fun executeTable(tableRep: TableRep, index: FixtureLookup): List<RowResult> {
-        val function: ((Map<String, String>) -> Request) = index[tableRep.fixtureName]!!
+    private fun executeTest(test: Test, index: FixtureLookup): List<RowResult> {
+        val function: ((Map<String, String>) -> Request) = index[test.fixtureName]!!
 
-        return tableRep.rowReps
-            .map { row -> function(zipToMap(tableRep, row)) }
+        return test.testRows
+            .map { row -> function(zipToMap(test, row)) }
             .map { req -> httpHandler(req) }
             .map { res -> toRexResults(res) }
     }
 
-    private fun zipToMap(tableRep: TableRep, row: RowRep): Map<String, String> {
+    private fun zipToMap(test: Test, row: TestRow): Map<String, String> {
 
-        tableRep.columnNames.zip(row.inputParams)
+        test.columnNames.zip(row.inputParams)
 
         return mapOf(
-            tableRep.columnNames[0] to row.inputParams[0],
-            tableRep.columnNames[1] to row.inputParams[1],
-            tableRep.columnNames[2] to row.inputParams[2]
+            test.columnNames[0] to row.inputParams[0],
+            test.columnNames[1] to row.inputParams[1],
+            test.columnNames[2] to row.inputParams[2]
         )
     }
 
@@ -101,30 +103,30 @@ fun htmlToTables(inputDocument: Document) = inputDocument.allElements
     .toList()
     .filter { it.tagName() == "table" }
 
-data class TableRep(val fixtureName: String, val columnNames: List<String>, val rowReps: List<RowRep>)
+data class Test(val fixtureName: String, val columnNames: List<String>, val testRows: List<TestRow>): SpecComponent
 
-fun convertTablesToTableReps(table: Element): TableRep {
+fun convertTableToTest(table: Element): Test {
     val headerRows = table.selectXpath("thead//tr").toList()
     val (first, second) = headerRows
     val fixtureCell = first.selectXpath("th").toList().first()
     val columnHeaders = second.selectXpath("th").toList().map { it.text() }
-    val rowReps: List<RowRep> = table.selectXpath("tbody//tr")
+    val testRows: List<TestRow> = table.selectXpath("tbody//tr")
         .toList()
         .map {
             val (result, params) = it.children()
                 .toList()
                 .zip(columnHeaders)
                 .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
-            RowRep(
+            TestRow(
                 params.map { (elem, _) -> elem.text() },
                 RowResult(result.first().first.text(), result.last().first.text())
             )
         }
 
-    return TableRep(fixtureCell.text(), columnHeaders, rowReps)
+    return Test(fixtureCell.text(), columnHeaders, testRows)
 }
 
-data class RowRep(val inputParams: List<String>, val expectedResult: RowResult) {
+data class TestRow(val inputParams: List<String>, val expectedResult: RowResult) {
     fun toTableRow(resultRow: RowResult): Element {
         val paramsCells = inputParams.map { param -> Element("td").html(param) }
         val responseCell = expectedButWas(expectedResult.httpResponse, resultRow.httpResponse)
@@ -143,8 +145,6 @@ fun expectedButWas(expected: String, actual: String): Element =
 
 data class RowResult(val httpResponse: String, val result: String)
 
-enum class RowStatus { PASSED, FAILED, IGNORED }
-
 // A Spec has a title, some descriptions, and some tests (which have JSON rows)
 data class ExecutedSpec(val input: String, val executedTables: List<ExecutedTable>) {
     fun output(): String {
@@ -153,7 +153,7 @@ data class ExecutedSpec(val input: String, val executedTables: List<ExecutedTabl
             .zip(executedTables)
             .map { (tableElem, result) ->
                 tableElem.empty()
-                tableElem.appendChildren(result.toTable())}
+                tableElem.appendChildren(toTable(result.test, result.actualRowResults))}
 
         return document.toString()
     }
@@ -161,28 +161,9 @@ data class ExecutedSpec(val input: String, val executedTables: List<ExecutedTabl
     fun success(): Boolean = executedTables.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 
-
-
-// Take this, but make it work without all the HTML, using a non-judgemental intermediate data structure
-
-data class ExecutedTable(val tableRep: TableRep, val actualRowResults: List<RowResult>) {
-    fun toTable(): MutableCollection<out Node> {
-        val header = Element("thead")
-        header.appendElement("tr").appendElement("th").html(tableRep.fixtureName)
-        header.appendElement("tr").appendChildren(tableRep.columnNames.map { Element("th").html(it) })
-
-        val body = Element("tbody")
-        val bodyRows: List<Element> = tableRep.rowReps
-            .zip(actualRowResults)
-            .map { (inputRow, resultRow) -> inputRow.toTableRow(resultRow) }
-
-        body.appendChildren(bodyRows)
-
-        return mutableListOf(header, body)
-    }
-
+data class ExecutedTable(val test: Test, val actualRowResults: List<RowResult>) {
     fun success(): Boolean {
-        tableRep.rowReps
+        test.testRows
             .map { it.expectedResult }
             .zip(actualRowResults)
             .forEach { (expected, actual) -> if (expected != actual) return false }

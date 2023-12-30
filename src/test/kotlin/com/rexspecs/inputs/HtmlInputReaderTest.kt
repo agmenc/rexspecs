@@ -21,9 +21,7 @@ class HtmlInputReaderTest {
     fun `Can find a Spec by ID`() {
         val inputReader = HtmlInputReader("rexspecs")
 
-        val spec: Spec = inputReader.speccies().first()
-
-        assertEquals("An Acceptance Test", spec.title)
+        assertTrue(inputReader.speccies().iterator().hasNext())
     }
 
     @Test

@@ -82,16 +82,16 @@ class RexSpecsTest {
             .toList()
             .first { it.tagName() == "table" }
 
-        val expectedResult = TableRep(
+        val expectedResult = Test(
             "Calculator",
             listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
             listOf(
-                RowRep(listOf("7", "+", "8"), RowResult("200", "15")),
-                RowRep(listOf("7", "x", "8"), RowResult("201", "56"))
+                TestRow(listOf("7", "+", "8"), RowResult("200", "15")),
+                TestRow(listOf("7", "x", "8"), RowResult("201", "56"))
             )
         )
 
-        assertEquals(expectedResult, convertTablesToTableReps(tableElement))
+        assertEquals(expectedResult, convertTableToTest(tableElement))
     }
 
     @Test
@@ -139,8 +139,8 @@ class RexSpecsTest {
 
     @Test
     fun `Can redraw tables - with errors and highlighting - into the output doc`() {
-        val expectedRow1 = RowRep(listOf("7", "+", "8"), RowResult("200", "15"))
-        val expectedRow2 = RowRep(listOf("7", "x", "8"), RowResult("201", "56"))
+        val expectedRow1 = TestRow(listOf("7", "+", "8"), RowResult("200", "15"))
+        val expectedRow2 = TestRow(listOf("7", "x", "8"), RowResult("201", "56"))
         val actualRow1 = RowResult("200", "15")
         val actualRow2 = RowResult("400", "Unsupported operator: \"x\"")
 
@@ -148,7 +148,7 @@ class RexSpecsTest {
             sampleInput,
             listOf(
                 ExecutedTable(
-                    TableRep(
+                    Test(
                         "Calculator",
                         listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
                         listOf(expectedRow1, expectedRow2)
@@ -187,16 +187,16 @@ class RexSpecsTest {
 
     @Test
     fun `Can use a source file as input`() {
-        val testFileContents = SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html").speccies().first()
-        val formattedContents = Jsoup.parse(testFileContents.guts()).toString()
+        val spec = SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html").speccies().first()
+        val formattedContents = Jsoup.parse(spec.guts()).toString()
 
-        val spec = SpecRunner(
-            testFileContents,
+        val specRunner = SpecRunner(
+            spec,
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
-        val executedSpec = spec.execute()
+        val executedSpec = specRunner.execute()
 
         assertFalse(executedSpec.success())
         assertEquals(decorateWithErrorsAndColours(formattedContents), executedSpec.output())

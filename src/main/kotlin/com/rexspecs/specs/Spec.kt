@@ -3,6 +3,7 @@ package com.rexspecs.specs
 interface Spec {
     fun components(): Iterator<SpecComponent>
 
+    @Deprecated("Should just be another component")
     val title: String
 
     @Deprecated("Iterate through the components() instead")
@@ -14,8 +15,8 @@ data class HackyHtmlSpec(val innards: String): Spec {
         return emptyList<SpecComponent>().iterator()
     }
 
-    override val title: String
-        get() = "An Acceptance Test"
+    @Deprecated("Should just be another component")
+    override val title: String = "Monkeys"
 
     @Deprecated("Iterate through the components() instead")
     override fun guts(): String {
@@ -25,3 +26,4 @@ data class HackyHtmlSpec(val innards: String): Spec {
 
 interface SpecComponent {
 }
+
