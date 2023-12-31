@@ -1,19 +1,5 @@
 package com.rexspecs.specs
 
-interface Spec {
-    fun components(): List<SpecComponent>
+data class Spec(val components: List<SpecComponent>)
 
-    @Deprecated("Should just be another component")
-    val title: String
-}
-
-data class HackyHtmlSpec(val innards: String, val compies: List<SpecComponent>): Spec {
-    override fun components(): List<SpecComponent> = compies
-
-    @Deprecated("Should just be another component")
-    override val title: String = "Monkeys"
-}
-
-interface SpecComponent {
-}
-
+interface SpecComponent

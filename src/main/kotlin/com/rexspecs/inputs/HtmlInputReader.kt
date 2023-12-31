@@ -5,7 +5,6 @@ import com.rexspecs.TabularTest
 import com.rexspecs.TestRow
 import com.rexspecs.fileAsString
 import com.rexspecs.outputs.htmlToTables
-import com.rexspecs.specs.HackyHtmlSpec
 import com.rexspecs.specs.Spec
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -21,8 +20,7 @@ open class HtmlInputReader(private val testRoot: String): InputReader {
     override fun specs(): List<Spec> {
         return specIdentifiers().map { filePath ->
             val guts = fileAsString(filePath)
-            HackyHtmlSpec(
-                guts,
+            Spec(
                 htmlToTables(Jsoup.parse(guts)).map { table -> convertTableToTest(table) })
         }
     }

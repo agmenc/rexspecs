@@ -24,6 +24,8 @@ fun runSuite(
     inputReader: InputReader,
     outputWriter: OutputWriter,
     fixtureLookup: FixtureLookup,
+
+    // TODO: Replace with Connector
     httpHandler: HttpHandler
 ): ExecutedSuite {
     outputWriter.cleanTargetDir()

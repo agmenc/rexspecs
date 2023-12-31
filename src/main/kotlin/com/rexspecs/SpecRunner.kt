@@ -9,10 +9,12 @@ import java.nio.ByteBuffer
 class SpecRunner(
     val spec: Spec,
     val index: FixtureLookup,
+
+    // TODO: Replace with Connector
     val httpHandler: HttpHandler
 ) {
     fun execute(): ExecutedSpec = ExecutedSpec(
-        spec.components()
+        spec.components
             .filterIsInstance<TabularTest>()
             .map { test -> ExecutedTest(test, executeTest(test, index)) }
     )

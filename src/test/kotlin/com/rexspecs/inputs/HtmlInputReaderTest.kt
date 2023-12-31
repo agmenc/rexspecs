@@ -36,7 +36,7 @@ class HtmlInputReaderTest {
 
         val spec: Spec = inputReader.specs().first()
 
-        assertTrue(spec.components().isNotEmpty())
+        assertTrue(spec.components.isNotEmpty())
     }
 
     @Test
@@ -63,7 +63,7 @@ class HtmlInputReaderTest {
     fun `Can read in a source file as input`() {
         val spec = SingleHtmlInputReader("rexspecs/specs/AnAcceptanceTest.html").specs().first()
 
-        assertEquals(calculationTest, spec.components().first())
+        assertEquals(calculationTest, spec.components.first())
     }
 
     @Test
