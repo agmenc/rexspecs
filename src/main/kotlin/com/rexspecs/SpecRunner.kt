@@ -12,7 +12,6 @@ class SpecRunner(
     val httpHandler: HttpHandler
 ) {
     fun execute(): ExecutedSpec = ExecutedSpec(
-        spec.guts(),
         spec.components()
             .filterIsInstance<TabularTest>()
             .map { test -> ExecutedTest(test, executeTest(test, index)) }

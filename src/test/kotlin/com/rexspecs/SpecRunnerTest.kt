@@ -4,6 +4,7 @@ import com.rexspecs.connectors.stubbedHttpHandler
 import com.rexspecs.outputs.HtmlFileOutputWriter
 import com.rexspecs.specs.HackyHtmlSpec
 import com.rexspecs.specs.calculationTest
+import com.rexspecs.inputs.sampleInput
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 

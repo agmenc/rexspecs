@@ -1,11 +1,11 @@
 package com.rexspecs.inputs
 
-import com.rexspecs.*
-import com.rexspecs.connectors.stubbedHttpHandler
+import com.rexspecs.RowResult
+import com.rexspecs.TabularTest
+import com.rexspecs.TestRow
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.calculationTest
 import org.jsoup.Jsoup
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
@@ -17,7 +17,7 @@ class HtmlInputReaderTest {
         val inputReader = HtmlInputReader("rexspecs")
 
         assertEquals(
-            listOf("rexspecs/specs/AcceptanceTestOne.html", "rexspecs/specs/nesting/AcceptanceTestTwo.html"),
+            listOf("rexspecs/specs/AnAcceptanceTest.html", "rexspecs/specs/AcceptanceTestOne.html", "rexspecs/specs/nesting/AcceptanceTestTwo.html"),
             inputReader.specIdentifiers()
         )
     }
@@ -61,7 +61,7 @@ class HtmlInputReaderTest {
 
     @Test
     fun `Can read in a source file as input`() {
-        val spec = SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html").specs().first()
+        val spec = SingleHtmlInputReader("rexspecs/specs/AnAcceptanceTest.html").specs().first()
 
         assertEquals(calculationTest, spec.components().first())
     }

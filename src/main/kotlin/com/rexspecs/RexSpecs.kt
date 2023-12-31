@@ -48,8 +48,7 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun firstSpec(): ExecutedSpec = executedSpecs.first()
 }
 
-// TODO: Should contain a Spec, not the input String
-data class ExecutedSpec(val input: String, val executedTests: List<ExecutedTest>) {
+data class ExecutedSpec(val executedTests: List<ExecutedTest>) {
     fun success(): Boolean = executedTests.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 

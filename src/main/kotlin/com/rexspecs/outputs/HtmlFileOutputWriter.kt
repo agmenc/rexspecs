@@ -9,21 +9,29 @@ import java.io.File
 
 open class HtmlFileOutputWriter(private val testSourceRoot: String) : OutputWriter {
     // TODO: move filePath into ExecutedSpec
-    override fun writeSpecResults(executedSpec: ExecutedSpec, filePath: String) {
-        writeFile(decorateHtml(executedSpec), filePath)
+    override fun writeSpecResults(executedSpec: ExecutedSpec, specIdentifier: String) {
+        writeFile(decorateHtml(executedSpec), specIdentifier)
     }
 
     fun decorateHtml(executedSpec: ExecutedSpec): String {
-        val document = Jsoup.parse(executedSpec.input)
+        val snippet = """
+            <!doctype html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <title>An Acceptance Test</title>
+            </head>
+            <body>
+            </body>
+        """.trimIndent()
 
-        // Nasty mutating call to appendChildren()
-        htmlToTables(document)
-            .zip(executedSpec.executedTests)
-            .map { (tableElem, result) ->
-                tableElem.empty()
-                tableElem.appendChildren(toTable(result.tabularTest, result.actualRowResults))}
+        val simplerDocument = Jsoup.parse(snippet)
+        executedSpec.executedTests.forEach { test ->
+//            simplerDocument.body().appendElement("h1").html(test.tabularTest.fixtureName)
+            simplerDocument.body().appendChild(toTable(test.tabularTest, test.actualRowResults))
+        }
 
-        return document.toString()
+        return simplerDocument.toString()
     }
 
     override fun cleanTargetDir() {
@@ -34,7 +42,8 @@ open class HtmlFileOutputWriter(private val testSourceRoot: String) : OutputWrit
     }
 }
 
-fun toTable(tabularTest: TabularTest, actualRowResults: List<RowResult>): MutableCollection<out Node> {
+fun toTable(tabularTest: TabularTest, actualRowResults: List<RowResult>): Node {
+    val table = Element("table")
     val header = Element("thead")
     header.appendElement("tr").appendElement("th").html(tabularTest.fixtureName)
     header.appendElement("tr").appendChildren(tabularTest.columnNames.map { Element("th").html(it) })
@@ -46,7 +55,7 @@ fun toTable(tabularTest: TabularTest, actualRowResults: List<RowResult>): Mutabl
 
     body.appendChildren(bodyRows)
 
-    return mutableListOf(header, body)
+    return table.appendChild(header).appendChild(body)
 }
 
 fun toTableRow(inputRow: TestRow, resultRow: RowResult): Element {

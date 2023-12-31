@@ -2,54 +2,15 @@ package com.rexspecs
 
 import com.rexspecs.connectors.stubbedHttpHandler
 import com.rexspecs.inputs.SingleHtmlInputReader
+import com.rexspecs.inputs.htmlSanitised
+import com.rexspecs.inputs.sanified
 import com.rexspecs.outputs.HtmlFileOutputWriter
-import com.rexspecs.specs.HackyHtmlSpec
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.http4k.core.*
-import org.jsoup.Jsoup
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-
-val sampleInput = """
-            |<html>
-            | <head></head>
-            | <body>
-            |  <p>An <a href="http://example.com/"><b>example</b></a></p>
-            |  <table>
-            |   <thead>
-            |    <tr>
-            |     <th>Calculator</th>
-            |    </tr>
-            |    <tr>
-            |     <th>First Param</th>
-            |     <th>Operator</th>
-            |     <th>Second Param</th>
-            |     <th>HTTP Response</th>
-            |     <th>Result</th>
-            |    </tr>
-            |   </thead>
-            |   <tbody>
-            |    <tr>
-            |     <td>7</td>
-            |     <td>+</td>
-            |     <td>8</td>
-            |     <td>200</td>
-            |     <td>15</td>
-            |    </tr>
-            |    <tr>
-            |     <td>7</td>
-            |     <td>x</td>
-            |     <td>8</td>
-            |     <td>201</td>
-            |     <td>56</td>
-            |    </tr>
-            |   </tbody>
-            |  </table>
-            |  <p></p>
-            | </body>
-            |</html>
-        """.trimMargin()
 
 val calcOneSucceeds =
     Request(Method.GET, "http://not-actually-a-real-host.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
@@ -70,13 +31,12 @@ val calcTwoFails =
     )
 
 class RexSpecsTest {
-
     @Test
     fun `We know when the whole suite fails`() {
         val props = RexSpecPropertiesLoader.properties()
 
         val executedSuite = runSuite(
-            SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
+            SingleHtmlInputReader("rexspecs/specs/AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
@@ -90,7 +50,7 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
+            SingleHtmlInputReader("rexspecs/specs/AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
@@ -106,7 +66,7 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlInputReader("src/test/resources/specs/AnAcceptanceTest.html"),
+            SingleHtmlInputReader("rexspecs/specs/AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             HttpClient(props.host, props.port).handle
@@ -118,13 +78,9 @@ class RexSpecsTest {
         )
     }
 
-    private fun sanified(filePath: String) = htmlSanitised(fileAsString(filePath))
-
     @Test
     @Disabled
-    fun `Can run RexSpec by passing in JSON directly`() {
-//        RexSpecs.executeSuite()
-    }
+    fun `Can run RexSpecs by passing in JSON directly`() {}
 
     @Test
     @Disabled

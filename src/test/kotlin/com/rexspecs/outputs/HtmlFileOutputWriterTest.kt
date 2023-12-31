@@ -1,6 +1,8 @@
 package com.rexspecs.outputs
 
 import com.rexspecs.*
+import com.rexspecs.inputs.htmlSanitised
+import com.rexspecs.inputs.sampleInput
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -19,7 +21,6 @@ class HtmlFileOutputWriterTest {
         val actualRow2 = RowResult("400", "Unsupported operator: \"x\"")
 
         val executedSpec = ExecutedSpec(
-            sampleInput,
             listOf(
                 ExecutedTest(
                     TabularTest(
@@ -32,6 +33,8 @@ class HtmlFileOutputWriterTest {
             )
         )
 
-        assertEquals(expectedOutput, HtmlFileOutputWriter("whatever").decorateHtml(executedSpec))
+        val decoratedHtml = HtmlFileOutputWriter("whatever").decorateHtml(executedSpec)
+
+        assertEquals(expectedOutput, htmlSanitised(decoratedHtml))
     }
 }
