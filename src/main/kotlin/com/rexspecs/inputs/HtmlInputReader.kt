@@ -9,19 +9,21 @@ import com.rexspecs.specs.Spec
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import java.io.File
+import kotlin.io.path.Path
 
-open class HtmlInputReader(private val testRoot: String): InputReader {
-    override fun specIdentifiers(): List<String> {
-        return File("$testRoot/specs").walk().toList()
+open class HtmlInputReader(rexspecsDirectory: String): InputReader {
+    private val specsRoot = File(rexspecsDirectory, "specs")
+
+    protected open fun specIdentifiers(): List<String> {
+        return specsRoot.walk().toList()
             .filter { it.isFile }
-            .map { it.path }
+            .map { it.relativeTo(specsRoot).path }
     }
 
     override fun specs(): List<Spec> {
         return specIdentifiers().map { filePath ->
-            val guts = fileAsString(filePath)
-            Spec(
-                htmlToTables(Jsoup.parse(guts)).map { table -> convertTableToTest(table) })
+            val inputDocument = Jsoup.parse(fileAsString(Path(specsRoot.path, filePath).toString()))
+            Spec(filePath, htmlToTables(inputDocument).map { table -> convertTableToTest(table) })
         }
     }
 
@@ -45,11 +47,5 @@ open class HtmlInputReader(private val testRoot: String): InputReader {
             }
 
         return TabularTest(fixtureCell.text(), columnHeaders, testRows)
-    }
-}
-
-class SingleHtmlInputReader(private val sourcePath: String): HtmlInputReader(sourcePath) {
-    override fun specIdentifiers(): List<String> {
-        return listOf(sourcePath)
     }
 }

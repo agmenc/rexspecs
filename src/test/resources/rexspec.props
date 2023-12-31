@@ -1,4 +1,3 @@
-target.path=rexspecs
+rexspecs.directory=rexspecs
 host=localhost
 port=8000
-source.root=source/test/resources/specs

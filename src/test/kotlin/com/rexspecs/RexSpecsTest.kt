@@ -1,8 +1,7 @@
 package com.rexspecs
 
 import com.rexspecs.connectors.stubbedHttpHandler
-import com.rexspecs.inputs.SingleHtmlInputReader
-import com.rexspecs.inputs.htmlSanitised
+import com.rexspecs.inputs.HtmlInputReader
 import com.rexspecs.inputs.sanified
 import com.rexspecs.outputs.HtmlFileOutputWriter
 import com.rexspecs.utils.RexSpecPropertiesLoader
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import kotlin.math.sin
 
 val calcOneSucceeds =
     Request(Method.GET, "http://not-actually-a-real-host.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
@@ -30,13 +30,19 @@ val calcTwoFails =
         body = MemoryBody("Unsupported operator: \"x\"")
     )
 
+class SingleHtmlInputReader(private val singleFile: String): HtmlInputReader("rexspecs") {
+    override fun specIdentifiers(): List<String> {
+        return listOf(singleFile)
+    }
+}
+
 class RexSpecsTest {
     @Test
     fun `We know when the whole suite fails`() {
         val props = RexSpecPropertiesLoader.properties()
 
         val executedSuite = runSuite(
-            SingleHtmlInputReader("rexspecs/specs/AnAcceptanceTest.html"),
+            SingleHtmlInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
@@ -50,14 +56,14 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlInputReader("rexspecs/specs/AnAcceptanceTest.html"),
+            SingleHtmlInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
         val expectedOutputFile = sanified("src/test/resources/expectations/AnAcceptanceTest.html")
-        val actualOutputFile = htmlSanitised(fileAsString("rexspecs/AnAcceptanceTest.html"))
+        val actualOutputFile = sanified("rexspecs/results/AnAcceptanceTest.html")
         assertEquals(expectedOutputFile, actualOutputFile)
     }
 
@@ -66,7 +72,7 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlInputReader("rexspecs/specs/AnAcceptanceTest.html"),
+            SingleHtmlInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             HttpClient(props.host, props.port).handle
@@ -74,7 +80,7 @@ class RexSpecsTest {
 
         assertEquals(
             sanified("src/test/resources/expectations/AnAcceptanceTest.html"),
-            sanified("rexspecs/AnAcceptanceTest.html")
+            sanified("rexspecs/results/AnAcceptanceTest.html")
         )
     }
 

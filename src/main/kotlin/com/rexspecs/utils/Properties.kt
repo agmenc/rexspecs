@@ -30,7 +30,7 @@ abstract class PropertiesLoader<T>(private val propsFilePath: String) {
 
 object RexSpecPropertiesLoader: PropertiesLoader<RexSpecProperties>("rexspec.props") {
     override fun buildProps(): RexSpecProperties = RexSpecProperties(
-        prop("target.path", "rexspecs/"),
+        prop("rexspecs.directory", "rexspecs/"),
         prop("host", "http://localhost"),
         prop("port", "80").toInt()
     )

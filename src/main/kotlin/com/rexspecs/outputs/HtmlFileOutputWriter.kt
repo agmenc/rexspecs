@@ -6,13 +6,14 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import java.io.File
+import kotlin.io.path.Path
 
-open class HtmlFileOutputWriter(private val testSourceRoot: String) : OutputWriter {
-    // TODO: move filePath into ExecutedSpec
-    override fun writeSpecResults(executedSpec: ExecutedSpec, specIdentifier: String) {
-        writeFile(decorateHtml(executedSpec), specIdentifier)
+open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputWriter {
+    override fun writeSpecResults(executedSpec: ExecutedSpec) {
+        writeFile(decorateHtml(executedSpec), Path(rexspecsDirectory, "results", executedSpec.identifier))
     }
 
+    // TODO: Privatise
     fun decorateHtml(executedSpec: ExecutedSpec): String {
         val snippet = """
             <!doctype html>
@@ -35,7 +36,7 @@ open class HtmlFileOutputWriter(private val testSourceRoot: String) : OutputWrit
     }
 
     override fun cleanTargetDir() {
-        File(testSourceRoot).listFiles()?.forEach {
+        File(rexspecsDirectory).listFiles()?.forEach {
             val didItWork = it.delete()
             println("Deleted ${it.absolutePath} ==> ${didItWork}")
         }

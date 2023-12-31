@@ -32,7 +32,7 @@ fun runSuite(
     return ExecutedSuite(inputReader.specs().map { SpecRunner(it, fixtureLookup, httpHandler).execute() })
         .also { executedSuite ->
             // TODO: make this part of single-spec execution
-            outputWriter.writeSpecResults(executedSuite.firstSpec(), "rexspecs/AnAcceptanceTest.html")
+            outputWriter.writeSpecResults(executedSuite.firstSpec())
         }
         .also { executedSuite ->
             println("RexSpecs: ${if (executedSuite.success()) "SUCCESS" else "FAILURE"}")
@@ -50,7 +50,7 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun firstSpec(): ExecutedSpec = executedSpecs.first()
 }
 
-data class ExecutedSpec(val executedTests: List<ExecutedTest>) {
+data class ExecutedSpec(val identifier: String, val executedTests: List<ExecutedTest>) {
     fun success(): Boolean = executedTests.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 

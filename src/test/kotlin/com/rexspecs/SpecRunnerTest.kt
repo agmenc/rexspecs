@@ -12,7 +12,7 @@ class SpecRunnerTest {
     @Test
     fun `We know that a passing test has passed`() {
         val passingSpec = SpecRunner(
-            Spec(listOf(calculationTest)),
+            Spec("some/input.file", listOf(calculationTest)),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
@@ -25,7 +25,7 @@ class SpecRunnerTest {
     @Test
     fun `We know that a failing test has failed`() {
         val failingSpec = SpecRunner(
-            Spec(listOf(calculationTest)),
+            Spec("some/input.file", listOf(calculationTest)),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf())
         )
@@ -36,7 +36,7 @@ class SpecRunnerTest {
     @Test
     fun `Can use Fixture to build HTTP requests`() {
         val spec = SpecRunner(
-            Spec(listOf(calculationTest)),
+            Spec("some/input.file", listOf(calculationTest)),
             mapOf("Calculator" to ::calculatorRequestBuilder),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
