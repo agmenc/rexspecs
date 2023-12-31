@@ -5,9 +5,6 @@ interface Spec {
 
     @Deprecated("Should just be another component")
     val title: String
-
-    @Deprecated("Iterate through the components() instead")
-    fun guts(): String
 }
 
 data class HackyHtmlSpec(val innards: String, val compies: List<SpecComponent>): Spec {
@@ -15,11 +12,6 @@ data class HackyHtmlSpec(val innards: String, val compies: List<SpecComponent>):
 
     @Deprecated("Should just be another component")
     override val title: String = "Monkeys"
-
-    @Deprecated("Iterate through the components() instead")
-    override fun guts(): String {
-        return innards
-    }
 }
 
 interface SpecComponent {
