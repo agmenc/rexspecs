@@ -1,6 +1,7 @@
 package com.rexspecs
 
 import com.rexspecs.specs.Spec
+import com.rexspecs.specs.SpecComponent
 import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
@@ -15,10 +16,17 @@ class SpecRunner(
 ) {
     fun execute(): ExecutedSpec = ExecutedSpec(
         spec.identifier,
-        spec.components
-            .filterIsInstance<TabularTest>()
-            .map { test -> ExecutedTest(test, executeTest(test, index)) }
+        executeComponents(spec.components)
     )
+
+    private fun executeComponents(specComponents: List<SpecComponent>): List<ExecutedSpecComponent> {
+        return specComponents.map { component ->
+            when (component) {
+                is TabularTest -> ExecutedSpecComponent(component, executeTest(component, index))
+                else -> ExecutedSpecComponent(component, emptyList())
+            }
+        }
+    }
 
     private fun executeTest(tabularTest: TabularTest, index: FixtureLookup): List<RowResult> {
         val function: ((Map<String, String>) -> Request) = index[tabularTest.fixtureName]!!

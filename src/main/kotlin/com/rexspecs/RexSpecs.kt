@@ -50,12 +50,19 @@ data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun firstSpec(): ExecutedSpec = executedSpecs.first()
 }
 
-data class ExecutedSpec(val identifier: String, val executedTests: List<ExecutedTest>) {
+data class ExecutedSpec(val identifier: String, val executedTests: List<ExecutedSpecComponent>) {
     fun success(): Boolean = executedTests.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 
-data class ExecutedTest(val tabularTest: TabularTest, val actualRowResults: List<RowResult>) {
+data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRowResults: List<RowResult>) {
     fun success(): Boolean {
+        return when (specComponent) {
+            is TabularTest -> testSuccessful(specComponent)
+            else -> true
+        }
+    }
+
+    private fun testSuccessful(tabularTest: TabularTest): Boolean {
         tabularTest.testRows
             .map { it.expectedResult }
             .zip(actualRowResults)

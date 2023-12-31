@@ -4,9 +4,12 @@ import com.rexspecs.RowResult
 import com.rexspecs.TabularTest
 import com.rexspecs.TestRow
 import com.rexspecs.fileAsString
-import com.rexspecs.outputs.htmlToTables
+import com.rexspecs.specs.Ignorable
 import com.rexspecs.specs.Spec
+import com.rexspecs.specs.SpecComponent
+import com.rexspecs.specs.Title
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.io.File
 import kotlin.io.path.Path
@@ -23,9 +26,20 @@ open class HtmlInputReader(rexspecsDirectory: String): InputReader {
     override fun specs(): List<Spec> {
         return specIdentifiers().map { filePath ->
             val inputDocument = Jsoup.parse(fileAsString(Path(specsRoot.path, filePath).toString()))
-            Spec(filePath, htmlToTables(inputDocument).map { table -> convertTableToTest(table) })
+            Spec(filePath, htmlToSpecComponents(inputDocument))
         }
     }
+
+    private fun htmlToSpecComponents(inputDocument: Document): List<SpecComponent> = inputDocument.allElements
+        .toList()
+        .map { element ->
+            when (element.tagName()) {
+                "table" -> convertTableToTest(element)
+                "title" -> Title(element.text())
+                else -> Ignorable()
+            }
+        }
+        .filter { it !is Ignorable }
 
     // TODO: Privatise
     fun convertTableToTest(table: Element): TabularTest {
@@ -49,3 +63,4 @@ open class HtmlInputReader(rexspecsDirectory: String): InputReader {
         return TabularTest(fixtureCell.text(), columnHeaders, testRows)
     }
 }
+

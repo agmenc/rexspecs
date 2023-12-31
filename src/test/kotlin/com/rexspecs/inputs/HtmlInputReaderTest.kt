@@ -3,6 +3,7 @@ package com.rexspecs.inputs
 import com.rexspecs.RowResult
 import com.rexspecs.TabularTest
 import com.rexspecs.TestRow
+import com.rexspecs.specs.Title
 import com.rexspecs.specs.calculationTest
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -51,10 +52,17 @@ class HtmlInputReaderTest {
     }
 
     @Test
+    fun `The title of a test becomes another Component`() {
+        val spec = HtmlInputReader("rexspecs").specs().first()
+
+        assertEquals(Title("An Acceptance Test"), spec.components.first())
+    }
+
+    @Test
     fun `Can read in a source file as input`() {
         val spec = HtmlInputReader("rexspecs").specs().first()
 
-        assertEquals(calculationTest, spec.components.first())
+        assertEquals(calculationTest, spec.components.drop(1).first())
     }
 
     @Test

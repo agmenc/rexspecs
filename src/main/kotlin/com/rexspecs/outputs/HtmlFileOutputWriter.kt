@@ -1,8 +1,8 @@
 package com.rexspecs.outputs
 
 import com.rexspecs.*
+import com.rexspecs.specs.Title
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import java.io.File
@@ -10,17 +10,17 @@ import kotlin.io.path.Path
 
 open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputWriter {
     override fun writeSpecResults(executedSpec: ExecutedSpec) {
-        writeFile(decorateHtml(executedSpec), Path(rexspecsDirectory, "results", executedSpec.identifier))
+        writeFile(generateHtml(executedSpec), Path(rexspecsDirectory, "results", executedSpec.identifier))
     }
 
     // TODO: Privatise
-    fun decorateHtml(executedSpec: ExecutedSpec): String {
+    fun generateHtml(executedSpec: ExecutedSpec): String {
+
         val snippet = """
             <!doctype html>
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
-                <title>An Acceptance Test</title>
             </head>
             <body>
             </body>
@@ -28,8 +28,10 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
 
         val simplerDocument = Jsoup.parse(snippet)
         executedSpec.executedTests.forEach { test ->
-//            simplerDocument.body().appendElement("h1").html(test.tabularTest.fixtureName)
-            simplerDocument.body().appendChild(toTable(test.tabularTest, test.actualRowResults))
+            when (test.specComponent) {
+                is Title -> simplerDocument.head().appendElement("title").html(test.specComponent.title)
+                is TabularTest -> simplerDocument.body().appendChild(toTable(test.specComponent, test.actualRowResults))
+            }
         }
 
         return simplerDocument.toString()
@@ -73,7 +75,3 @@ fun expectedButWas(expected: String, actual: String): Element =
         Element("td")
             .attr("style", "color: red")
             .html("Expected [$expected] but was: [$actual]")
-
-fun htmlToTables(inputDocument: Document) = inputDocument.allElements
-    .toList()
-    .filter { it.tagName() == "table" }

@@ -3,6 +3,7 @@ package com.rexspecs.outputs
 import com.rexspecs.*
 import com.rexspecs.inputs.htmlSanitised
 import com.rexspecs.inputs.sampleInput
+import com.rexspecs.specs.Title
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -16,7 +17,11 @@ class HtmlFileOutputWriterTest {
     private val executedSpec = ExecutedSpec(
         "GeneratedAcceptanceTest.html",
         listOf(
-            ExecutedTest(
+            ExecutedSpecComponent(
+                Title("An Acceptance Test"),
+                emptyList()
+            ),
+            ExecutedSpecComponent(
                 TabularTest(
                     "Calculator",
                     listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
@@ -35,7 +40,7 @@ class HtmlFileOutputWriterTest {
 
     @Test
     fun `Can redraw tables - with errors and highlighting - into the output doc`() {
-        val decoratedHtml = HtmlFileOutputWriter("whatever").decorateHtml(executedSpec)
+        val decoratedHtml = HtmlFileOutputWriter("whatever").generateHtml(executedSpec)
 
         assertEquals(expectedOutput, htmlSanitised(decoratedHtml))
     }
