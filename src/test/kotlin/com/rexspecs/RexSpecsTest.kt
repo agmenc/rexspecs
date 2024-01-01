@@ -90,15 +90,15 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlInputReader("AnAcceptanceTest.html"),
+            SingleHtmlInputReader("DirectlyCalledExample.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to Calculator()),
             DirectConnector()
         )
 
         assertEquals(
-            sanified("src/test/resources/expectations/DirectlyCalledAcceptanceTest.html"),
-            sanified("rexspecs/results/AnAcceptanceTest.html")
+            sanified("src/test/resources/expectations/DirectlyCalledExample.html"),
+            sanified("rexspecs/results/DirectlyCalledExample.html")
         )
     }
 

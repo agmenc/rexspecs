@@ -47,16 +47,19 @@ open class HtmlInputReader(rexspecsDirectory: String): InputReader {
         val (first, second) = headerRows
         val fixtureCell = first.selectXpath("th").toList().first()
         val columnHeaders = second.selectXpath("th").toList().map { it.text() }
+
         val testRows: List<TestRow> = table.selectXpath("tbody//tr")
             .toList()
             .map {
-                val (result, params) = it.children()
+                // TODO: We can remove the text from the Elements, then we don't need a pair.
+                val (result: List<Pair<Element, String>>, params: List<Pair<Element, String>>) = it.children()
                     .toList()
                     .zip(columnHeaders)
+                    // TODO: Have a better way of separating the input params from the expected result cells.
                     .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
                 TestRow(
                     params.map { (elem, _) -> elem.text() },
-                    RowResult(result.first().first.text(), result.last().first.text())
+                    RowResult(*result.map { (elem, _) -> elem.text() }.toTypedArray())
                 )
             }
 

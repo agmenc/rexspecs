@@ -64,9 +64,16 @@ fun toTable(tabularTest: TabularTest, actualRowResults: List<RowResult>): Node {
 
 fun toTableRow(inputRow: TestRow, resultRow: RowResult): Element {
     val paramsCells = inputRow.inputParams.map { param -> Element("td").html(param) }
-    val responseCell = expectedButWas(inputRow.expectedResult.httpResponse, resultRow.httpResponse)
-    val resultCell = expectedButWas(inputRow.expectedResult.result, resultRow.result)
-    return Element("tr").appendChildren(paramsCells + responseCell + resultCell)
+
+    if (inputRow.cells() != resultRow.cells()) {
+        return Element("tr").appendChildren(paramsCells + error("Number of expected results [${inputRow.cells()}] does not match the number of actual results [${resultRow.cells()}]"))
+    }
+
+    val results = inputRow.expectedResult.resultValues
+        .zip(resultRow.resultValues)
+        .map { (expected, actual) -> expectedButWas(expected, actual) }
+
+    return Element("tr").appendChildren(paramsCells + results)
 }
 
 fun expectedButWas(expected: String, actual: String): Element =
@@ -76,3 +83,8 @@ fun expectedButWas(expected: String, actual: String): Element =
         Element("td")
             .attr("style", "color: red")
             .html("Expected [$expected] but was: [$actual]")
+
+fun error(description: String): Element =
+    Element("td")
+        .attr("style", "color: red")
+        .html("ERROR: $description")
