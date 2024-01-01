@@ -9,19 +9,24 @@ import com.rexspecs.specs.SpecComponent
 typealias FixtureLookup = Map<String, Fixture>
 
 /*
+
 Benders:
+    - Create a separate test directory structure for directly-called targets, so that we can show different kinds of test suites
+    - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
+    - Document the stuff below (marked HERE) in the README.md Mermaid diagrams
+    -
+    -
+
+Tasks:
     - Find any TODO and JFDI
-    - Document the stuff below in the README.md Mermaid diagrams
-    - Create a separate test for directly-called targets: just remove the HTTP expectations
     - Error: source directory does not exist
     - Error: target directory does not exist
     - Error: no tests in suite
-    - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
-    -
     -
     -
  */
 
+// HERE
 // SuiteRunner (built-in): moves through the list of specs identified by the InputReader, and executes them one-by-one
 // SuiteRunner (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.
 // InputReader: knows where to find specs, and how to read them into their JSON representation
