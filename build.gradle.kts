@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "io.github.agmenc"
-version = "0.0.4-pre-alpha"
+version = "0.1.0-pre-alpha"
 
 kotlin {
     jvmToolchain {
