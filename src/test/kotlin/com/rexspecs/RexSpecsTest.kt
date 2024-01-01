@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import kotlin.math.sin
 
 val calcOneSucceeds =
     Request(Method.GET, "http://not-actually-a-real-host.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
@@ -44,7 +43,7 @@ class RexSpecsTest {
         val executedSuite = runSuite(
             SingleHtmlInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
-            mapOf("Calculator" to ::calculatorRequestBuilder),
+            mapOf("Calculator" to Calculator()),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
@@ -58,7 +57,7 @@ class RexSpecsTest {
         runSuite(
             SingleHtmlInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
-            mapOf("Calculator" to ::calculatorRequestBuilder),
+            mapOf("Calculator" to Calculator()),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
@@ -74,7 +73,7 @@ class RexSpecsTest {
         runSuite(
             SingleHtmlInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
-            mapOf("Calculator" to ::calculatorRequestBuilder),
+            mapOf("Calculator" to Calculator()),
             HttpClient(props.host, props.port).handle
         )
 

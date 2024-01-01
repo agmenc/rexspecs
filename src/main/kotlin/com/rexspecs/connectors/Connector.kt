@@ -1,4 +1,6 @@
 package com.rexspecs.connectors
 
-interface Connector {
-}
+import com.rexspecs.ExecutedSpecComponent
+import com.rexspecs.specs.SpecComponent
+
+typealias Connector = (request: SpecComponent) -> ExecutedSpecComponent

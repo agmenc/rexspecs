@@ -1,12 +1,12 @@
 package com.rexspecs
 
+import com.rexspecs.fixture.Fixture
 import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
 import com.rexspecs.specs.SpecComponent
 import org.http4k.core.HttpHandler
-import org.http4k.core.Request
 
-typealias FixtureLookup = Map<String, (Map<String, String>) -> Request>
+typealias FixtureLookup = Map<String, Fixture>
 
 // SuiteRunner (built-in): moves through the list of specs identified by the InputReader, and executes them one-by-one
 // SuiteRunner (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.

@@ -14,7 +14,7 @@ class SpecRunnerTest {
     fun `We know that a passing test has passed`() {
         val passingSpec = SpecRunner(
             Spec("some/input.file", listOf(calculationTest)),
-            mapOf("Calculator" to ::calculatorRequestBuilder),
+            mapOf("Calculator" to Calculator()),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
 
@@ -27,7 +27,7 @@ class SpecRunnerTest {
     fun `We know that a failing test has failed`() {
         val failingSpec = SpecRunner(
             Spec("some/input.file", listOf(calculationTest)),
-            mapOf("Calculator" to ::calculatorRequestBuilder),
+            mapOf("Calculator" to Calculator()),
             stubbedHttpHandler(mapOf())
         )
 
@@ -38,7 +38,21 @@ class SpecRunnerTest {
     fun `Can use Fixture to build HTTP requests`() {
         val spec = SpecRunner(
             Spec("some/input.file", listOf(Title("An Acceptance Test"), calculationTest)),
-            mapOf("Calculator" to ::calculatorRequestBuilder),
+            mapOf("Calculator" to Calculator()),
+            stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
+        )
+
+        val executedSpec = spec.execute()
+
+        assertEquals(sampleInput, HtmlFileOutputWriter("whatever").generateHtml(executedSpec))
+        assertTrue(executedSpec.success())
+    }
+
+    @Test
+    fun `Can use Fixture to connect directly to the target code`() {
+        val spec = SpecRunner(
+            Spec("some/input.file", listOf(Title("An Acceptance Test"), calculationTest)),
+            mapOf("Calculator" to Calculator()),
             stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
 
