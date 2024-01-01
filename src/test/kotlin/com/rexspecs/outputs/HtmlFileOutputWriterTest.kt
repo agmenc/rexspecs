@@ -4,6 +4,7 @@ import com.rexspecs.*
 import com.rexspecs.inputs.htmlSanitised
 import com.rexspecs.inputs.sampleInput
 import com.rexspecs.specs.Title
+import com.rexspecs.utils.fileAsString
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

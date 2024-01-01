@@ -1,4 +1,4 @@
-package com.rexspecs
+package com.rexspecs.utils
 
 import java.io.File
 import java.nio.file.Path

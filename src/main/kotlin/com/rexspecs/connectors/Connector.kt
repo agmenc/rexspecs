@@ -9,3 +9,5 @@ interface Connector
 class HttpConnector(val httpHandler: HttpHandler): Connector {
     fun process(request: Request): Response = httpHandler(request)
 }
+
+class DirectConnector: Connector

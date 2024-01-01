@@ -3,7 +3,7 @@ package com.rexspecs.inputs
 import com.rexspecs.RowResult
 import com.rexspecs.TabularTest
 import com.rexspecs.TestRow
-import com.rexspecs.fileAsString
+import com.rexspecs.utils.fileAsString
 import com.rexspecs.specs.Ignorable
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.SpecComponent

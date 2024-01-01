@@ -1,6 +1,6 @@
 package com.rexspecs.inputs
 
-import com.rexspecs.fileAsString
+import com.rexspecs.utils.fileAsString
 import org.jsoup.Jsoup
 
 val sampleInput = """
@@ -45,6 +45,6 @@ val sampleInput = """
             |</html>
         """.trimMargin()
 
-fun sanified(filePath: String) = htmlSanitised(fileAsString(filePath))
+fun sanified(filePath: String): String = htmlSanitised(fileAsString(filePath))
 
 fun htmlSanitised(contents: String): String = Jsoup.parse(contents).html()

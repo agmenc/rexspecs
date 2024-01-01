@@ -1,6 +1,5 @@
-package com.rexspecs
+package com.rexspecs.utils
 
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 

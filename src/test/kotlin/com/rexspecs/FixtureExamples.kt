@@ -1,22 +1,31 @@
 package com.rexspecs
 
+import com.app.calculate
 import com.rexspecs.connectors.Connector
+import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.fixture.Fixture
 import org.http4k.core.*
 import java.net.URLEncoder
 import java.nio.ByteBuffer
 
-// TODO: Allow Calculator to provide a selection of supported Connectors, so that there is less boilerplate
+// TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate
 class Calculator: Fixture {
     override fun processRow(inputs: Map<String, String>, connector: Connector): RowResult {
         when (connector) {
-            is HttpConnector -> return extracted(inputs, connector)
+            is HttpConnector -> return connectOverHttp(inputs, connector)
+            is DirectConnector -> return connectDirectly(inputs)
             else -> throw RuntimeException("Unsupported connector: $connector")
         }
     }
 
-    private fun extracted(inputs: Map<String, String>, httpConnector: HttpConnector): RowResult {
+    // TODO: We really don't need the HTTP status when we aren't using HTTP
+    private fun connectDirectly(inputs: Map<String, String>): RowResult =
+        calculate(inputs.map { (k, v) -> Pair(k, v) }).let { result ->
+            RowResult(result.success.toString(), result.body)
+        }
+
+    private fun connectOverHttp(inputs: Map<String, String>, httpConnector: HttpConnector): RowResult {
         val request = calculatorRequestBuilder(inputs)
         val response = httpConnector.process(request)
         return RowResult(response.status.code.toString(), toByteArray(response.body.payload).toString(Charsets.UTF_8))

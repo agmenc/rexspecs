@@ -25,7 +25,7 @@ fun unpack(calculationResult: CalculationResult): Response {
 data class CalculationResult(val success: Boolean, val body: String)
 
 fun calculate(params: Parameters): CalculationResult {
-    val lookup = params.map { it.first to it.second }.toMap()
+    val lookup = params.associate { it.first to it.second }
     val operand1 = lookup["First Param"]?.toInt() ?: 0
     val operand2 = lookup["Second Param"]?.toInt() ?: 0
     val operator = lookup["Operator"] ?: "+"

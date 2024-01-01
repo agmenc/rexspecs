@@ -1,5 +1,6 @@
 package com.rexspecs
 
+import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.connectors.stubbedConnector
 import com.rexspecs.inputs.HtmlInputReader
@@ -80,6 +81,23 @@ class RexSpecsTest {
 
         assertEquals(
             sanified("src/test/resources/expectations/AnAcceptanceTest.html"),
+            sanified("rexspecs/results/AnAcceptanceTest.html")
+        )
+    }
+
+    @Test
+    fun `Can call the target system directly`() {
+        val props = RexSpecPropertiesLoader.properties()
+
+        runSuite(
+            SingleHtmlInputReader("AnAcceptanceTest.html"),
+            HtmlFileOutputWriter(props.targetPath),
+            mapOf("Calculator" to Calculator()),
+            DirectConnector()
+        )
+
+        assertEquals(
+            sanified("src/test/resources/expectations/DirectlyCalledAcceptanceTest.html"),
             sanified("rexspecs/results/AnAcceptanceTest.html")
         )
     }

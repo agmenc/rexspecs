@@ -2,6 +2,7 @@ package com.rexspecs.outputs
 
 import com.rexspecs.*
 import com.rexspecs.specs.Title
+import com.rexspecs.utils.writeFile
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
