@@ -27,13 +27,13 @@ class HtmlFileOutputWriterTest {
                     "Calculator",
                     listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
                     listOf(
-                        TestRow(listOf("7", "+", "8"), RowResult("200", "15")),
-                        TestRow(listOf("7", "x", "8"), RowResult("201", "56"))
+                        TestRow(listOf("7", "+", "8"), RowResult.from("200", "15")),
+                        TestRow(listOf("7", "x", "8"), RowResult.from("201", "56"))
                     )
                 ),
                 listOf(
-                    RowResult("200", "15"),
-                    RowResult("400", "Unsupported operator: \"x\"")
+                    RowResult.from("200", "15"),
+                    RowResult.from("400", "Unsupported operator: \"x\"")
                 )
             )
         )

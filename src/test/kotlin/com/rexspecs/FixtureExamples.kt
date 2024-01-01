@@ -21,12 +21,15 @@ class Calculator: Fixture {
 
     // TODO: We really don't need the HTTP status when we aren't using HTTP
     private fun connectDirectly(inputs: Map<String, String>): RowResult =
-        calculate(inputs.map { (k, v) -> Pair(k, v) }).let { result -> RowResult(result.body) }
+        calculate(inputs.map { (k, v) -> Pair(k, v) }).let { result -> RowResult(listOf(result.body)) }
 
     private fun connectOverHttp(inputs: Map<String, String>, httpConnector: HttpConnector): RowResult {
         val request = calculatorRequestBuilder(inputs)
         val response = httpConnector.process(request)
-        return RowResult(response.status.code.toString(), toByteArray(response.body.payload).toString(Charsets.UTF_8))
+        return RowResult.from(
+            response.status.code.toString(),
+            toByteArray(response.body.payload).toString(Charsets.UTF_8)
+        )
     }
 
     private fun calculatorRequestBuilder(params: Map<String, String>): Request {

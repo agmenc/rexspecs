@@ -53,21 +53,11 @@ data class TestRow(val inputParams: List<String>, val expectedResult: RowResult)
     fun cells() = expectedResult.cells()
 }
 
-// TODO: Make resultValues an array, so RowResult can just be a data class. The boilerplate looks ugly.
-class RowResult(vararg val resultValues: String) {
+data class RowResult(val resultValues: List<String>) {
     fun cells() = resultValues.size
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is RowResult) return false
-
-        if (!resultValues.contentEquals(other.resultValues)) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return resultValues.contentHashCode()
+    companion object {
+        fun from(vararg resultValues: String) = RowResult(resultValues.toList())
     }
 }
 

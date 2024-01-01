@@ -59,7 +59,7 @@ open class HtmlInputReader(rexspecsDirectory: String): InputReader {
                     .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
                 TestRow(
                     params.map { (elem, _) -> elem.text() },
-                    RowResult(*result.map { (elem, _) -> elem.text() }.toTypedArray())
+                    RowResult(result.map { (elem, _) -> elem.text() })
                 )
             }
 
