@@ -3,7 +3,6 @@ package com.rexspecs
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.SpecComponent
 import org.http4k.core.HttpHandler
-import org.http4k.core.Request
 import org.http4k.core.Response
 import java.nio.ByteBuffer
 
@@ -11,6 +10,8 @@ class SpecRunner(
     val spec: Spec,
     val index: FixtureLookup,
 
+    // Use Fixture to convert a SpecComponent into something suitable for whichever Connector is provided (type match)
+    // SpecComponent -> [Fixture] -> inputs -> [Connector] -> outputs -> [Fixture] -> RowResult
     // TODO: Replace with Connector
     val httpHandler: HttpHandler
 ) {
@@ -29,12 +30,10 @@ class SpecRunner(
     }
 
     private fun executeTest(tabularTest: TabularTest, index: FixtureLookup): List<RowResult> {
-        val function: ((Map<String, String>) -> Request) = index[tabularTest.fixtureName]!!
+        val fixture = index[tabularTest.fixtureName]!!
 
         return tabularTest.testRows
-            .map { row -> function(zipToMap(tabularTest, row)) }
-            .map { req -> httpHandler(req) }
-            .map { res -> toRexResults(res) }
+            .map { row -> fixture.processRow(zipToMap(tabularTest, row), httpHandler) }
     }
 
     private fun zipToMap(tabularTest: TabularTest, row: TestRow): Map<String, String> {
@@ -49,11 +48,12 @@ class SpecRunner(
     }
 
     // TODO: Conversion from an HTTP Response to a RowResult belongs in the Connector
-    private fun toRexResults(response: Response): RowResult {
+    private fun toRowResults(response: Response): RowResult {
         // TODO: Move HTTP gubbins elsewhere
         return RowResult(response.status.code.toString(), toByteArray(response.body.payload).toString(Charsets.UTF_8))
     }
 
+    // TODO: Kill: duplicated in FixtureExamples.kt
     // Horrible mutating Java. Note that:
     //  - get() actually does a set() on the parameter
     //  - rewind() is necessary if we are re-using the response
