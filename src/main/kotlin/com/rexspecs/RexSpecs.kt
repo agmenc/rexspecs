@@ -1,10 +1,10 @@
 package com.rexspecs
 
+import com.rexspecs.connectors.Connector
 import com.rexspecs.fixture.Fixture
 import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
 import com.rexspecs.specs.SpecComponent
-import org.http4k.core.HttpHandler
 
 typealias FixtureLookup = Map<String, Fixture>
 
@@ -24,12 +24,10 @@ fun runSuite(
     inputReader: InputReader,
     outputWriter: OutputWriter,
     fixtureLookup: FixtureLookup,
-
-    // TODO: Replace with Connector
-    httpHandler: HttpHandler
+    connector: Connector
 ): ExecutedSuite {
     outputWriter.cleanTargetDir()
-    return ExecutedSuite(inputReader.specs().map { SpecRunner(it, fixtureLookup, httpHandler).execute() })
+    return ExecutedSuite(inputReader.specs().map { SpecRunner(it, fixtureLookup, connector).execute() })
         .also { executedSuite ->
             // TODO: make this part of single-spec execution
             outputWriter.writeSpecResults(executedSuite.firstSpec())

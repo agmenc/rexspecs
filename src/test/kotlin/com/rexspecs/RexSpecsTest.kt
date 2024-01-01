@@ -1,6 +1,7 @@
 package com.rexspecs
 
-import com.rexspecs.connectors.stubbedHttpHandler
+import com.rexspecs.connectors.HttpConnector
+import com.rexspecs.connectors.stubbedConnector
 import com.rexspecs.inputs.HtmlInputReader
 import com.rexspecs.inputs.sanified
 import com.rexspecs.outputs.HtmlFileOutputWriter
@@ -44,7 +45,7 @@ class RexSpecsTest {
             SingleHtmlInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to Calculator()),
-            stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
+            stubbedConnector(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
         assertFalse(executedSuite.success())
@@ -58,7 +59,7 @@ class RexSpecsTest {
             SingleHtmlInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to Calculator()),
-            stubbedHttpHandler(mapOf(calcOneSucceeds, calcTwoFails))
+            stubbedConnector(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
         val expectedOutputFile = sanified("src/test/resources/expectations/AnAcceptanceTest.html")
@@ -74,7 +75,7 @@ class RexSpecsTest {
             SingleHtmlInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to Calculator()),
-            HttpClient(props.host, props.port).handle
+            HttpConnector(HttpClient(props.host, props.port).handle)
         )
 
         assertEquals(

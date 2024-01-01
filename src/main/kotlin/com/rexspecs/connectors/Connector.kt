@@ -1,6 +1,11 @@
 package com.rexspecs.connectors
 
-import com.rexspecs.ExecutedSpecComponent
-import com.rexspecs.specs.SpecComponent
+import org.http4k.core.HttpHandler
+import org.http4k.core.Request
+import org.http4k.core.Response
 
-typealias Connector = (request: SpecComponent) -> ExecutedSpecComponent
+interface Connector
+
+class HttpConnector(val httpHandler: HttpHandler): Connector {
+    fun process(request: Request): Response = httpHandler(request)
+}
