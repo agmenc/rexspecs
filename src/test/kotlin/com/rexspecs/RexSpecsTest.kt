@@ -141,7 +141,7 @@ class RexSpecsTest {
 
         assertEquals(
             sanified("src/test/resources/expectations/JsonExample.html"),
-            // TODO: Make this emit a file with a .html suffix
+            // TODO: Make this emit a file with a .html suffix, by stripping suffixes from input files
             sanified("rexspecs/results/JsonExample.json")
         )
     }
