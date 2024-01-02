@@ -6,6 +6,7 @@ import com.rexspecs.specs.SpecComponent
 
 class SpecRunner(
     private val spec: Spec,
+    // TODO: Pass in the Fixture, not the whole lookup
     private val index: FixtureLookup,
     private val connector: Connector
 ) {
