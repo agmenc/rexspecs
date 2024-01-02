@@ -15,11 +15,13 @@ typealias FixtureLookup = Map<String, Fixture>
 Benders:
     - Create a separate test directory structure for directly-called targets, so that we can show different kinds of test suites
     - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
-    - Document the stuff below (marked HERE) in the README.md Mermaid diagrams
+    - Document the stuff below (marked ***HERE***) in the README.md Mermaid diagrams
     -
 
 Tasks:
     - Find any TODO and JFDI
+    - Remove console noise while running the tests
+    - Write out some stats per test (pass/fail counts)
     - Error: source directory does not exist
     - Error: target directory does not exist
     - Error: no tests in suite
@@ -27,7 +29,7 @@ Tasks:
     -
  */
 
-// HERE
+// ***HERE***
 // SuiteRunner (built-in): moves through the list of specs identified by the InputReader, and executes them one-by-one
 // SuiteRunner (built-in): performs tidy-ups by telling the OutputWriter to do pre-test housekeeping.
 // InputReader: knows where to find specs, and how to read them into their JSON representation
