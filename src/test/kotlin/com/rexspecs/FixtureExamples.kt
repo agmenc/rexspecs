@@ -5,9 +5,12 @@ import com.rexspecs.connectors.Connector
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.fixture.Fixture
-import org.http4k.core.*
+import org.http4k.asString
+import org.http4k.core.HttpMessage
+import org.http4k.core.Method
+import org.http4k.core.Request
+import org.http4k.core.Uri
 import java.net.URLEncoder
-import java.nio.ByteBuffer
 
 // TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate
 class Calculator: Fixture {
@@ -27,7 +30,7 @@ class Calculator: Fixture {
         val response = httpConnector.process(request)
         return RowResult.from(
             response.status.code.toString(),
-            toByteArray(response.body.payload).toString(Charsets.UTF_8)
+            response.body.payload.asString()
         )
     }
 
@@ -41,14 +44,4 @@ class Calculator: Fixture {
 
     // TODO Should this be done for free by RexSpec?
     private fun encodePlus(param: String) = URLEncoder.encode(param, "UTF-8")
-
-    // Horrible mutating Java. Note that:
-    //  - get() actually does a set() on the parameter
-    //  - rewind() is necessary if we are re-using the response
-    private fun toByteArray(byteBuf: ByteBuffer): ByteArray {
-        val byteArray = ByteArray(byteBuf.capacity())
-        byteBuf.get(byteArray)
-        byteBuf.rewind()
-        return byteArray
-    }
 }
