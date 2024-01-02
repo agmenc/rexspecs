@@ -23,12 +23,12 @@ class Calculator: Fixture {
     }
 
     private fun connectDirectly(inputs: Map<String, String>): RowResult =
-        RowResult.from(calculate(inputs.map { (k, v) -> Pair(k, v) }).body)
+        RowResult(calculate(inputs.map { (k, v) -> Pair(k, v) }).body)
 
     private fun connectOverHttp(inputs: Map<String, String>, httpConnector: HttpConnector): RowResult {
         val request = calculatorRequestBuilder(inputs)
         val response = httpConnector.process(request)
-        return RowResult.from(
+        return RowResult(
             response.status.code.toString(),
             response.body.payload.asString()
         )

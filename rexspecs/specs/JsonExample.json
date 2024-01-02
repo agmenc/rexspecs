@@ -1,0 +1,18 @@
+{ 
+  "identifier": "JsonExample.json",
+  "components": [
+    {
+      "type": "com.rexspecs.specs.Title",
+      "title": "An Acceptance Test"
+    },
+    {
+      "type": "com.rexspecs.TabularTest",
+      "fixtureName": "Calculator",
+      "columnNames": ["First Param", "Operator", "Second Param", "Result"],
+      "testRows": [
+        { "inputParams": ["7", "+", "8"], "expectedResult": { "resultValues": ["15"] } },
+        { "inputParams": ["7", "x", "8"], "expectedResult": { "resultValues": ["56"] } }
+      ]
+    }
+  ]
+}

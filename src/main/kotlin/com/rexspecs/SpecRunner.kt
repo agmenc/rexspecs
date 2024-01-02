@@ -3,6 +3,7 @@ package com.rexspecs
 import com.rexspecs.connectors.Connector
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.SpecComponent
+import com.rexspecs.specs.TabularTest
 
 class SpecRunner(
     private val spec: Spec,
@@ -29,7 +30,7 @@ class SpecRunner(
         return tabularTest.testRows
             .map { row ->
                 index[tabularTest.fixtureName]?.processRow(zipToMap(tabularTest, row), connector)
-                    ?: RowResult.from("Unrecognised fixture: [${tabularTest.fixtureName}]")
+                    ?: RowResult("Unrecognised fixture: [${tabularTest.fixtureName}]")
             }
     }
 

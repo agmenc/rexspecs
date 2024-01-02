@@ -1,30 +1,22 @@
 package com.rexspecs.inputs
 
-import com.rexspecs.RowResult
-import com.rexspecs.TabularTest
-import com.rexspecs.TestRow
 import com.rexspecs.specs.Spec
+import com.rexspecs.specs.TabularTest
 import kotlinx.serialization.json.Json
+import java.io.File
 
-class JsonFileInputReader: InputReader {
+open class JsonFileInputReader(rexspecsDirectory: String) : InputReader {
+    protected val specsRoot = File(rexspecsDirectory, "specs")
+
+    protected open fun specIdentifiers(): List<File> =
+        specsRoot
+            .walk()
+            .toList()
+            .filter { it.isFile }
+            .map { it.relativeTo(specsRoot) }
+
     override fun specs(): List<Spec> {
-        return listOf(
-            Spec(
-                "test",
-                listOf(
-                    TabularTest(
-                        "test",
-                        listOf("col1", "col2", "col3"),
-                        listOf(
-                            TestRow(
-                                listOf("test", "test", "test"),
-                                RowResult.from("test", "test", "test")
-                            )
-                        )
-                    )
-                )
-            )
-        )
+        return specIdentifiers().map { Json.decodeFromString<Spec>(it.readText()) }
     }
 
     fun convertJsonToTabularTest(json: String): TabularTest {

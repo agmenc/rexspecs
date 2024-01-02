@@ -1,6 +1,8 @@
 package com.rexspecs.outputs
 
 import com.rexspecs.*
+import com.rexspecs.specs.Ignorable
+import com.rexspecs.specs.TabularTest
 import com.rexspecs.specs.Title
 import com.rexspecs.utils.writeFile
 import org.jsoup.Jsoup
@@ -32,6 +34,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             when (test.specComponent) {
                 is Title -> simplerDocument.head().appendElement("title").html(test.specComponent.title)
                 is TabularTest -> simplerDocument.body().appendChild(toTable(test.specComponent, test.actualRowResults))
+                is Ignorable -> Unit
             }
         }
 
@@ -39,10 +42,12 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
     }
 
     override fun cleanTargetDir() {
-        File(rexspecsDirectory).listFiles()?.forEach {
-            val didItWork = it.delete()
-            println("Deleted ${it.absolutePath} ==> ${didItWork}")
-        }
+        File(rexspecsDirectory, "results").walk()
+            .filter { it.isFile }
+            .forEach {
+                val didItWork = it.delete()
+                println("Deleted ${it.absolutePath} ==> $didItWork")
+            }
     }
 }
 

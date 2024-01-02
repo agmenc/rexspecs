@@ -1,13 +1,9 @@
 package com.rexspecs.inputs
 
 import com.rexspecs.RowResult
-import com.rexspecs.TabularTest
 import com.rexspecs.TestRow
+import com.rexspecs.specs.*
 import com.rexspecs.utils.fileAsString
-import com.rexspecs.specs.Ignorable
-import com.rexspecs.specs.Spec
-import com.rexspecs.specs.SpecComponent
-import com.rexspecs.specs.Title
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element

@@ -5,6 +5,7 @@ import com.rexspecs.fixture.Fixture
 import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
 import com.rexspecs.specs.SpecComponent
+import com.rexspecs.specs.TabularTest
 import kotlinx.serialization.Serializable
 
 typealias FixtureLookup = Map<String, Fixture>
@@ -52,8 +53,7 @@ fun runSuite(
         .also { executedSuite -> println("RexSpecs: ${if (executedSuite.success()) "SUCCESS" else "FAILURE"}") }
 }
 
-@Serializable
-data class TabularTest(val fixtureName: String, val columnNames: List<String>, val testRows: List<TestRow>): SpecComponent
+
 
 @Serializable
 data class TestRow(val inputParams: List<String>, val expectedResult: RowResult) {
@@ -65,7 +65,7 @@ data class RowResult(val resultValues: List<String>) {
     fun cells() = resultValues.size
 
     companion object {
-        fun from(vararg resultValues: String) = RowResult(resultValues.toList())
+        operator fun invoke(vararg resultValues: String) = RowResult(resultValues.toList())
     }
 }
 

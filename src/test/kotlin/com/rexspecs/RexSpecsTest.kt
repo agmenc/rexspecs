@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import java.io.File
 
 val calcOneSucceeds =
     Request(Method.GET, "http://not-actually-a-real-host.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
@@ -35,6 +36,13 @@ val calcTwoFails =
 class SingleHtmlInputReader(private val singleFile: String): HtmlInputReader("rexspecs") {
     override fun specIdentifiers(): List<String> {
         return listOf(singleFile)
+    }
+}
+
+class SingleJsonFileInputReader(private val singleFile: String): JsonFileInputReader("rexspecs") {
+    override fun specIdentifiers(): List<File> {
+        //TODO: Make this OS independent (path aware)
+        return listOf(File("rexspecs/specs/$singleFile"))
     }
 }
 
@@ -121,20 +129,20 @@ class RexSpecsTest {
     }
 
     @Test
-    @Disabled
     fun `Can run RexSpecs by passing in JSON directly`() {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            JsonFileInputReader(),
+            SingleJsonFileInputReader("JsonExample.json"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to Calculator()),
             DirectConnector()
         )
 
         assertEquals(
-            sanified("src/test/resources/expectations/DirectlyCalledExample.html"),
-            sanified("rexspecs/results/DirectlyCalledExample.html")
+            sanified("src/test/resources/expectations/JsonExample.html"),
+            // TODO: Make this emit a file with a .html suffix
+            sanified("rexspecs/results/JsonExample.json")
         )
     }
 
