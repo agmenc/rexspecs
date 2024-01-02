@@ -2,6 +2,7 @@ import org.jreleaser.model.Active
 
 plugins {
     kotlin("jvm") version "1.9.0"
+    kotlin("plugin.serialization") version "1.9.0"
     application
     `maven-publish`
 
@@ -28,13 +29,13 @@ repositories {
 }
 
 dependencies {
-
     // SystemUnderTest
     implementation(platform("org.http4k:http4k-bom:5.7.2.0"))
     implementation("org.http4k:http4k-core")
     implementation("org.http4k:http4k-server-undertow")
     implementation("org.http4k:http4k-client-apache")
     implementation("org.http4k:http4k-format-kotlinx-serialization")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("org.jsoup:jsoup:1.16.1")
 
 //    testImplementation(kotlin("test"))

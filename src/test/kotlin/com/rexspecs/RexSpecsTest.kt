@@ -4,6 +4,7 @@ import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.connectors.stubbedConnector
 import com.rexspecs.inputs.HtmlInputReader
+import com.rexspecs.inputs.JsonFileInputReader
 import com.rexspecs.inputs.sanified
 import com.rexspecs.outputs.HtmlFileOutputWriter
 import com.rexspecs.utils.RexSpecPropertiesLoader
@@ -104,7 +105,21 @@ class RexSpecsTest {
 
     @Test
     @Disabled
-    fun `Can run RexSpecs by passing in JSON directly`() {}
+    fun `Can run RexSpecs by passing in JSON directly`() {
+        val props = RexSpecPropertiesLoader.properties()
+
+        runSuite(
+            JsonFileInputReader(),
+            HtmlFileOutputWriter(props.targetPath),
+            mapOf("Calculator" to Calculator()),
+            DirectConnector()
+        )
+
+        assertEquals(
+            sanified("src/test/resources/expectations/DirectlyCalledExample.html"),
+            sanified("rexspecs/results/DirectlyCalledExample.html")
+        )
+    }
 
     @Test
     @Disabled

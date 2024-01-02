@@ -5,6 +5,7 @@ import com.rexspecs.fixture.Fixture
 import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
 import com.rexspecs.specs.SpecComponent
+import kotlinx.serialization.Serializable
 
 typealias FixtureLookup = Map<String, Fixture>
 
@@ -15,14 +16,13 @@ Benders:
     - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
     - Document the stuff below (marked HERE) in the README.md Mermaid diagrams
     -
-    -
 
 Tasks:
     - Find any TODO and JFDI
     - Error: source directory does not exist
     - Error: target directory does not exist
     - Error: no tests in suite
-    -
+    - Add versions to all dependencies and plugins
     -
  */
 
@@ -52,12 +52,15 @@ fun runSuite(
         .also { executedSuite -> println("RexSpecs: ${if (executedSuite.success()) "SUCCESS" else "FAILURE"}") }
 }
 
+@Serializable
 data class TabularTest(val fixtureName: String, val columnNames: List<String>, val testRows: List<TestRow>): SpecComponent
 
+@Serializable
 data class TestRow(val inputParams: List<String>, val expectedResult: RowResult) {
     fun cells() = expectedResult.cells()
 }
 
+@Serializable
 data class RowResult(val resultValues: List<String>) {
     fun cells() = resultValues.size
 
