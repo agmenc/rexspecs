@@ -25,10 +25,12 @@ class SpecRunner(
     }
 
     private fun executeTest(tabularTest: TabularTest, index: FixtureLookup): List<RowResult> {
-        val fixture = index[tabularTest.fixtureName]!!
 
         return tabularTest.testRows
-            .map { row -> fixture.processRow(zipToMap(tabularTest, row), connector) }
+            .map { row ->
+                index[tabularTest.fixtureName]?.processRow(zipToMap(tabularTest, row), connector)
+                    ?: RowResult.from("Unrecognised fixture: [${tabularTest.fixtureName}]")
+            }
     }
 
     private fun zipToMap(tabularTest: TabularTest, row: TestRow): Map<String, String> {

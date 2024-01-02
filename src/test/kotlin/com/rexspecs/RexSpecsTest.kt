@@ -104,6 +104,23 @@ class RexSpecsTest {
     }
 
     @Test
+    fun `Provides a useful error message when it can't find the fixture`() {
+        val props = RexSpecPropertiesLoader.properties()
+
+        runSuite(
+            SingleHtmlInputReader("NoSuchFixtureExample.html"),
+            HtmlFileOutputWriter(props.targetPath),
+            mapOf("Calculator" to Calculator()),
+            DirectConnector()
+        )
+
+        assertEquals(
+            sanified("src/test/resources/expectations/NoSuchFixtureExample.html"),
+            sanified("rexspecs/results/NoSuchFixtureExample.html")
+        )
+    }
+
+    @Test
     @Disabled
     fun `Can run RexSpecs by passing in JSON directly`() {
         val props = RexSpecPropertiesLoader.properties()
