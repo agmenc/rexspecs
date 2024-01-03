@@ -13,14 +13,19 @@ typealias FixtureLookup = Map<String, Fixture>
 /*
 
 Benders:
+    - Make the HTML look prettier still (need some guidance with this one)
+    - Build a more complicated example, with multiple steps, and some sort of state
     - Create a separate test directory structure for directly-called targets, so that we can show different kinds of test suites
+    - Find a better way to demarcate input params from expected results (probably a CSS class)
     - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
     - Document the stuff below (marked ***HERE***) in the README.md Mermaid diagrams
     -
 
 Tasks:
     - Find any TODO and JFDI
-    - Remove console noise while running the tests
+    - Put an input/output toggle link on each spec
+    - Remove console noise while running the specs
+    - HtmlFileInputReader: should only read files with .html extension
     - Write out some stats per test (pass/fail counts)
     - Error: source directory does not exist
     - Error: target directory does not exist

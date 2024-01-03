@@ -24,6 +24,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
+                <link rel="stylesheet" href="../theme.css">
             </head>
             <body>
             </body>
@@ -49,47 +50,52 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
                 println("Deleted ${it.absolutePath} ==> $didItWork")
             }
     }
-}
 
-fun toTable(tabularTest: TabularTest, actualRowResults: List<RowResult>): Node {
-    val table = Element("table")
-    val header = Element("thead")
-    header.appendElement("tr").appendElement("th").html(tabularTest.fixtureName)
-    header.appendElement("tr").appendChildren(tabularTest.columnNames.map { Element("th").html(it) })
+    private fun toTable(tabularTest: TabularTest, actualRowResults: List<RowResult>): Node {
+        val table = Element("table")
+        val header = Element("thead")
+        header.appendElement("tr").appendElement("th").html(tabularTest.fixtureName)
+        header.appendElement("tr").appendChildren(tabularTest.columnNames.map { Element("th").html(it) })
 
-    val body = Element("tbody")
-    val bodyRows: List<Element> = tabularTest.testRows
-        .zip(actualRowResults)
-        .map { (inputRow, resultRow) -> toTableRow(inputRow, resultRow) }
+        val body = Element("tbody")
+        val bodyRows: List<Element> = tabularTest.testRows
+            .zip(actualRowResults)
+            .map { (inputRow, resultRow) -> toTableRow(inputRow, resultRow) }
 
-    body.appendChildren(bodyRows)
+        body.appendChildren(bodyRows)
 
-    return table.appendChild(header).appendChild(body)
-}
-
-fun toTableRow(inputRow: TestRow, resultRow: RowResult): Element {
-    val paramsCells = inputRow.inputParams.map { param -> Element("td").html(param) }
-
-    if (inputRow.cells() != resultRow.cells()) {
-        return Element("tr").appendChildren(paramsCells + error("Number of expected results [${inputRow.cells()}] does not match the number of actual results [${resultRow.cells()}]"))
+        return table.appendChild(header).appendChild(body)
     }
 
-    val results = inputRow.expectedResult.resultValues
-        .zip(resultRow.resultValues)
-        .map { (expected, actual) -> expectedButWas(expected, actual) }
+    private fun toTableRow(inputRow: TestRow, resultRow: RowResult): Element {
+        val paramsCells = inputRow.inputParams.map { param -> Element("td").html(param) }
 
-    return Element("tr").appendChildren(paramsCells + results)
-}
+        if (inputRow.cells() != resultRow.cells()) {
+            return Element("tr").appendChildren(paramsCells + error("Number of expected results [${inputRow.cells()}] does not match the number of actual results [${resultRow.cells()}]"))
+        }
 
-fun expectedButWas(expected: String, actual: String): Element =
-    if (expected == actual)
-        Element("td").html(actual)
-    else
+        val results = inputRow.expectedResult.resultValues
+            .zip(resultRow.resultValues)
+            .map { (expected, actual) -> expectedButWas(expected, actual) }
+
+        return Element("tr").appendChildren(paramsCells + results)
+    }
+
+    private fun expectedButWas(expected: String, actual: String): Element =
+        if (expected == actual)
+            success(actual)
+        else
+            failure(expected, actual)
+
+    private fun failure(expected: String, actual: String): Element =
+        cell("Expected [$expected] but was: [$actual]", "fail")
+
+    private fun success(actual: String): Element = cell(actual, "success")
+
+    private fun error(description: String): Element = cell("ERROR: $description", "error")
+
+    private fun cell(text: String, className: String): Element =
         Element("td")
-            .attr("style", "color: red")
-            .html("Expected [$expected] but was: [$actual]")
-
-fun error(description: String): Element =
-    Element("td")
-        .attr("style", "color: red")
-        .html("ERROR: $description")
+            .addClass(className)
+            .html(text)
+}

@@ -1,0 +1,60 @@
+/* Copied from https://dev.to/dcodeyt/creating-beautiful-html-tables-with-css-428l */
+
+body {
+    margin: 25px 25px;
+    padding: 0;
+    background-color: #dddddd;
+    font-family: sans-serif;
+}
+
+table {
+    background-color: #dddddd;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    border-radius: 5px;
+}
+
+table thead tr:first-of-type th {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+table thead tr {
+    background-color: #63A0A6FF;
+    color: #ffffff;
+    text-align: left;
+}
+
+table th,
+table td {
+    padding: 12px 15px;
+}
+
+table tbody tr {
+    background-color: #ffffff;
+    border-bottom: 1px solid #dddddd;
+}
+
+table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+table tbody tr:last-of-type {
+    border-bottom: 2px solid #008698FF;
+}
+
+td.success {
+    font-weight: bold;
+    color: #47e130;
+}
+
+td.fail {
+    font-weight: bold;
+    color: #ec0565;
+}
+
+td.error {
+    background-color: #ec0565;
+}

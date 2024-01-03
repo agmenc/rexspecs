@@ -2,10 +2,11 @@ package com.rexspecs
 
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.stubbedConnector
+import com.rexspecs.inputs.expectedOutputWithFailure
+import com.rexspecs.inputs.expectedOutputWithSuccess
 import com.rexspecs.outputs.HtmlFileOutputWriter
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.httpCalculationTest
-import com.rexspecs.inputs.sampleInput
 import com.rexspecs.inputs.sanified
 import com.rexspecs.specs.Title
 import com.rexspecs.specs.directCalculationTest
@@ -47,7 +48,7 @@ class SpecRunnerTest {
 
         val executedSpec = spec.execute()
 
-        assertEquals(sampleInput, HtmlFileOutputWriter("whatever").generateHtml(executedSpec))
+        assertEquals(expectedOutputWithSuccess, HtmlFileOutputWriter("whatever").generateHtml(executedSpec))
         assertTrue(executedSpec.success())
     }
 

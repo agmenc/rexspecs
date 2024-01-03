@@ -8,6 +8,7 @@ val sampleInput = """
             |<html lang="en">
             | <head>
             |  <meta charset="UTF-8">
+            |  <link rel="stylesheet" href="../theme.css">
             |  <title>An Acceptance Test</title>
             | </head>
             | <body>
@@ -44,6 +45,18 @@ val sampleInput = """
             | </body>
             |</html>
         """.trimMargin()
+
+val expectedOutputWithFailure = firstRowSucceeds(sampleInput)
+    .replace("<td>56</td>", "<td class=\"fail\">Expected [56] but was: [Unsupported operator: \"x\"]</td>")
+    .replace("<td>201</td>", "<td class=\"fail\">Expected [201] but was: [400]</td>")
+
+val expectedOutputWithSuccess = firstRowSucceeds(sampleInput)
+    .replace("<td>56</td>", "<td class=\"success\">56</td>")
+    .replace("<td>201</td>", "<td class=\"success\">201</td>")
+
+private fun firstRowSucceeds(input: String) = input
+    .replace("<td>15</td>", "<td class=\"success\">15</td>")
+    .replace("<td>200</td>", "<td class=\"success\">200</td>")
 
 fun sanified(filePath: String): String = htmlSanitised(fileAsString(filePath))
 

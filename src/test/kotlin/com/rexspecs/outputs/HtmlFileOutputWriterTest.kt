@@ -1,8 +1,11 @@
 package com.rexspecs.outputs
 
-import com.rexspecs.*
+import com.rexspecs.ExecutedSpec
+import com.rexspecs.ExecutedSpecComponent
+import com.rexspecs.RowResult
+import com.rexspecs.TestRow
+import com.rexspecs.inputs.expectedOutputWithFailure
 import com.rexspecs.inputs.htmlSanitised
-import com.rexspecs.inputs.sampleInput
 import com.rexspecs.specs.TabularTest
 import com.rexspecs.specs.Title
 import com.rexspecs.utils.fileAsString
@@ -10,12 +13,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class HtmlFileOutputWriterTest {
-    private val expectedOutput = decorateWithErrorsAndColours(sampleInput)
-
-    private fun decorateWithErrorsAndColours(input: String) = input
-        .replace("<td>56</td>", "<td style=\"color: red\">Expected [56] but was: [Unsupported operator: \"x\"]</td>")
-        .replace("<td>201</td>", "<td style=\"color: red\">Expected [201] but was: [400]</td>")
-
     private val executedSpec = ExecutedSpec(
         "GeneratedAcceptanceTest.html",
         listOf(
@@ -44,7 +41,7 @@ class HtmlFileOutputWriterTest {
     fun `Can redraw tables - with errors and highlighting - into the output doc`() {
         val decoratedHtml = HtmlFileOutputWriter("whatever").generateHtml(executedSpec)
 
-        assertEquals(expectedOutput, htmlSanitised(decoratedHtml))
+        assertEquals(expectedOutputWithFailure, htmlSanitised(decoratedHtml))
     }
 
     @Test
@@ -53,6 +50,6 @@ class HtmlFileOutputWriterTest {
 
         outputWriter.writeSpecResults(executedSpec)
 
-        assertEquals(expectedOutput, htmlSanitised(fileAsString("rexspecs/results/${executedSpec.identifier}")))
+        assertEquals(expectedOutputWithFailure, htmlSanitised(fileAsString("rexspecs/results/${executedSpec.identifier}")))
     }
 }
