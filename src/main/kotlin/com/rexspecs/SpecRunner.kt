@@ -29,7 +29,8 @@ class SpecRunner(
 
         return tabularTest.testRows
             .map { row ->
-                index[tabularTest.fixtureName]?.processRow(zipToMap(tabularTest, row), connector)
+                index[tabularTest.fixtureName]
+                    ?. processRow(zipToMap(tabularTest, row), connector)
                     ?: RowResult("Error: unrecognised fixture [${tabularTest.fixtureName}]")
             }
     }
