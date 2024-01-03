@@ -26,6 +26,8 @@ Tasks:
     - Put an input/output toggle link on each spec
     - Remove console noise while running the specs
     - HtmlFileInputReader: should only read files with .html extension
+    - Add Description as a SpecComponent
+    - Include the default CSS theme as a prod resource, but only write it to the output directory if it doesn't already exist
     - Write out some stats per test (pass/fail counts)
     - Error: source directory does not exist
     - Error: target directory does not exist
