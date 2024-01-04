@@ -18,4 +18,10 @@ data class TabularTest(val fixtureName: String, val columnNames: List<String>, v
 data class Title(val title: String): SpecComponent()
 
 @Serializable
+data class Heading(val words: String): SpecComponent()
+
+@Serializable
+data class Description(val words: String): SpecComponent()
+
+@Serializable
 class Ignorable: SpecComponent()

@@ -32,6 +32,8 @@ open class HtmlInputReader(rexspecsDirectory: String): InputReader {
             when (element.tagName()) {
                 "table" -> convertTableToTest(element)
                 "title" -> Title(element.text())
+                "h1" -> Heading(element.text())
+                "p" -> Description(element.text())
                 else -> Ignorable()
             }
         }

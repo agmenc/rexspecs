@@ -26,6 +26,7 @@ Tasks:
     - Put an input/output toggle link on each spec
     - Remove console noise while running the specs
     - HtmlFileInputReader: should only read files with .html extension
+    - Verify that we can actually run a suite of specs. Make the last RexSpecs test run the whole lot.
     - Add Description as a SpecComponent
     - Include the default CSS theme as a prod resource, but only write it to the output directory if it doesn't already exist
     - Write out some stats per test (pass/fail counts)
@@ -61,8 +62,6 @@ fun runSuite(
         .also { executedSuite -> outputWriter.writeSpecResults(executedSuite.firstSpec()) }
         .also { executedSuite -> println("RexSpecs: ${if (executedSuite.success()) "SUCCESS" else "FAILURE"}") }
 }
-
-
 
 @Serializable
 data class TestRow(val inputParams: List<String>, val expectedResult: RowResult) {
