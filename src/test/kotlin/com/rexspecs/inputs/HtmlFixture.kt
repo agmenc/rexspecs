@@ -9,6 +9,7 @@ val sampleInput = """
             | <head>
             |  <meta charset="UTF-8">
             |  <link rel="stylesheet" href="../theme.css">
+            |  <script type="application/javascript" src="../toggle.js"></script>
             |  <title>An Acceptance Test</title>
             | </head>
             | <body>

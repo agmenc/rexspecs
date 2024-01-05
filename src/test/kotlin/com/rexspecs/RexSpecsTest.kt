@@ -3,7 +3,7 @@ package com.rexspecs
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.connectors.stubbedConnector
-import com.rexspecs.inputs.HtmlInputReader
+import com.rexspecs.inputs.HtmlFileInputReader
 import com.rexspecs.inputs.JsonFileInputReader
 import com.rexspecs.inputs.sanified
 import com.rexspecs.outputs.HtmlFileOutputWriter
@@ -33,7 +33,7 @@ val calcTwoFails =
         body = MemoryBody("Unsupported operator: \"x\"")
     )
 
-class SingleHtmlInputReader(private val singleFile: String): HtmlInputReader("rexspecs") {
+class SingleHtmlFileInputReader(private val singleFile: String): HtmlFileInputReader("rexspecs") {
     override fun specIdentifiers(): List<String> {
         return listOf(singleFile)
     }
@@ -52,7 +52,7 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         val executedSuite = runSuite(
-            SingleHtmlInputReader("AnAcceptanceTest.html"),
+            SingleHtmlFileInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to Calculator()),
             stubbedConnector(mapOf(calcOneSucceeds, calcTwoFails))
@@ -66,7 +66,7 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlInputReader("AnAcceptanceTest.html"),
+            SingleHtmlFileInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to Calculator()),
             stubbedConnector(mapOf(calcOneSucceeds, calcTwoFails))
@@ -82,7 +82,7 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlInputReader("AnAcceptanceTest.html"),
+            SingleHtmlFileInputReader("AnAcceptanceTest.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to Calculator()),
             HttpConnector(HttpClient(props.host, props.port).handle)
@@ -99,7 +99,7 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlInputReader("DirectlyCalledExample.html"),
+            SingleHtmlFileInputReader("DirectlyCalledExample.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to Calculator()),
             DirectConnector()
@@ -116,7 +116,7 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlInputReader("NoSuchFixtureExample.html"),
+            SingleHtmlFileInputReader("NoSuchFixtureExample.html"),
             HtmlFileOutputWriter(props.targetPath),
             mapOf("Calculator" to Calculator()),
             DirectConnector()

@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-class HtmlInputReaderTest {
+class HtmlFileInputReaderTest {
 
     @Test
     fun `Can find a Spec by ID`() {
-        val inputReader = HtmlInputReader("rexspecs")
+        val inputReader = HtmlFileInputReader("rexspecs")
 
         assertTrue(inputReader.specs().iterator().hasNext())
     }
@@ -21,7 +21,7 @@ class HtmlInputReaderTest {
     @Test
     @Disabled
     fun `Specs are identified by their relative path from the specs source root directory`() {
-        val inputReader = HtmlInputReader("rexspecs")
+        val inputReader = HtmlFileInputReader("rexspecs")
 
         assertEquals(
             listOf("AnAcceptanceTest.html", "AcceptanceTestOne.html", "nesting/AcceptanceTestTwo.html"),
@@ -44,26 +44,19 @@ class HtmlInputReaderTest {
             )
         )
 
-        val component = HtmlInputReader("Whatever").convertTableToTest(tableElement)
+        val component = HtmlFileInputReader("Whatever").convertTableToTest(tableElement)
 
         assertEquals(expectedResult, component)
     }
 
     @Test
-    fun `The title of a test becomes another Component`() {
-        val spec = HtmlInputReader("rexspecs").specs().first()
-
-        assertEquals(Title("An Acceptance Test"), spec.components.first())
-    }
-
-    @Test
     fun `Can read in a source file as input`() {
-        val spec = HtmlInputReader("rexspecs").specs().first()
+        val spec = HtmlFileInputReader("rexspecs").specs().first()
 
         val expectedSpec = Spec(
             "AnAcceptanceTest.html",
             listOf(
-                Title("An Acceptance Test"),
+                Title("Simple Acceptance Test Example"),
                 Heading("Simple Acceptance Test Example"),
                 Description("Calculator App: receives operands and an operator, and calculates the result."),
                 httpCalculationTest

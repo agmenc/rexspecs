@@ -10,7 +10,7 @@ import org.jsoup.nodes.Element
 import java.io.File
 import kotlin.io.path.Path
 
-open class HtmlInputReader(rexspecsDirectory: String): InputReader {
+open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
     private val specsRoot = File(rexspecsDirectory, "specs")
 
     protected open fun specIdentifiers(): List<String> {

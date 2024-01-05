@@ -1,3 +1,35 @@
+
+/* RexSpecs theme */
+
+td.success {
+    font-weight: bold;
+    color: #47e130;
+}
+
+td.fail {
+    font-weight: bold;
+    color: #ec0565;
+}
+
+td.error {
+    background-color: #ec0565;
+}
+
+h1, h1 a, h1 a:visited {
+    text-decoration: none;
+    font-size: xx-large;
+    font-weight: bold;
+    color: #008698FF;
+}
+
+h1 a:hover {
+    text-decoration: underline;
+}
+
+h2 {
+    color: #008698FF;
+}
+
 /* Copied from https://dev.to/dcodeyt/creating-beautiful-html-tables-with-css-428l */
 
 body {
@@ -43,18 +75,4 @@ table tbody tr:nth-of-type(even) {
 
 table tbody tr:last-of-type {
     border-bottom: 2px solid #008698FF;
-}
-
-td.success {
-    font-weight: bold;
-    color: #47e130;
-}
-
-td.fail {
-    font-weight: bold;
-    color: #ec0565;
-}
-
-td.error {
-    background-color: #ec0565;
 }

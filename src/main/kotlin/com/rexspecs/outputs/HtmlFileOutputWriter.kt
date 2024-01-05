@@ -23,6 +23,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             <head>
                 <meta charset="UTF-8">
                 <link rel="stylesheet" href="../theme.css">
+                <script type="application/javascript" src="../toggle.js"></script>
             </head>
             <body>
             </body>
@@ -33,7 +34,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             when (test.specComponent) {
                 is Title -> simplerDocument.head().appendElement("title").html(test.specComponent.title)
                 is TabularTest -> simplerDocument.body().appendChild(toTable(test.specComponent, test.actualRowResults))
-                is Heading -> simplerDocument.body().appendElement("h1").html(test.specComponent.words)
+                is Heading -> simplerDocument.body().appendElement("h1").html(test.specComponent.words).addClass("title")
                 is Description -> simplerDocument.body().appendElement("p").html(test.specComponent.words)
                 is Ignorable -> Unit
             }
