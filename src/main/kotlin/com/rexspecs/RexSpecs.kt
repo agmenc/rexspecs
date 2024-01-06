@@ -13,6 +13,7 @@ typealias FixtureLookup = Map<String, Fixture>
 /*
 
 Benders:
+    - Wire it in to something real
     - Make the HTML look prettier still (need some guidance with this one)
     - Build a more complicated example, with multiple steps, and some sort of state
     - Create a separate test directory structure for directly-called targets, so that we can show different kinds of test suites
@@ -50,17 +51,22 @@ Tasks:
 // OutputWriter: outputs a decorated version of the input, highlighting expected vs actual results
 // FixtureLookup: matches table names to test fixtures.
 // Dependencies: InputReader, OutputWriter, FixtureLookup, HttpHandler
-fun runSuite(
-    inputReader: InputReader,
-    outputWriter: OutputWriter,
-    fixtureLookup: FixtureLookup,
-    connector: Connector
-): ExecutedSuite {
-    outputWriter.cleanTargetDir()
-    return ExecutedSuite(inputReader.specs()
-        .map { SpecRunner(it, fixtureLookup, connector).execute() })
-        .also { executedSuite -> outputWriter.writeSpecResults(executedSuite.firstSpec()) }
-        .also { executedSuite -> println("RexSpecs: ${if (executedSuite.success()) "SUCCESS" else "FAILURE"}") }
+
+class RexSpecs {
+    companion object {
+        @JvmStatic fun runSuite(
+            inputReader: InputReader,
+            outputWriter: OutputWriter,
+            fixtureLookup: FixtureLookup,
+            connector: Connector
+        ): ExecutedSuite {
+            outputWriter.cleanTargetDir()
+            return ExecutedSuite(inputReader.specs()
+                .map { SpecRunner(it, fixtureLookup, connector).execute() })
+                .also { executedSuite -> outputWriter.writeSpecResults(executedSuite.firstSpec()) }
+                .also { executedSuite -> println("RexSpecs: ${if (executedSuite.success()) "SUCCESS" else "FAILURE"}") }
+        }
+    }
 }
 
 @Serializable

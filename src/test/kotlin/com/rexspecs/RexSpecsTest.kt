@@ -1,5 +1,6 @@
 package com.rexspecs
 
+import com.rexspecs.RexSpecs.Companion.runSuite
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.connectors.stubbedConnector
@@ -72,9 +73,10 @@ class RexSpecsTest {
             stubbedConnector(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
-        val expectedOutputFile = sanified("src/test/resources/expectations/AnAcceptanceTest.html")
-        val actualOutputFile = sanified("rexspecs/results/AnAcceptanceTest.html")
-        assertEquals(expectedOutputFile, actualOutputFile)
+        assertEquals(
+            sanified("src/test/resources/expectations/AnAcceptanceTest.html"),
+            sanified("rexspecs/results/AnAcceptanceTest.html")
+        )
     }
 
     @Test
@@ -148,13 +150,15 @@ class RexSpecsTest {
 
     @Test
     @Disabled
+    fun `Can run RexSpec with CTRL-SHIFT-F10, from a RunConfiguration`() {
+        TODO("This")
+    }
+
+    @Test
+    @Disabled
     fun `We can clean out the target directories, so that we can do the next test run`() {}
 
     @Test
     @Disabled
     fun `Can run RexSpec as a Gradle test dependency`() {}
-
-    @Test
-    @Disabled
-    fun `Can run RexSpec with CTRL-SHIFT-F10`() {}
 }
