@@ -33,8 +33,15 @@ object RexSpecPropertiesLoader: PropertiesLoader<RexSpecProperties>("rexspec.pro
         prop("rexspecs.directory", "rexspecs/"),
         prop("host", "http://localhost"),
         prop("port", "80").toInt(),
-        prop("fixture.registry", "[No FixtureRegistry Defined]")
+        prop("fixture.registry", "[No FixtureRegistry Defined]"),
+        prop("connector", "[No Connector Defined]")
     )
 }
 
-data class RexSpecProperties(val targetPath: String, val host: String, val port: Int, val fixtureRegistry: String)
+data class RexSpecProperties(
+    val targetPath: String,
+    val host: String,
+    val port: Int,
+    val fixtureRegistry: String,
+    val connector: String
+)

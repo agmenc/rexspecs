@@ -1,7 +1,7 @@
 package com.rexspecs.interop
 
 import com.rexspecs.RexSpecs
-import com.rexspecs.connectors.DirectConnector
+import com.rexspecs.connectors.Connector
 import com.rexspecs.fixture.FixtureRegistry
 import com.rexspecs.inputs.SingleHtmlFileInputReader
 import com.rexspecs.outputs.HtmlFileOutputWriter
@@ -17,9 +17,7 @@ fun RexSpecs.Companion.executeSingleHtmlFile(filePath: String) {
         SingleHtmlFileInputReader(filePath),
         HtmlFileOutputWriter(props.targetPath),
         magicUp<FixtureRegistry>(props.fixtureRegistry).index(),
-
-        // TODO source Connector implementation from props
-        DirectConnector()
+        magicUp<Connector>(props.connector)
     )
 }
 

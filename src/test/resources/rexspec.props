@@ -2,3 +2,4 @@ rexspecs.directory=rexspecs
 host=localhost
 port=8000
 fixture.registry=com.mycompany.fixture.MyFixtureRegistry
+connector=com.rexspecs.connectors.DirectConnector
