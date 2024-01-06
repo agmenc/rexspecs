@@ -1,5 +1,6 @@
 package com.rexspecs
 
+import com.mycompany.fixture.Calculator
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.stubbedConnector
 import com.rexspecs.inputs.expectedOutputWithFailure

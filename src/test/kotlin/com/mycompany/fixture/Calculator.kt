@@ -1,6 +1,7 @@
-package com.rexspecs
+package com.mycompany.fixture
 
 import com.app.calculate
+import com.rexspecs.RowResult
 import com.rexspecs.connectors.Connector
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector

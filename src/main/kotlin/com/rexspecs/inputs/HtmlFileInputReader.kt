@@ -65,3 +65,8 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
     }
 }
 
+class SingleHtmlFileInputReader(private val singleFile: String): HtmlFileInputReader("rexspecs") {
+    override fun specIdentifiers(): List<String> {
+        return listOf(singleFile)
+    }
+}

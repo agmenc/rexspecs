@@ -1,11 +1,12 @@
 package com.rexspecs
 
+import com.mycompany.fixture.Calculator
 import com.rexspecs.RexSpecs.Companion.runSuite
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.connectors.stubbedConnector
-import com.rexspecs.inputs.HtmlFileInputReader
-import com.rexspecs.inputs.JsonFileInputReader
+import com.rexspecs.inputs.SingleHtmlFileInputReader
+import com.rexspecs.inputs.SingleJsonFileInputReader
 import com.rexspecs.inputs.sanified
 import com.rexspecs.outputs.HtmlFileOutputWriter
 import com.rexspecs.utils.RexSpecPropertiesLoader
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import java.io.File
 
 val calcOneSucceeds =
     Request(Method.GET, "http://not-actually-a-real-host.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
@@ -33,19 +33,6 @@ val calcTwoFails =
         Status.BAD_REQUEST,
         body = MemoryBody("Unsupported operator: \"x\"")
     )
-
-class SingleHtmlFileInputReader(private val singleFile: String): HtmlFileInputReader("rexspecs") {
-    override fun specIdentifiers(): List<String> {
-        return listOf(singleFile)
-    }
-}
-
-class SingleJsonFileInputReader(private val singleFile: String): JsonFileInputReader("rexspecs") {
-    override fun specIdentifiers(): List<File> {
-        //TODO: Make this OS independent (path aware)
-        return listOf(File("rexspecs/specs/$singleFile"))
-    }
-}
 
 class RexSpecsTest {
     @Test

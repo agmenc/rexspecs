@@ -22,5 +22,12 @@ open class JsonFileInputReader(rexspecsDirectory: String) : InputReader {
     fun convertJsonToTabularTest(json: String): TabularTest {
         return Json.decodeFromString<TabularTest>(json)
     }
+}
 
+class SingleJsonFileInputReader(private val singleFile: String): JsonFileInputReader("rexspecs") {
+    override fun specIdentifiers(): List<File> {
+        // TODO: Normalise specIdentifiers in JsonFileInputReader, so that we don't need to provide a relative path from the root. Compare with HtmlFileInputReader.
+        // TODO: Make this OS independent (path aware)
+        return listOf(File("rexspecs/specs/$singleFile"))
+    }
 }
