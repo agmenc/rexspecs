@@ -8,20 +8,22 @@ import com.rexspecs.outputs.HtmlFileOutputWriter
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import kotlin.reflect.full.createInstance
 
+// TODO: Use ServiceLoader to find all Fixtures
+// See example: https://github.com/binkley/kotlin-serviceloader/blob/master/kotlin-serviceloader-sample/src/main/resources/META-INF/services/demo.Foo
 fun RexSpecs.Companion.executeSingleHtmlFile(filePath: String) {
     val props = RexSpecPropertiesLoader.properties()
-
-    // TODO: source FixtureRegistry implementation from props
-    val regClass = Class.forName("com.mycompany.fixture.MyFixtureRegistry").kotlin
-
-    val registry: FixtureRegistry = regClass.createInstance() as FixtureRegistry
 
     runSuite(
         SingleHtmlFileInputReader(filePath),
         HtmlFileOutputWriter(props.targetPath),
-        registry.index(),
+        magicUp<FixtureRegistry>(props.fixtureRegistry).index(),
 
         // TODO source Connector implementation from props
         DirectConnector()
     )
+}
+
+inline fun <reified T> magicUp(fullyQualifiedName: String): T {
+    val regClass = Class.forName(fullyQualifiedName).kotlin
+    return regClass.createInstance() as T
 }

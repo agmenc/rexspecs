@@ -32,8 +32,9 @@ object RexSpecPropertiesLoader: PropertiesLoader<RexSpecProperties>("rexspec.pro
     override fun buildProps(): RexSpecProperties = RexSpecProperties(
         prop("rexspecs.directory", "rexspecs/"),
         prop("host", "http://localhost"),
-        prop("port", "80").toInt()
+        prop("port", "80").toInt(),
+        prop("fixture.registry", "[No FixtureRegistry Defined]")
     )
 }
 
-data class RexSpecProperties(val targetPath: String, val host: String, val port: Int)
+data class RexSpecProperties(val targetPath: String, val host: String, val port: Int, val fixtureRegistry: String)
