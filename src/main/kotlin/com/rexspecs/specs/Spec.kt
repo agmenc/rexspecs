@@ -17,7 +17,7 @@ data class TabularTest(val fixtureName: String, val columnNames: List<String>, v
 @Serializable
 data class Title(val title: String): SpecComponent()
 
-// TODO: Support different levels of heading.
+// TODO: Support titled headings separately.
 @Serializable
 data class Heading(val words: String): SpecComponent()
 
