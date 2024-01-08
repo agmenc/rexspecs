@@ -2,10 +2,10 @@ package com.rexspecs
 
 import com.mycompany.fixture.Calculator
 import com.rexspecs.RexSpecs.Companion.runSuite
-import com.rexspecs.interop.executeSingleHtmlFile
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.connectors.stubbedConnector
+import com.rexspecs.inputs.HtmlFileInputReader
 import com.rexspecs.inputs.SingleHtmlFileInputReader
 import com.rexspecs.inputs.SingleJsonFileInputReader
 import com.rexspecs.inputs.sanified
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
+import java.io.File
 
 val calcOneSucceeds =
     Request(Method.GET, "http://not-actually-a-real-host.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
@@ -145,17 +145,27 @@ class RexSpecsTest {
     }
 
     @Test
-    @Disabled
     fun `Runs entire suites of tests`() {
+        val outputWriter = HtmlFileOutputWriter(directProps.rexspecsDirectory)
+        outputWriter.cleanTargetDir()
+
+        assertEquals(emptyList<String>(), generatedFiles())
+
         runSuite(
-            SingleJsonFileInputReader("Json Example.json", directProps.rexspecsDirectory),
-            HtmlFileOutputWriter(directProps.rexspecsDirectory),
+            HtmlFileInputReader(directProps.rexspecsDirectory),
+            outputWriter,
             mapOf("Calculator" to Calculator()),
             DirectConnector()
         )
 
-        fail("TODO: Implement this")
+        assertEquals(listOf("No Such Fixture.html", "Json Example.json", "Calculator Called Directly.html"), generatedFiles())
     }
+
+    private fun generatedFiles(): List<String> = File(directProps.rexspecsDirectory, "results")
+        .walk()
+        .toList()
+        .filter { it.isFile }
+        .map { it.name }
 
     @Test
     @Disabled

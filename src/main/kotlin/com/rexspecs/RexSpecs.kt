@@ -6,6 +6,8 @@ import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
 import com.rexspecs.specs.SpecComponent
 import com.rexspecs.specs.TabularTest
+import com.rexspecs.utils.failed
+import com.rexspecs.utils.succeeded
 import kotlinx.serialization.Serializable
 
 typealias FixtureLookup = Map<String, Fixture>
@@ -63,11 +65,11 @@ class RexSpecs {
             connector: Connector
         ): ExecutedSuite {
             outputWriter.cleanTargetDir()
-            return ExecutedSuite(inputReader.specs()
-                .map { SpecRunner(it, fixtureLookup, connector).execute() })
-                // TODO: write out more than one of the tests. Oops. Write each one as it is executed, above.
-                .also { executedSuite -> outputWriter.writeSpecResults(executedSuite.firstSpec()) }
-                .also { executedSuite -> println("RexSpecs: ${if (executedSuite.success()) "SUCCESS" else "FAILURE"}") }
+            return ExecutedSuite(inputReader.specs().map {
+                SpecRunner(it, fixtureLookup, connector).execute()
+                    .also { spec -> outputWriter.writeSpecResults(spec) }
+                    .also { spec -> if (spec.success()) succeeded(spec.identifier) else failed(spec.identifier) }
+            })
         }
     }
 }

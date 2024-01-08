@@ -1,7 +1,10 @@
 package com.rexspecs.outputs
 
-import com.rexspecs.*
+import com.rexspecs.ExecutedSpec
+import com.rexspecs.RowResult
+import com.rexspecs.TestRow
 import com.rexspecs.specs.*
+import com.rexspecs.utils.errored
 import com.rexspecs.utils.writeFile
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
@@ -47,8 +50,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         File(rexspecsDirectory, "results").walk()
             .filter { it.isFile }
             .forEach {
-                val didItWork = it.delete()
-                println("Deleted ${it.absolutePath} ==> $didItWork")
+                if (!it.delete()) errored("Failed to delete File [${it.absolutePath}]" )
             }
     }
 
