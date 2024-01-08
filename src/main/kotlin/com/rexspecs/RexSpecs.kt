@@ -28,13 +28,12 @@ Tasks:
     - Include the default CSS theme as a prod resource, but only write it to the suite directory if it doesn't already exist
     - Include toggle.js as a prod resource, but only write it to the suite directory if it doesn't already exist
     - Create a results directory if it doesn't exist
-    - Push most stuff in RexSpecsTest into the specs themselves
+    - Push most stuff in RexSpecsTest into the specs themselves. Might mean they all need to pass.
     - Generate a Suite index?
-    - Remove console noise while running the specs
     - Select from available input readers based on the file extension
-    - HtmlFileInputReader: should only read files with .html extension
-    - Verify that we can actually run a suite of specs. Make the last RexSpecs test run the whole lot.
+    - HtmlFileInputReader: should only read files with .html extension.
     - Write out some stats per test (pass/fail counts)
+    - Write out some stats per suite (pass/fail counts)
     - Error: source directory does not exist
     - Error: target directory does not exist
     - Error: no tests in suite
@@ -90,7 +89,6 @@ data class RowResult(val resultValues: List<String>) {
 
 data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun success(): Boolean = executedSpecs.fold(true) { allGood, nextSpec -> allGood && nextSpec.success() }
-    fun firstSpec(): ExecutedSpec = executedSpecs.first()
 }
 
 data class ExecutedSpec(val identifier: String, val executedTests: List<ExecutedSpecComponent>) {
