@@ -64,7 +64,7 @@ class SpecRunnerTest {
         val executedSpec = spec.execute()
 
         assertEquals(
-            sanified("src/test/resources/expectations/DirectlyCalledExample.html"),
+            sanified("src/test/resources/expectations/Calculator Called Directly.html"),
             HtmlFileOutputWriter("whatever").generateHtml(executedSpec)
         )
     }

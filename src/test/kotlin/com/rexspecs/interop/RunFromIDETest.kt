@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test
 class RunFromIDETest {
     @Test
     fun `Can run RexSpec with CTRL-SHIFT-F10, as if from a RunConfiguration`() {
-        RexSpecs.executeSingleHtmlFile("DirectlyCalledExample.html")
+        RexSpecs.executeSingleHtmlFile("Calculator Called Directly.html")
 
         assertEquals(
-            sanified("src/test/resources/expectations/DirectlyCalledExample.html"),
-            sanified("suites/rexspecs/results/DirectlyCalledExample.html")
+            sanified("src/test/resources/expectations/Calculator Called Directly.html"),
+            sanified("suites/rexspecs/results/Calculator Called Directly.html")
         )
     }
 }

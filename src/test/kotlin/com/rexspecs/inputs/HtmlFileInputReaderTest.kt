@@ -3,6 +3,7 @@ package com.rexspecs.inputs
 import com.rexspecs.RowResult
 import com.rexspecs.TestRow
 import com.rexspecs.specs.*
+import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -51,13 +52,14 @@ class HtmlFileInputReaderTest {
 
     @Test
     fun `Can read in a source file as input`() {
-        val spec = HtmlFileInputReader("suites/rexspecs").specs().first()
+        val props = RexSpecPropertiesLoader.properties()
+        val spec = SingleHtmlFileInputReader("Calculator Over HTTP.html", props.rexspecsDirectory).specs().first()
 
         val expectedSpec = Spec(
-            "AnAcceptanceTest.html",
+            "Calculator Over HTTP.html",
             listOf(
                 Title("Simple Acceptance Test Example"),
-                Heading("Simple Acceptance Test Example"),
+                Heading("Calculator Over HTTP Example"),
                 Description("Calculator App: receives operands and an operator, and calculates the result."),
                 httpCalculationTest
             )

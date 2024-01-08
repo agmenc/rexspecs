@@ -1,5 +1,5 @@
 { 
-  "identifier": "JsonExample.json",
+  "identifier": "Json Example.json",
   "components": [
     {
       "type": "com.rexspecs.specs.Title",
