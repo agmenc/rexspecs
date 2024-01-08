@@ -11,6 +11,7 @@ import java.io.File
 import kotlin.io.path.Path
 
 open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
+
     private val specsRoot = File(rexspecsDirectory, "specs")
 
     protected open fun specIdentifiers(): List<String> {
@@ -65,7 +66,7 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
     }
 }
 
-class SingleHtmlFileInputReader(private val singleFile: String): HtmlFileInputReader("rexspecs") {
+class SingleHtmlFileInputReader(private val singleFile: String, rexspecsDirectory: String): HtmlFileInputReader(rexspecsDirectory) {
     override fun specIdentifiers(): List<String> {
         return listOf(singleFile)
     }

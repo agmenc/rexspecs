@@ -8,7 +8,7 @@ internal class PropertiesTest {
 
     @Test
     fun `Can load the target path from a props file in the test resources directory`() {
-        assertEquals("rexspecs", RexSpecPropertiesLoader.properties().targetPath)
+        assertEquals("suites/rexspecs", RexSpecPropertiesLoader.properties().rexspecsDirectory)
     }
 
     @Test

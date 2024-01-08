@@ -13,7 +13,7 @@ class HtmlFileInputReaderTest {
 
     @Test
     fun `Can find a Spec by ID`() {
-        val inputReader = HtmlFileInputReader("rexspecs")
+        val inputReader = HtmlFileInputReader("suites/rexspecs")
 
         assertTrue(inputReader.specs().iterator().hasNext())
     }
@@ -51,7 +51,7 @@ class HtmlFileInputReaderTest {
 
     @Test
     fun `Can read in a source file as input`() {
-        val spec = HtmlFileInputReader("rexspecs").specs().first()
+        val spec = HtmlFileInputReader("suites/rexspecs").specs().first()
 
         val expectedSpec = Spec(
             "AnAcceptanceTest.html",

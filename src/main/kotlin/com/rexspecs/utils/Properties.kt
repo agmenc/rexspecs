@@ -11,7 +11,9 @@ abstract class PropertiesLoader<T>(private val propsFilePath: String) {
 
     fun properties(): T {
         val maybePropsStream = this::class.java.classLoader.getResourceAsStream(propsFilePath)
-        maybePropsStream?.use { properties.apply { load(it) } } ?: debugMissingFile()
+        maybePropsStream
+            ?. use { properties.apply { load(it) } }
+            ?: debugMissingFile()
         return buildProps()
     }
 
@@ -31,17 +33,17 @@ abstract class PropertiesLoader<T>(private val propsFilePath: String) {
 object RexSpecPropertiesLoader: PropertiesLoader<RexSpecProperties>("rexspec.props") {
     override fun buildProps(): RexSpecProperties = RexSpecProperties(
         prop("rexspecs.directory", "rexspecs/"),
-        prop("host", "http://localhost"),
-        prop("port", "80").toInt(),
         prop("fixture.registry", "[No FixtureRegistry Defined]"),
-        prop("connector", "[No Connector Defined]")
+        prop("connector", "[No Connector Defined]"),
+        prop("host", "http://localhost"),
+        prop("port", "80").toInt()
     )
 }
 
 data class RexSpecProperties(
-    val targetPath: String,
-    val host: String,
-    val port: Int,
+    val rexspecsDirectory: String,
     val fixtureRegistry: String,
-    val connector: String
+    val connector: String,
+    val host: String,
+    val port: Int
 )

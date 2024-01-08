@@ -1,5 +1,5 @@
-rexspecs.directory=rexspecs
-host=localhost
-port=8000
+rexspecs.directory=suites/rexspecs
 fixture.registry=com.mycompany.fixture.MyFixtureRegistry
 connector=com.rexspecs.connectors.DirectConnector
+host=localhost
+port=8000

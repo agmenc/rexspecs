@@ -12,7 +12,7 @@ class RunFromIDETest {
 
         assertEquals(
             sanified("src/test/resources/expectations/DirectlyCalledExample.html"),
-            sanified("rexspecs/results/DirectlyCalledExample.html")
+            sanified("suites/rexspecs/results/DirectlyCalledExample.html")
         )
     }
 }

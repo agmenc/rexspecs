@@ -46,10 +46,10 @@ class HtmlFileOutputWriterTest {
 
     @Test
     fun `Writes Spec output to a relative path above the output directory`() {
-        val outputWriter = HtmlFileOutputWriter("rexspecs")
+        val outputWriter = HtmlFileOutputWriter("suites/rexspecs")
 
         outputWriter.writeSpecResults(executedSpec)
 
-        assertEquals(expectedOutputWithFailure, htmlSanitised(fileAsString("rexspecs/results/${executedSpec.identifier}")))
+        assertEquals(expectedOutputWithFailure, htmlSanitised(fileAsString("suites/rexspecs/results/${executedSpec.identifier}")))
     }
 }

@@ -2,6 +2,7 @@ package com.rexspecs
 
 import com.mycompany.fixture.Calculator
 import com.rexspecs.RexSpecs.Companion.runSuite
+import com.rexspecs.interop.executeSingleHtmlFile
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.connectors.stubbedConnector
@@ -9,6 +10,7 @@ import com.rexspecs.inputs.SingleHtmlFileInputReader
 import com.rexspecs.inputs.SingleJsonFileInputReader
 import com.rexspecs.inputs.sanified
 import com.rexspecs.outputs.HtmlFileOutputWriter
+import com.rexspecs.utils.RexSpecProperties
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.http4k.core.*
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -40,8 +42,8 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         val executedSuite = runSuite(
-            SingleHtmlFileInputReader("AnAcceptanceTest.html"),
-            HtmlFileOutputWriter(props.targetPath),
+            SingleHtmlFileInputReader("AnAcceptanceTest.html", props.rexspecsDirectory),
+            HtmlFileOutputWriter(props.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
             stubbedConnector(mapOf(calcOneSucceeds, calcTwoFails))
         )
@@ -54,15 +56,15 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlFileInputReader("AnAcceptanceTest.html"),
-            HtmlFileOutputWriter(props.targetPath),
+            SingleHtmlFileInputReader("AnAcceptanceTest.html", props.rexspecsDirectory),
+            HtmlFileOutputWriter(props.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
             stubbedConnector(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
         assertEquals(
             sanified("src/test/resources/expectations/AnAcceptanceTest.html"),
-            sanified("rexspecs/results/AnAcceptanceTest.html")
+            sanified("suites/rexspecs/results/AnAcceptanceTest.html")
         )
     }
 
@@ -71,15 +73,15 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlFileInputReader("AnAcceptanceTest.html"),
-            HtmlFileOutputWriter(props.targetPath),
+            SingleHtmlFileInputReader("AnAcceptanceTest.html", props.rexspecsDirectory),
+            HtmlFileOutputWriter(props.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
             HttpConnector(HttpClient(props.host, props.port).handle)
         )
 
         assertEquals(
             sanified("src/test/resources/expectations/AnAcceptanceTest.html"),
-            sanified("rexspecs/results/AnAcceptanceTest.html")
+            sanified("suites/rexspecs/results/AnAcceptanceTest.html")
         )
     }
 
@@ -88,15 +90,15 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlFileInputReader("DirectlyCalledExample.html"),
-            HtmlFileOutputWriter(props.targetPath),
+            SingleHtmlFileInputReader("DirectlyCalledExample.html", props.rexspecsDirectory),
+            HtmlFileOutputWriter(props.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
             DirectConnector()
         )
 
         assertEquals(
             sanified("src/test/resources/expectations/DirectlyCalledExample.html"),
-            sanified("rexspecs/results/DirectlyCalledExample.html")
+            sanified("suites/rexspecs/results/DirectlyCalledExample.html")
         )
     }
 
@@ -105,15 +107,15 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleHtmlFileInputReader("NoSuchFixtureExample.html"),
-            HtmlFileOutputWriter(props.targetPath),
+            SingleHtmlFileInputReader("NoSuchFixtureExample.html", props.rexspecsDirectory),
+            HtmlFileOutputWriter(props.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
             DirectConnector()
         )
 
         assertEquals(
             sanified("src/test/resources/expectations/NoSuchFixtureExample.html"),
-            sanified("rexspecs/results/NoSuchFixtureExample.html")
+            sanified("suites/rexspecs/results/NoSuchFixtureExample.html")
         )
     }
 
@@ -122,8 +124,8 @@ class RexSpecsTest {
         val props = RexSpecPropertiesLoader.properties()
 
         runSuite(
-            SingleJsonFileInputReader("JsonExample.json"),
-            HtmlFileOutputWriter(props.targetPath),
+            SingleJsonFileInputReader("JsonExample.json", props.rexspecsDirectory),
+            HtmlFileOutputWriter(props.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
             DirectConnector()
         )
@@ -131,7 +133,26 @@ class RexSpecsTest {
         assertEquals(
             sanified("src/test/resources/expectations/JsonExample.html"),
             // TODO: Make this emit a file with a .html suffix, by stripping suffixes from input files
-            sanified("rexspecs/results/JsonExample.json")
+            sanified("suites/rexspecs/results/JsonExample.json")
+        )
+    }
+
+    @Test
+    @Disabled
+    fun `However many test results there are, they should be matched correctly to the available expectations`() {
+        val props = RexSpecProperties(
+            "suites/rexspecs/",
+            "com.mycompany.fixture.MyFixtureRegistry",
+            "com.rexspecs.connectors.DirectConnector",
+            "http://localhost",
+            80
+        )
+
+        RexSpecs.executeSingleHtmlFile("AnAcceptanceTest.html", props)
+
+        assertEquals(
+            sanified("src/test/resources/expectations/DirectlyCalledExample.html"),
+            sanified("suites/rexspecs/results/AnAcceptanceTest.html")
         )
     }
 

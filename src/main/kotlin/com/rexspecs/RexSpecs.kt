@@ -63,6 +63,7 @@ class RexSpecs {
             outputWriter.cleanTargetDir()
             return ExecutedSuite(inputReader.specs()
                 .map { SpecRunner(it, fixtureLookup, connector).execute() })
+                // TODO: write out more than one of the tests. Oops. Write each one as it is executed, above.
                 .also { executedSuite -> outputWriter.writeSpecResults(executedSuite.firstSpec()) }
                 .also { executedSuite -> println("RexSpecs: ${if (executedSuite.success()) "SUCCESS" else "FAILURE"}") }
         }

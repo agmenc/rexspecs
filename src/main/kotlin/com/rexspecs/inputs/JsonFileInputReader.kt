@@ -15,19 +15,14 @@ open class JsonFileInputReader(rexspecsDirectory: String) : InputReader {
             .filter { it.isFile }
             .map { it.relativeTo(specsRoot) }
 
-    override fun specs(): List<Spec> {
-        return specIdentifiers().map { Json.decodeFromString<Spec>(it.readText()) }
-    }
+    override fun specs(): List<Spec> =
+        specIdentifiers().map {
+            Json.decodeFromString<Spec>(File(specsRoot.path, it.path).readText())
+        }
 
-    fun convertJsonToTabularTest(json: String): TabularTest {
-        return Json.decodeFromString<TabularTest>(json)
-    }
+    fun convertJsonToTabularTest(json: String): TabularTest = Json.decodeFromString<TabularTest>(json)
 }
 
-class SingleJsonFileInputReader(private val singleFile: String): JsonFileInputReader("rexspecs") {
-    override fun specIdentifiers(): List<File> {
-        // TODO: Normalise specIdentifiers in JsonFileInputReader, so that we don't need to provide a relative path from the root. Compare with HtmlFileInputReader.
-        // TODO: Make this OS independent (path aware)
-        return listOf(File("rexspecs/specs/$singleFile"))
-    }
+class SingleJsonFileInputReader(private val singleFile: String, rexspecsDirectory: String): JsonFileInputReader(rexspecsDirectory) {
+    override fun specIdentifiers(): List<File> = listOf(File(singleFile))
 }
