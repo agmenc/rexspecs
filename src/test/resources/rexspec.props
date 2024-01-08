@@ -1,5 +1,5 @@
-rexspecs.directory=suites/rexspecs
+rexspecs.directory=suites/http_examples
 fixture.registry=com.mycompany.fixture.MyFixtureRegistry
-connector=com.rexspecs.connectors.DirectConnector
+connector=com.rexspecs.connectors.HttpConnector
 host=localhost
-port=8000
+port=2345

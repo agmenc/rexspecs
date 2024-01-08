@@ -14,7 +14,7 @@ class HtmlFileInputReaderTest {
 
     @Test
     fun `Can find a Spec by ID`() {
-        val inputReader = HtmlFileInputReader("suites/rexspecs")
+        val inputReader = HtmlFileInputReader("suites/http_examples")
 
         assertTrue(inputReader.specs().iterator().hasNext())
     }

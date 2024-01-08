@@ -35,7 +35,7 @@ object RexSpecPropertiesLoader: PropertiesLoader<RexSpecProperties>("rexspec.pro
         prop("rexspecs.directory", "rexspecs/"),
         prop("fixture.registry", "[No FixtureRegistry Defined]"),
         prop("connector", "[No Connector Defined]"),
-        prop("host", "http://localhost"),
+        prop("host", "localhost"),
         prop("port", "80").toInt()
     )
 }

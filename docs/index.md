@@ -1,6 +1,12 @@
 # RexSpecs
 ## Executable Specifications Made Easy
 
+### Principles
+
+Usually, it makes sense to output HTML, no matter what the input format. HTML docs are human-readable and form a snapshot of the results that can be released to production
+
+If you use different types of Connector, you will probably want to create separate suites. For example: a suite for all your tests executed via HTTP.
+
 [Roadmap](docs/Roadmap.md)
 
 RexSpecs is a library for running executable specifications against the API surface of your applications or services.

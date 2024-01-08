@@ -8,7 +8,7 @@ internal class PropertiesTest {
 
     @Test
     fun `Can load the target path from a props file in the test resources directory`() {
-        assertEquals("suites/rexspecs", RexSpecPropertiesLoader.properties().rexspecsDirectory)
+        assertEquals("suites/http_examples", RexSpecPropertiesLoader.properties().rexspecsDirectory)
     }
 
     @Test
@@ -24,7 +24,7 @@ internal class PropertiesTest {
 
     @Test
     fun `Can find props in silly places`() {
-        assertEquals("Zendaya", loadMeUp("expectations/secret/nested.props").properties().firstName)
+        assertEquals("Zendaya", loadMeUp("http_examples/secret/nested.props").properties().firstName)
     }
 
     data class SomeOtherProperties(val firstName: String, val favouriteHolidayDestination: String)

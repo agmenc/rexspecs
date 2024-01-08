@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 
 val calcOneSucceeds =
     Request(Method.GET, "http://not-actually-a-real-host.com/target?First+Param=7&Operator=%2B&Second+Param=8") to MemoryResponse(
@@ -36,6 +37,22 @@ val calcTwoFails =
         body = MemoryBody("Unsupported operator: \"x\"")
     )
 
+val directProps = RexSpecProperties(
+    "suites/direct_examples/",
+    "com.mycompany.fixture.MyFixtureRegistry",
+    "com.rexspecs.connectors.DirectConnector",
+    "localhost",
+    58008
+)
+
+val httpProps = RexSpecProperties(
+    "suites/http_examples/",
+    "com.mycompany.fixture.MyFixtureRegistry",
+    "com.rexspecs.connectors.HttpConnector",
+    "localhost",
+    2345
+)
+
 class RexSpecsTest {
     @Test
     fun `We know when the whole suite fails`() {
@@ -53,107 +70,91 @@ class RexSpecsTest {
 
     @Test
     fun `Can write to a target file as output`() {
-        val props = RexSpecPropertiesLoader.properties()
-
         runSuite(
-            SingleHtmlFileInputReader("Calculator Over HTTP.html", props.rexspecsDirectory),
-            HtmlFileOutputWriter(props.rexspecsDirectory),
+            SingleHtmlFileInputReader("Calculator Over HTTP.html", httpProps.rexspecsDirectory),
+            HtmlFileOutputWriter(httpProps.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
             stubbedConnector(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
         assertEquals(
-            sanified("src/test/resources/expectations/Calculator Over HTTP.html"),
-            sanified("suites/rexspecs/results/Calculator Over HTTP.html")
+            sanified("src/test/resources/http_examples/Calculator Over HTTP.html"),
+            sanified("suites/http_examples/results/Calculator Over HTTP.html")
         )
     }
 
     @Test
     fun `Can call a real HTTP server`() {
-        val props = RexSpecPropertiesLoader.properties()
-
         runSuite(
-            SingleHtmlFileInputReader("Calculator Over HTTP.html", props.rexspecsDirectory),
-            HtmlFileOutputWriter(props.rexspecsDirectory),
+            SingleHtmlFileInputReader("Calculator Over HTTP.html", httpProps.rexspecsDirectory),
+            HtmlFileOutputWriter(httpProps.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
-            HttpConnector(HttpClient(props.host, props.port).handle)
+            HttpConnector(HttpClient(httpProps.host, httpProps.port).handle)
         )
 
         assertEquals(
-            sanified("src/test/resources/expectations/Calculator Over HTTP.html"),
-            sanified("suites/rexspecs/results/Calculator Over HTTP.html")
+            sanified("src/test/resources/http_examples/Calculator Over HTTP.html"),
+            sanified("suites/http_examples/results/Calculator Over HTTP.html")
         )
     }
 
     @Test
     fun `Can call the target system directly`() {
-        val props = RexSpecPropertiesLoader.properties()
-
         runSuite(
-            SingleHtmlFileInputReader("Calculator Called Directly.html", props.rexspecsDirectory),
-            HtmlFileOutputWriter(props.rexspecsDirectory),
+            SingleHtmlFileInputReader("Calculator Called Directly.html", directProps.rexspecsDirectory),
+            HtmlFileOutputWriter(directProps.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
             DirectConnector()
         )
 
         assertEquals(
-            sanified("src/test/resources/expectations/Calculator Called Directly.html"),
-            sanified("suites/rexspecs/results/Calculator Called Directly.html")
+            sanified("src/test/resources/direct_examples/Calculator Called Directly.html"),
+            sanified("suites/direct_examples/results/Calculator Called Directly.html")
         )
     }
 
     @Test
     fun `Provides a useful error message when it can't find the fixture`() {
-        val props = RexSpecPropertiesLoader.properties()
-
         runSuite(
-            SingleHtmlFileInputReader("No Such Fixture.html", props.rexspecsDirectory),
-            HtmlFileOutputWriter(props.rexspecsDirectory),
+            SingleHtmlFileInputReader("No Such Fixture.html", directProps.rexspecsDirectory),
+            HtmlFileOutputWriter(directProps.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
             DirectConnector()
         )
 
         assertEquals(
-            sanified("src/test/resources/expectations/No Such Fixture.html"),
-            sanified("suites/rexspecs/results/No Such Fixture.html")
+            sanified("src/test/resources/direct_examples/No Such Fixture.html"),
+            sanified("suites/direct_examples/results/No Such Fixture.html")
         )
     }
 
     @Test
     fun `Can run RexSpecs by passing in JSON directly`() {
-        val props = RexSpecPropertiesLoader.properties()
-
         runSuite(
-            SingleJsonFileInputReader("Json Example.json", props.rexspecsDirectory),
-            HtmlFileOutputWriter(props.rexspecsDirectory),
+            SingleJsonFileInputReader("Json Example.json", directProps.rexspecsDirectory),
+            HtmlFileOutputWriter(directProps.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
             DirectConnector()
         )
 
         assertEquals(
-            sanified("src/test/resources/expectations/Json Example.html"),
+            sanified("src/test/resources/direct_examples/Json Example.html"),
             // TODO: Make this emit a file with a .html suffix, by stripping suffixes from input files
-            sanified("suites/rexspecs/results/Json Example.json")
+            sanified("suites/direct_examples/results/Json Example.json")
         )
     }
 
     @Test
     @Disabled
-    fun `However many test results there are, they should be matched correctly to the available expectations`() {
-        val props = RexSpecProperties(
-            "suites/rexspecs/",
-            "com.mycompany.fixture.MyFixtureRegistry",
-            "com.rexspecs.connectors.DirectConnector",
-            "http://localhost",
-            80
+    fun `Runs entire suites of tests`() {
+        runSuite(
+            SingleJsonFileInputReader("Json Example.json", directProps.rexspecsDirectory),
+            HtmlFileOutputWriter(directProps.rexspecsDirectory),
+            mapOf("Calculator" to Calculator()),
+            DirectConnector()
         )
 
-        RexSpecs.executeSingleHtmlFile("Calculator Over HTTP.html", props)
-
-        assertEquals(
-            sanified("src/test/resources/expectations/Calculator Called Directly.html"),
-            sanified("suites/rexspecs/results/Calculator Over HTTP.html")
-        )
+        fail("TODO: Implement this")
     }
 
     @Test

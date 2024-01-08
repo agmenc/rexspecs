@@ -6,11 +6,8 @@ import com.rexspecs.connectors.stubbedConnector
 import com.rexspecs.inputs.expectedOutputWithFailure
 import com.rexspecs.inputs.expectedOutputWithSuccess
 import com.rexspecs.outputs.HtmlFileOutputWriter
-import com.rexspecs.specs.Spec
-import com.rexspecs.specs.httpCalculationTest
 import com.rexspecs.inputs.sanified
-import com.rexspecs.specs.Title
-import com.rexspecs.specs.directCalculationTest
+import com.rexspecs.specs.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -56,7 +53,14 @@ class SpecRunnerTest {
     @Test
     fun `Can use Fixture to connect directly to the target code`() {
         val spec = SpecRunner(
-            Spec("some/input.file", listOf(Title("An Acceptance Test"), directCalculationTest)),
+            Spec(
+                "some/input.file", listOf(
+                    Title("Simple Acceptance Test Example"),
+                    Heading("Calculator Called Directly Example"),
+                    Description("Calculator App: receives operands and an operator, and calculates the result."),
+                    directCalculationTest
+                )
+            ),
             mapOf("Calculator" to Calculator()),
             DirectConnector()
         )
@@ -64,7 +68,7 @@ class SpecRunnerTest {
         val executedSpec = spec.execute()
 
         assertEquals(
-            sanified("src/test/resources/expectations/Calculator Called Directly.html"),
+            sanified("src/test/resources/direct_examples/Calculator Called Directly.html"),
             HtmlFileOutputWriter("whatever").generateHtml(executedSpec)
         )
     }

@@ -14,7 +14,7 @@ fun main() {
             else -> Response(NOT_FOUND)
         }
     }
-    app.asServer(SunHttp(8000)).start()
+    app.asServer(SunHttp(2345)).start()
 }
 
 // Stop any of the HTTP API gubbins from polluting application code
