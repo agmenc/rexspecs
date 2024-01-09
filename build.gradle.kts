@@ -37,6 +37,7 @@ dependencies {
     implementation("org.http4k:http4k-format-kotlinx-serialization")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("org.jsoup:jsoup:1.16.1")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.0-Beta2")
 
 //    testImplementation(kotlin("test"))
 //    testImplementation("com.natpryce:hamkrest:1.8.0.1")

@@ -21,6 +21,7 @@ Benders:
     - Find a better way to demarcate input params from expected results (probably a CSS class)
     - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
     - Document the stuff below (marked ***HERE***) in the README.md Mermaid diagrams
+    - Why not save results in the repo?
     -
 
 Tasks:
