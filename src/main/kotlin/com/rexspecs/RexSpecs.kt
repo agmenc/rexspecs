@@ -14,7 +14,7 @@ typealias FixtureLookup = Map<String, Fixture>
 
 /*
 Benders:
-    - Wire it in to something real
+    - Wire it in to something real. STACKRR - The Stack Tree Tracker. JSON over CLI.
     - Make the HTML look prettier still (need some guidance with this one)
     - Build a more complicated example, with multiple steps, and some sort of state
     - Create a separate test directory structure for directly-called targets, so that we can show different kinds of test suites
