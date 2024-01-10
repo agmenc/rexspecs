@@ -49,16 +49,20 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
 
         val testRows: List<TestRow> = table.selectXpath("tbody//tr")
             .toList()
-            .map {
-                // TODO: We can remove the text from the Elements, then we don't need a pair.
-                val (result: List<Pair<Element, String>>, params: List<Pair<Element, String>>) = it.children()
-                    .toList()
-                    .zip(columnHeaders)
-                    // TODO: Have a better way of separating the input params from the expected result cells.
-                    .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
+            .map { tableRow ->
+
+                /* TODO: Have a better way of separating the input params from the expected results cells.
+                   Here we zip with the columnHeaders, just so that we can extract by hard-coded column name. */
+                val (results: List<Pair<String, String>>, params: List<Pair<String, String>>) =
+                    tableRow.children() // table cells
+                        .map { elem: Element -> elem.text() }
+                        .toList()
+                        .zip(columnHeaders)
+                        .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
+
                 TestRow(
-                    params.map { (elem, _) -> elem.text() },
-                    RowResult(result.map { (elem, _) -> elem.text() })
+                    params.map { (elem, _) -> elem },
+                    RowResult(results.map { (elem, _) -> elem })
                 )
             }
 

@@ -15,29 +15,31 @@ typealias FixtureLookup = Map<String, Fixture>
 /*
 Benders:
     - Wire it in to something real. STACKRR - The Stack Tree Tracker. JSON over CLI.
-    - Make the HTML look prettier still (need some guidance with this one)
-    - Build a more complicated example, with multiple steps, and some sort of state
-    - Create a separate test directory structure for directly-called targets, so that we can show different kinds of test suites
     - Find a better way to demarcate input params from expected results (probably a CSS class)
+    - Build a more complicated example, with multiple steps, and some sort of state
     - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
+    - Make the HTML look prettier still (need some guidance with this one)
     - Document the stuff below (marked ***HERE***) in the README.md Mermaid diagrams
     - Why not save results in the repo?
     -
 
 Tasks:
     - Find any TODO and JFDI
+    - Put basic docs in README.md: Motivation, Installation, Getting Started, Links to Examples
+    - Put latest version and Gradle dependency in the README.md, using whatever auto magic Github provides
     - Include the default CSS theme as a prod resource, but only write it to the suite directory if it doesn't already exist
     - Include toggle.js as a prod resource, but only write it to the suite directory if it doesn't already exist
+    - Error: source directory does not exist
+    - Error: results directory does not exist
+    - Error: no tests in suite
     - Create a results directory if it doesn't exist
     - Push most stuff in RexSpecsTest into the specs themselves. Might mean they all need to pass.
     - Generate a Suite index?
     - Select from available input readers based on the file extension
     - HtmlFileInputReader: should only read files with .html extension.
+    - JsonFileInputReader: should only read files with .json extension.
     - Write out some stats per test (pass/fail counts)
     - Write out some stats per suite (pass/fail counts)
-    - Error: source directory does not exist
-    - Error: target directory does not exist
-    - Error: no tests in suite
     - Add versions to all dependencies and plugins
     -
  */
