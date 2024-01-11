@@ -15,7 +15,8 @@ class JsonFileInputReaderTest {
         val someJson = """
             {
                 "fixtureName": "Calculator",
-                "columnNames": ["First Param", "Operator", "Second Param", "HTTP Response", "Result"],
+                "inputColumns": ["First Param", "Operator", "Second Param"],
+                "expectationColumns": ["HTTP Response", "Result"],
                 "testRows": [
                     { "inputParams": ["7", "+", "8"], "expectedResult": { "resultValues": ["200", "15"] }},
                     { "inputParams": ["7", "x", "8"], "expectedResult": { "resultValues": ["201", "56"] }}
@@ -40,7 +41,8 @@ class JsonFileInputReaderTest {
             {
               "type": "com.rexspecs.TabularTest",
               "fixtureName": "Calculator",
-              "columnNames": ["First Param", "Operator", "Second Param", "HTTP Response", "Result"],
+              "inputColumns": ["First Param", "Operator", "Second Param"],
+              "expectationColumns": ["HTTP Response", "Result"],
               "testRows": [
                 { "inputParams": ["7", "+", "8"], "expectedResult": {"resultValues": ["200", "15"]} },
                 { "inputParams": ["7", "x", "8"], "expectedResult": {"resultValues": ["201", "56"]} }
@@ -50,7 +52,7 @@ class JsonFileInputReaderTest {
         }
     """.trimIndent()
 
-    private val minifiedRawJson = """{"identifier":"JsonExample.monkeys","components":[{"type":"com.rexspecs.specs.Title","title":"An Acceptance Test"},{"type":"com.rexspecs.TabularTest","fixtureName":"Calculator","columnNames":["First Param","Operator","Second Param","HTTP Response","Result"],"testRows":[{"inputParams":["7","+","8"],"expectedResult":{"resultValues":["200","15"]}},{"inputParams":["7","x","8"],"expectedResult":{"resultValues":["201","56"]}}]}]}"""
+    private val minifiedRawJson = """{"identifier":"JsonExample.monkeys","components":[{"type":"com.rexspecs.specs.Title","title":"An Acceptance Test"},{"type":"com.rexspecs.TabularTest","fixtureName":"Calculator","inputColumns":["First Param","Operator","Second Param"],"expectationColumns":["HTTP Response","Result"],"testRows":[{"inputParams":["7","+","8"],"expectedResult":{"resultValues":["200","15"]}},{"inputParams":["7","x","8"],"expectedResult":{"resultValues":["201","56"]}}]}]}"""
 
     @Test
     fun `Specs are Serialisable and Deserialisable`() {

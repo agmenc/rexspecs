@@ -36,13 +36,13 @@ class SpecRunner(
     }
 
     private fun zipToMap(tabularTest: TabularTest, row: TestRow): Map<String, String> {
-        tabularTest.columnNames.zip(row.inputParams)
+        tabularTest.inputColumns.zip(row.inputParams)
 
         // TODO: This. Properly.
         return mapOf(
-            tabularTest.columnNames[0] to row.inputParams[0],
-            tabularTest.columnNames[1] to row.inputParams[1],
-            tabularTest.columnNames[2] to row.inputParams[2]
+            tabularTest.inputColumns[0] to row.inputParams[0],
+            tabularTest.inputColumns[1] to row.inputParams[1],
+            tabularTest.inputColumns[2] to row.inputParams[2]
         )
     }
 }

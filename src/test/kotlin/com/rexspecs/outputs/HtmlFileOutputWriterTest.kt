@@ -23,7 +23,8 @@ class HtmlFileOutputWriterTest {
             ExecutedSpecComponent(
                 TabularTest(
                     "Calculator",
-                    listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
+                    listOf("First Param", "Operator", "Second Param"),
+                    listOf("HTTP Response", "Result"),
                     listOf(
                         TestRow(listOf("7", "+", "8"), RowResult("200", "15")),
                         TestRow(listOf("7", "x", "8"), RowResult("201", "56"))

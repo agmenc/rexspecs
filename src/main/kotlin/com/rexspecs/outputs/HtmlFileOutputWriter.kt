@@ -58,7 +58,10 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         val table = Element("table")
         val header = Element("thead")
         header.appendElement("tr").appendElement("th").html(tabularTest.fixtureName)
-        header.appendElement("tr").appendChildren(tabularTest.columnNames.map { Element("th").html(it) })
+        header.appendElement("tr").appendChildren(
+            tabularTest.inputColumns.map { Element("th").html(it).addClass("input") } +
+            tabularTest.expectationColumns.map { Element("th").html(it) }
+        )
 
         val body = Element("tbody")
         val bodyRows: List<Element> = tabularTest.testRows

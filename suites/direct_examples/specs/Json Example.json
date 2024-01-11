@@ -8,7 +8,8 @@
     {
       "type": "com.rexspecs.TabularTest",
       "fixtureName": "Calculator",
-      "columnNames": ["First Param", "Operator", "Second Param", "Result"],
+      "inputColumns": ["First Param", "Operator", "Second Param"],
+      "expectationColumns": ["Result"],
       "testRows": [
         { "inputParams": ["7", "+", "8"], "expectedResult": { "resultValues": ["15"] } },
         { "inputParams": ["7", "x", "8"], "expectedResult": { "resultValues": ["56"] } }

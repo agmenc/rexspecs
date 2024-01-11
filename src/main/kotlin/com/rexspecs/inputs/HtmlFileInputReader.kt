@@ -42,31 +42,43 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
 
     // TODO: Privatise
     fun convertTableToTest(table: Element): TabularTest {
-        val headerRows = table.selectXpath("thead//tr").toList()
-        val (first, second) = headerRows
-        val fixtureCell = first.selectXpath("th").toList().first()
-        val columnHeaders = second.selectXpath("th").toList().map { it.text() }
+        val (firstHeaderRow, secondHeaderRow) = table.selectXpath("thead//tr").toList()
+        val fixtureName = firstHeaderRow.selectXpath("th").toList().first()
+        val (inputNames: List<String>, outputNames: List<String>) =
+            secondHeaderRow.selectXpath("th")
+                .toList()
+                .partition { it.attr("class") == "input" }.let { (inputs, outputs) ->
+                    Pair(inputs.map { it.text() }, outputs.map { it.text() })
+                }
+
+        // TODO: A test for this
+        if (inputNames.isEmpty()) return TabularTest(
+            fixtureName.text(),
+            emptyList(),
+            outputNames,
+            listOf(
+                TestRow(
+                    listOf("No input elements are defined for this table. Add class=\"input\" to relevant table columns."),
+                    RowResult(emptyList())
+                )
+            )
+        )
 
         val testRows: List<TestRow> = table.selectXpath("tbody//tr")
             .toList()
             .map { tableRow ->
-
-                /* TODO: Have a better way of separating the input params from the expected results cells.
-                   Here we zip with the columnHeaders, just so that we can extract by hard-coded column name. */
-                val (results: List<Pair<String, String>>, params: List<Pair<String, String>>) =
-                    tableRow.children() // table cells
-                        .map { elem: Element -> elem.text() }
-                        .toList()
-                        .zip(columnHeaders)
-                        .partition { (_, paramName) -> paramName == "HTTP Response" || paramName == "Result" }
+                val cellValues: List<String> = tableRow.children().map { elem: Element -> elem.text() }
+                val (inputs, expectations) = tableRow.children()
+                    .map { elem: Element -> elem.text() }
+                    .partition { cellValues.indexOf(it) < inputNames.size }
 
                 TestRow(
-                    params.map { (elem, _) -> elem },
-                    RowResult(results.map { (elem, _) -> elem })
+                    inputs,
+                    RowResult(expectations)
                 )
             }
 
-        return TabularTest(fixtureCell.text(), columnHeaders, testRows)
+        return TabularTest(fixtureName.text(), inputNames, outputNames, testRows)
     }
 }
 
