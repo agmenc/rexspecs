@@ -51,19 +51,6 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
                     Pair(inputs.map { it.text() }, outputs.map { it.text() })
                 }
 
-        // TODO: A test for this
-        if (inputNames.isEmpty()) return TabularTest(
-            fixtureName.text(),
-            emptyList(),
-            outputNames,
-            listOf(
-                TestRow(
-                    listOf("No input elements are defined for this table. Add class=\"input\" to relevant table columns."),
-                    RowResult(emptyList())
-                )
-            )
-        )
-
         val testRows: List<TestRow> = table.selectXpath("tbody//tr")
             .toList()
             .map { tableRow ->
@@ -86,4 +73,8 @@ class SingleHtmlFileInputReader(private val singleFile: String, rexspecsDirector
     override fun specIdentifiers(): List<String> {
         return listOf(singleFile)
     }
+
+    fun spec(): Spec = specs().first()
+
+    fun firstTest(): TabularTest = spec().components.first { it is TabularTest } as TabularTest
 }

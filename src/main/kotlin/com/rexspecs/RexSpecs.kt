@@ -25,6 +25,8 @@ Benders:
 
 Tasks:
     - Find any TODO and JFDI
+    - Create a results directory if it doesn't exist
+    - Create intermediate directories if they don't exist
     - Put basic docs in README.md: Motivation, Installation, Getting Started, Links to Examples
     - Put latest version and Gradle dependency in the README.md, using whatever auto magic Github provides
     - Include the default CSS theme as a prod resource, but only write it to the suite directory if it doesn't already exist
@@ -32,7 +34,6 @@ Tasks:
     - Error: source directory does not exist
     - Error: results directory does not exist
     - Error: no tests in suite
-    - Create a results directory if it doesn't exist
     - Push most stuff in RexSpecsTest into the specs themselves. Might mean they all need to pass.
     - Generate a Suite index?
     - Select from available input readers based on the file extension
@@ -78,7 +79,7 @@ class RexSpecs {
 
 @Serializable
 data class TestRow(val inputParams: List<String>, val expectedResult: RowResult) {
-    fun cells() = expectedResult.cells()
+    fun expectationCount() = expectedResult.cells()
 }
 
 @Serializable

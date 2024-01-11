@@ -2,6 +2,7 @@ package com.rexspecs.inputs
 
 import com.rexspecs.RowResult
 import com.rexspecs.TestRow
+import com.rexspecs.httpProps
 import com.rexspecs.specs.*
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.jsoup.Jsoup
@@ -17,6 +18,23 @@ class HtmlFileInputReaderTest {
         val inputReader = HtmlFileInputReader("suites/http_examples")
 
         assertTrue(inputReader.specs().iterator().hasNext())
+    }
+
+    @Test
+    fun `Fails with a clear error message when there are no inputs`() {
+        val test = SingleHtmlFileInputReader("The Naughty Test.html", httpProps.rexspecsDirectory).firstTest()
+
+        val expectedResult = TabularTest(
+            "Calculator",
+            emptyList(),
+            listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
+            listOf(
+                TestRow(emptyList(), RowResult(listOf("7", "+", "8", "200", "15"))),
+                TestRow(emptyList(), RowResult(listOf("7", "x", "8", "201", "56")))
+            )
+        )
+
+        assertEquals(expectedResult, test)
     }
 
     @Test

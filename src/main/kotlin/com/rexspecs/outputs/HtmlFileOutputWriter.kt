@@ -74,17 +74,19 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
     }
 
     private fun toTableRow(inputRow: TestRow, resultRow: RowResult): Element {
-        val paramsCells = inputRow.inputParams.map { param -> Element("td").html(param) }
+        if (inputRow.inputParams.isEmpty()) {
+            return Element("tr").appendChildren(listOf(wideError("No input elements are defined for this table. Add class=\"input\" to relevant table columns.")))
+        }
 
-        if (inputRow.cells() != resultRow.cells()) {
-            return Element("tr").appendChildren(paramsCells + error("Number of expected results [${inputRow.cells()}] does not match the number of actual results [${resultRow.cells()}]"))
+        if (inputRow.expectationCount() != resultRow.cells()) {
+            return Element("tr").appendChildren(listOf(wideError("Number of expected results [${inputRow.expectationCount()}] does not match the number of actual results [${resultRow.cells()}]")))
         }
 
         val results = inputRow.expectedResult.resultValues
             .zip(resultRow.resultValues)
             .map { (expected, actual) -> expectedButWas(expected, actual) }
 
-        return Element("tr").appendChildren(paramsCells + results)
+        return Element("tr").appendChildren(inputRow.inputParams.map { param -> Element("td").html(param) } + results)
     }
 
     private fun expectedButWas(expected: String, actual: String): Element =
@@ -99,6 +101,8 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
     private fun success(actual: String): Element = cell(actual, "success")
 
     private fun error(description: String): Element = cell("ERROR: $description", "error")
+
+    private fun wideError(description: String): Element = error(description).attr("colspan", "100")
 
     private fun cell(text: String, className: String): Element =
         Element("td")

@@ -2,9 +2,7 @@ package com.rexspecs
 
 import com.mycompany.fixture.Calculator
 import com.rexspecs.RexSpecs.Companion.runSuite
-import com.rexspecs.connectors.DirectConnector
-import com.rexspecs.connectors.HttpConnector
-import com.rexspecs.connectors.stubbedConnector
+import com.rexspecs.connectors.*
 import com.rexspecs.inputs.HtmlFileInputReader
 import com.rexspecs.inputs.SingleHtmlFileInputReader
 import com.rexspecs.inputs.SingleJsonFileInputReader
@@ -62,7 +60,7 @@ class RexSpecsTest {
             SingleHtmlFileInputReader("Calculator Over HTTP.html", props.rexspecsDirectory),
             HtmlFileOutputWriter(props.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
-            stubbedConnector(mapOf(calcOneSucceeds, calcTwoFails))
+            StubbedHttpConnector(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
         assertFalse(executedSuite.success())
@@ -74,7 +72,7 @@ class RexSpecsTest {
             SingleHtmlFileInputReader("Calculator Over HTTP.html", httpProps.rexspecsDirectory),
             HtmlFileOutputWriter(httpProps.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
-            stubbedConnector(mapOf(calcOneSucceeds, calcTwoFails))
+            StubbedHttpConnector(mapOf(calcOneSucceeds, calcTwoFails))
         )
 
         assertEquals(
@@ -89,7 +87,7 @@ class RexSpecsTest {
             SingleHtmlFileInputReader("Calculator Over HTTP.html", httpProps.rexspecsDirectory),
             HtmlFileOutputWriter(httpProps.rexspecsDirectory),
             mapOf("Calculator" to Calculator()),
-            HttpConnector(HttpClient(httpProps.host, httpProps.port).handle)
+            HttpConnector()
         )
 
         assertEquals(
@@ -149,7 +147,7 @@ class RexSpecsTest {
         val outputWriter = HtmlFileOutputWriter(directProps.rexspecsDirectory)
         outputWriter.cleanTargetDir()
 
-        assertEquals(emptyList<String>(), generatedFiles())
+        assertEquals(emptyList<String>(), generatedFiles(directProps.rexspecsDirectory))
 
         runSuite(
             HtmlFileInputReader(directProps.rexspecsDirectory),
@@ -158,14 +156,11 @@ class RexSpecsTest {
             DirectConnector()
         )
 
-        assertEquals(listOf("No Such Fixture.html", "Json Example.json", "Calculator Called Directly.html"), generatedFiles())
+        assertEquals(
+            listOf("No Such Fixture.html", "Json Example.json", "Calculator Called Directly.html"),
+            generatedFiles(directProps.rexspecsDirectory)
+        )
     }
-
-    private fun generatedFiles(): List<String> = File(directProps.rexspecsDirectory, "results")
-        .walk()
-        .toList()
-        .filter { it.isFile }
-        .map { it.name }
 
     @Test
     @Disabled
@@ -181,3 +176,9 @@ class RexSpecsTest {
     @Disabled
     fun `Can run RexSpec as a Gradle test dependency`() {}
 }
+
+fun generatedFiles(directory: String): List<String> = File(directory, "results")
+    .walk()
+    .toList()
+    .filter { it.isFile }
+    .map { it.name }

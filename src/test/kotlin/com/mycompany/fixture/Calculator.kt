@@ -28,7 +28,7 @@ class Calculator: Fixture {
 
     private fun connectOverHttp(inputs: Map<String, String>, httpConnector: HttpConnector): RowResult {
         val request = calculatorRequestBuilder(inputs)
-        val response = httpConnector.process(request)
+        val response = httpConnector.handler(request)
         return RowResult(
             response.status.code.toString(),
             response.body.payload.asString()

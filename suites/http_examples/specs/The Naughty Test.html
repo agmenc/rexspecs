@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../theme.css">
+    <script type="application/javascript" src="../toggle.js"></script>
+    <title>Naughty Testing</title>
+</head>
+<body>
+<h1 class="title">Calculator Over HTTP Example, with deliberate failures</h1>
+<!--<h2>Calculator Operations</h2>-->
+<p>Calculator App: receives operands and an operator, and calculates the result.</p>
+<table>
+    <thead>
+    <tr>
+        <th>Calculator</th>
+    </tr>
+    <tr>
+        <th>First Param</th>
+        <th>Operator</th>
+        <th>Second Param</th>
+        <th>HTTP Response</th>
+        <th>Result</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>7</td>
+        <td>+</td>
+        <td>8</td>
+        <td>200</td>
+        <td>15</td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td>x</td>
+        <td>8</td>
+        <td>201</td>
+        <td>56</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

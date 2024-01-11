@@ -36,13 +36,6 @@ class SpecRunner(
     }
 
     private fun zipToMap(tabularTest: TabularTest, row: TestRow): Map<String, String> {
-        tabularTest.inputColumns.zip(row.inputParams)
-
-        // TODO: This. Properly.
-        return mapOf(
-            tabularTest.inputColumns[0] to row.inputParams[0],
-            tabularTest.inputColumns[1] to row.inputParams[1],
-            tabularTest.inputColumns[2] to row.inputParams[2]
-        )
+        return tabularTest.inputColumns.zip(row.inputParams).toMap()
     }
 }

@@ -2,8 +2,7 @@ package com.rexspecs
 
 import com.mycompany.fixture.Calculator
 import com.rexspecs.connectors.DirectConnector
-import com.rexspecs.connectors.stubbedConnector
-import com.rexspecs.inputs.expectedOutputWithFailure
+import com.rexspecs.connectors.StubbedHttpConnector
 import com.rexspecs.inputs.expectedOutputWithSuccess
 import com.rexspecs.outputs.HtmlFileOutputWriter
 import com.rexspecs.inputs.sanified
@@ -17,7 +16,7 @@ class SpecRunnerTest {
         val passingSpec = SpecRunner(
             Spec("some/input.file", listOf(httpCalculationTest)),
             mapOf("Calculator" to Calculator()),
-            stubbedConnector(mapOf(calcOneSucceeds, calcTwoSucceeds))
+            StubbedHttpConnector(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
 
         val executedSpec = passingSpec.execute()
@@ -30,7 +29,7 @@ class SpecRunnerTest {
         val failingSpec = SpecRunner(
             Spec("some/input.file", listOf(httpCalculationTest)),
             mapOf("Calculator" to Calculator()),
-            stubbedConnector(mapOf())
+            StubbedHttpConnector(mapOf())
         )
 
         assertFalse(failingSpec.execute().success())
@@ -41,7 +40,7 @@ class SpecRunnerTest {
         val spec = SpecRunner(
             Spec("some/input.file", listOf(Title("An Acceptance Test"), httpCalculationTest)),
             mapOf("Calculator" to Calculator()),
-            stubbedConnector(mapOf(calcOneSucceeds, calcTwoSucceeds))
+            StubbedHttpConnector(mapOf(calcOneSucceeds, calcTwoSucceeds))
         )
 
         val executedSpec = spec.execute()

@@ -12,8 +12,6 @@ import kotlin.reflect.full.createInstance
 // TODO: Use ServiceLoader to find all Fixtures
 // See example: https://github.com/binkley/kotlin-serviceloader/blob/master/kotlin-serviceloader-sample/src/main/resources/META-INF/services/demo.Foo
 fun RexSpecs.Companion.executeSingleHtmlFile(filePath: String, props: RexSpecProperties = RexSpecPropertiesLoader.properties()) {
-
-    // TODO: Split out multiple test suites, based on their various types, as per props files
     runSuite(
         SingleHtmlFileInputReader(filePath, props.rexspecsDirectory),
         HtmlFileOutputWriter(props.rexspecsDirectory),
