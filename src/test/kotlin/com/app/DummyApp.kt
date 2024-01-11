@@ -19,10 +19,10 @@ fun main() {
 
 // Stop any of the HTTP API gubbins from polluting application code
 fun unpack(calculationResult: CalculationResult): Response {
-    return Response(if (calculationResult.success) OK else BAD_REQUEST).body(calculationResult.body)
+    return Response(if (calculationResult.success) OK else BAD_REQUEST).body(calculationResult.value)
 }
 
-data class CalculationResult(val success: Boolean, val body: String)
+data class CalculationResult(val success: Boolean, val value: String)
 
 fun calculate(params: Parameters): CalculationResult {
     val lookup = params.associate { it.first to it.second }

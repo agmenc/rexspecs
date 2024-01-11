@@ -10,7 +10,7 @@ interface Connector
 
 class DirectConnector: Connector
 
-// TODO: Eliminate the dependency on Http4k, so that any Client libary can be used.
+// TODO: Eliminate the dependency on Http4k, so that any Client library can be used.
 open class HttpConnector: Connector {
     private val props: RexSpecProperties = RexSpecPropertiesLoader.properties()
     open val handler = HttpClient(props.host, props.port).handle
