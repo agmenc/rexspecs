@@ -1,6 +1,7 @@
 package com.rexspecs.outputs
 
 import com.rexspecs.ExecutedSpec
+import com.rexspecs.InvalidStartingState
 import com.rexspecs.RowResult
 import com.rexspecs.TestRow
 import com.rexspecs.specs.*
@@ -11,6 +12,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.nodes.Node
 import java.io.File
 import kotlin.io.path.Path
+import kotlin.io.path.createDirectory
 
 open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputWriter {
     override fun writeSpecResults(executedSpec: ExecutedSpec) {
@@ -46,10 +48,17 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         return simplerDocument.toString()
     }
 
-    override fun cleanTargetDir() {
+    override fun prepareForOutput() {
+        val resultsDir = File(rexspecsDirectory, "results")
+        when {
+            !resultsDir.parentFile.exists() -> throw InvalidStartingState("Cannot find Rexspecs directory [$rexspecsDirectory]")
+            !resultsDir.exists() -> Path(rexspecsDirectory, "results").createDirectory()
+        }
+
         File(rexspecsDirectory, "results").walk()
             .filter { it.isFile }
             .forEach {
+                println("Deleting File [${it.absolutePath}]")
                 if (!it.delete()) errored("Failed to delete File [${it.absolutePath}]" )
             }
     }

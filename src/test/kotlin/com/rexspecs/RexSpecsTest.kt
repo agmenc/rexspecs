@@ -145,7 +145,7 @@ class RexSpecsTest {
     @Test
     fun `Runs entire suites of tests`() {
         val outputWriter = HtmlFileOutputWriter(directProps.rexspecsDirectory)
-        outputWriter.cleanTargetDir()
+        outputWriter.prepareForOutput()
 
         assertEquals(emptyList<String>(), generatedFiles(directProps.rexspecsDirectory))
 

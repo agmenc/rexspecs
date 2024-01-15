@@ -14,7 +14,8 @@ typealias FixtureLookup = Map<String, Fixture>
 
 /*
 Benders:
-    - Wire it in to something real. STACKRR - The Stack Tree Tracker. JSON over CLI.
+    - TODO: Wire it in to something real.
+    - Another real candidate: STACKRR - The Stack Tree Tracker. JSON over CLI.
     - Find a better way to demarcate input params from expected results (probably a CSS class)
     - Build a more complicated example, with multiple steps, and some sort of state
     - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
@@ -24,6 +25,7 @@ Benders:
     -
 
 Tasks:
+    - TODO: Wire it in to something real.
     - Find any TODO and JFDI
     - Create a results directory if it doesn't exist
     - Create intermediate directories if they don't exist
@@ -67,7 +69,7 @@ class RexSpecs {
             fixtureLookup: FixtureLookup,
             connector: Connector
         ): ExecutedSuite {
-            outputWriter.cleanTargetDir()
+            outputWriter.prepareForOutput()
             return ExecutedSuite(inputReader.specs().map {
                 SpecRunner(it, fixtureLookup, connector).execute()
                     .also { spec -> outputWriter.writeSpecResults(spec) }
@@ -119,3 +121,5 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
         return true
     }
 }
+
+class InvalidStartingState(message: String) : RuntimeException(message)
