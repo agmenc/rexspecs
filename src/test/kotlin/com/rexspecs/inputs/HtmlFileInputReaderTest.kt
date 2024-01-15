@@ -1,15 +1,21 @@
 package com.rexspecs.inputs
 
+import com.rexspecs.InvalidStartingState
 import com.rexspecs.RowResult
 import com.rexspecs.TestRow
 import com.rexspecs.httpProps
+import com.rexspecs.outputs.HtmlFileOutputWriter
 import com.rexspecs.specs.*
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.jsoup.Jsoup
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.io.File
+import kotlin.io.path.createTempDirectory
+import kotlin.io.path.pathString
 
 class HtmlFileInputReaderTest {
 
@@ -38,12 +44,11 @@ class HtmlFileInputReaderTest {
     }
 
     @Test
-    @Disabled
     fun `Specs are identified by their relative path from the specs source root directory`() {
-        val inputReader = HtmlFileInputReader("rexspecs")
+        val inputReader = HtmlFileInputReader("suites/http_examples")
 
         assertEquals(
-            listOf("AnAcceptanceTest.html", "AcceptanceTestOne.html", "nesting/AcceptanceTestTwo.html"),
+            listOf("The Naughty Test.html", "nesting/Nested Spec.html", "Calculator Over HTTP.html"),
             inputReader.specs().map { it.identifier }
         )
     }
@@ -89,6 +94,19 @@ class HtmlFileInputReaderTest {
     }
 
     @Test
-    @Disabled
-    fun `DirectoryManager barfs when the source root doesn't contain a specs folder or a results folder`() {}
+    fun `DirectoryManager barfs when the source root doesn't exist`() {
+        assertThrows<InvalidStartingState>("Cannot find Rexspecs directory [potato]") {
+            HtmlFileInputReader("potato").prepareForInput()
+        }
+    }
+
+    @Test
+    fun `DirectoryManager barfs when the specs folder doesn't exist`() {
+        val tempRexSpecsDir = createTempDirectory().pathString
+        assertFalse(File(tempRexSpecsDir, "specs").exists())
+
+        assertThrows<InvalidStartingState>("Cannot find Rexspecs source directory [$tempRexSpecsDir/specs]") {
+            HtmlFileInputReader(tempRexSpecsDir).prepareForInput()
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.rexspecs.inputs
 
+import com.rexspecs.InvalidStartingState
 import com.rexspecs.RowResult
 import com.rexspecs.TestRow
 import com.rexspecs.specs.*
@@ -9,10 +10,18 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.io.File
 import kotlin.io.path.Path
+import kotlin.io.path.createDirectory
 
 open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
 
     private val specsRoot = File(rexspecsDirectory, "specs")
+
+    override fun prepareForInput() {
+        when {
+            !specsRoot.parentFile.exists() -> throw InvalidStartingState("Cannot find Rexspecs directory [${specsRoot.parentFile}]")
+            !specsRoot.exists() -> throw InvalidStartingState("Cannot find Rexspecs source directory [$specsRoot]")
+        }
+    }
 
     protected open fun specIdentifiers(): List<String> {
         return specsRoot.walk().toList()

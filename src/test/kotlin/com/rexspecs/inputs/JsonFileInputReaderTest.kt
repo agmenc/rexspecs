@@ -1,13 +1,19 @@
 package com.rexspecs.inputs
 
+import com.rexspecs.InvalidStartingState
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.TabularTest
 import com.rexspecs.specs.Title
 import com.rexspecs.specs.httpCalculationTest
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+import java.io.File
+import kotlin.io.path.createTempDirectory
+import kotlin.io.path.pathString
 
 class JsonFileInputReaderTest {
     @Test
@@ -63,5 +69,22 @@ class JsonFileInputReaderTest {
 
         val serialised = Json.encodeToString(spec)
         assertEquals(minifiedRawJson, serialised)
+    }
+
+    @Test
+    fun `DirectoryManager barfs when the source root doesn't exist`() {
+        assertThrows<InvalidStartingState>("Cannot find Rexspecs directory [potato]") {
+            JsonFileInputReader("potato").prepareForInput()
+        }
+    }
+
+    @Test
+    fun `DirectoryManager barfs when the specs folder doesn't exist`() {
+        val tempRexSpecsDir = createTempDirectory().pathString
+        Assertions.assertFalse(File(tempRexSpecsDir, "specs").exists())
+
+        assertThrows<InvalidStartingState>("Cannot find Rexspecs source directory [$tempRexSpecsDir/specs]") {
+            JsonFileInputReader(tempRexSpecsDir).prepareForInput()
+        }
     }
 }

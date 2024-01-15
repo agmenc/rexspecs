@@ -39,9 +39,4 @@ internal class PropertiesTest {
 
         return SomeOtherPropertiesLoader()
     }
-
-    @Test
-    @Disabled
-    fun `Load props from the environment`() { TODO("This thing") }
-
 }

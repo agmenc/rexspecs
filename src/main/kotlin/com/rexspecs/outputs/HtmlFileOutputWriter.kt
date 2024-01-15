@@ -58,7 +58,6 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         File(rexspecsDirectory, "results").walk()
             .filter { it.isFile }
             .forEach {
-                println("Deleting File [${it.absolutePath}]")
                 if (!it.delete()) errored("Failed to delete File [${it.absolutePath}]" )
             }
     }

@@ -16,7 +16,6 @@ typealias FixtureLookup = Map<String, Fixture>
 Benders:
     - TODO: Wire it in to something real.
     - Another real candidate: STACKRR - The Stack Tree Tracker. JSON over CLI.
-    - Find a better way to demarcate input params from expected results (probably a CSS class)
     - Build a more complicated example, with multiple steps, and some sort of state
     - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
     - Make the HTML look prettier still (need some guidance with this one)
@@ -27,15 +26,14 @@ Benders:
 Tasks:
     - TODO: Wire it in to something real.
     - Find any TODO and JFDI
-    - Create a results directory if it doesn't exist
-    - Create intermediate directories if they don't exist
+    - Create intermediate directories in output tree if they don't exist
     - Put basic docs in README.md: Motivation, Installation, Getting Started, Links to Examples
     - Put latest version and Gradle dependency in the README.md, using whatever auto magic Github provides
     - Include the default CSS theme as a prod resource, but only write it to the suite directory if it doesn't already exist
     - Include toggle.js as a prod resource, but only write it to the suite directory if it doesn't already exist
-    - Error: source directory does not exist
-    - Error: results directory does not exist
     - Error: no tests in suite
+    - Use Http4k to load props
+    - Load props from the environment
     - Push most stuff in RexSpecsTest into the specs themselves. Might mean they all need to pass.
     - Generate a Suite index?
     - Select from available input readers based on the file extension
@@ -69,6 +67,7 @@ class RexSpecs {
             fixtureLookup: FixtureLookup,
             connector: Connector
         ): ExecutedSuite {
+            inputReader.prepareForInput()
             outputWriter.prepareForOutput()
             return ExecutedSuite(inputReader.specs().map {
                 SpecRunner(it, fixtureLookup, connector).execute()

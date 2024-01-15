@@ -161,20 +161,6 @@ class RexSpecsTest {
             generatedFiles(directProps.rexspecsDirectory)
         )
     }
-
-    @Test
-    @Disabled
-    fun `Can run RexSpec with CTRL-SHIFT-F10, from a RunConfiguration`() {
-        TODO("This")
-    }
-
-    @Test
-    @Disabled
-    fun `We can clean out the target directories, so that we can do the next test run`() {}
-
-    @Test
-    @Disabled
-    fun `Can run RexSpec as a Gradle test dependency`() {}
 }
 
 fun generatedFiles(directory: String): List<String> = File(directory, "results")

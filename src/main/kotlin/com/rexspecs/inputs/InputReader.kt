@@ -7,5 +7,8 @@ import com.rexspecs.specs.Spec
  */
 interface InputReader {
     fun specs(): List<Spec>
+
+    // Ensure that source location exists.
+    fun prepareForInput()
 }
 

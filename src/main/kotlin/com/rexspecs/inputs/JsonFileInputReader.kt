@@ -1,5 +1,6 @@
 package com.rexspecs.inputs
 
+import com.rexspecs.InvalidStartingState
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.TabularTest
 import kotlinx.serialization.json.Json
@@ -7,6 +8,13 @@ import java.io.File
 
 open class JsonFileInputReader(rexspecsDirectory: String) : InputReader {
     protected val specsRoot = File(rexspecsDirectory, "specs")
+
+    override fun prepareForInput() {
+        when {
+            !specsRoot.parentFile.exists() -> throw InvalidStartingState("Cannot find Rexspecs directory [${specsRoot.parentFile}]")
+            !specsRoot.exists() -> throw InvalidStartingState("Cannot find Rexspecs source directory [$specsRoot]")
+        }
+    }
 
     protected open fun specIdentifiers(): List<File> =
         specsRoot
