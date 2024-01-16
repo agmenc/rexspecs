@@ -30,7 +30,7 @@ abstract class PropertiesLoader<T>(private val propsFilePath: String) {
     }
 }
 
-object RexSpecPropertiesLoader: PropertiesLoader<RexSpecProperties>("rexspec.props") {
+object RexSpecPropertiesLoader: PropertiesLoader<RexSpecProperties>("rexspecs.props") {
     override fun buildProps(): RexSpecProperties = RexSpecProperties(
         prop("rexspecs.directory", "rexspecs/"),
         prop("fixture.registry", "[No FixtureRegistry Defined]"),

@@ -8,7 +8,8 @@ import com.rexspecs.outputs.HtmlFileOutputWriter
 import com.rexspecs.utils.RexSpecProperties
 import com.rexspecs.utils.RexSpecPropertiesLoader
 
-fun RexSpecs.Companion.executeSuiteHtml(props: RexSpecProperties = RexSpecPropertiesLoader.properties()) {
+// TODO: Have a test for this
+public fun RexSpecs.Companion.executeSuiteHtml(props: RexSpecProperties = RexSpecPropertiesLoader.properties()) {
     runSuite(
         HtmlFileInputReader(props.rexspecsDirectory),
         HtmlFileOutputWriter(props.rexspecsDirectory),
