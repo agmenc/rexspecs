@@ -1,25 +1,44 @@
 
 /* RexSpecs theme */
 
+/* Baby Design System*/
+:root {
+    --l1: hsl(0, 0%, 20%);
+    --l2: hsl(0, 0%, 40%);
+    --l3: hsl(0, 0%, 55%);
+    --l4: hsl(0, 0%, 70%);
+    --l5: hsl(0, 0%, 90%);
+    --l6: hsl(0, 0%, 95%);
+    --lw: hsl(0, 0%, 100%);
+
+    --good: hsl(120, 100%, 40%);
+    --bad: hsl(0, 100%, 40%);
+    --worse: hsl(0, 100%, 50%);
+}
+
+/* Result indicators */
+
 td.success {
     font-weight: bold;
-    color: #47e130;
+    color: var(--good);
 }
 
 td.fail {
     font-weight: bold;
-    color: #ec0565;
+    color: var(--bad);
 }
 
 td.error {
-    background-color: #ec0565;
+    background-color: var(--worse);
 }
+
+/* Typography */
 
 h1, h1 a, h1 a:visited {
     text-decoration: none;
     font-size: xx-large;
     font-weight: bold;
-    color: #008698FF;
+    color: var(--l1);
 }
 
 h1 a:hover {
@@ -27,7 +46,7 @@ h1 a:hover {
 }
 
 h2 {
-    color: #008698FF;
+    color: var(--l2);
 }
 
 /* Copied from https://dev.to/dcodeyt/creating-beautiful-html-tables-with-css-428l */
@@ -35,16 +54,15 @@ h2 {
 body {
     margin: 25px 25px;
     padding: 0;
-    background-color: #dddddd;
-    font-family: sans-serif;
+    background-color: var(--l6);
+    font-family: "Proxima Nova", sans-serif;
 }
 
 table {
-    background-color: #dddddd;
+    background-color: var(--l6);
     border-collapse: collapse;
     font-size: 0.9em;
     font-family: sans-serif;
-    min-width: 400px;
     border-radius: 5px;
 }
 
@@ -54,8 +72,8 @@ table thead tr:first-of-type th {
 }
 
 table thead tr {
-    background-color: #63A0A6FF;
-    color: #ffffff;
+    background-color: var(--l4); !important;
+    color: var(--lw);
     text-align: left;
 }
 
@@ -65,14 +83,17 @@ table td {
 }
 
 table tbody tr {
-    background-color: #ffffff;
-    border-bottom: 1px solid #dddddd;
+    background-color: var(--lw);
+}
+
+table tbody tr:hover {
+    background-color: var(--l4) !important;
 }
 
 table tbody tr:nth-of-type(even) {
-    background-color: #f3f3f3;
+    background-color: var(--l5);
 }
 
 table tbody tr:last-of-type {
-    border-bottom: 2px solid #008698FF;
+    border-bottom: 2px solid var(--l4);
 }

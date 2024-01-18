@@ -15,6 +15,7 @@ typealias FixtureLookup = Map<String, Fixture>
 /*
 Benders:
     - TODO: Wire it in to something real.
+    - Nested tables
     - Another real candidate: STACKRR - The Stack Tree Tracker. JSON over CLI.
     - Build a more complicated example, with multiple steps, and some sort of state
     - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
@@ -24,7 +25,8 @@ Benders:
     -
 
 Tasks:
-    - TODO: Wire it in to something real.
+    - Client project builds and tests should fail if specs fail. Exit code? JUnit 5 failure?
+    - Support result lists demarcated with <br/>.
     - Find any TODO and JFDI
     - Create intermediate directories in output tree if they don't exist
     - Put basic docs in README.md: Motivation, Installation, Getting Started, Links to Examples
@@ -33,6 +35,7 @@ Tasks:
     - Include toggle.js as a prod resource, but only write it to the suite directory if it doesn't already exist
     - Error: no tests in suite
     - Use Http4k to load props
+    - Make Maven publishing a single script run
     - Load props from the environment
     - Push most stuff in RexSpecsTest into the specs themselves. Might mean they all need to pass.
     - Generate a Suite index?
