@@ -1,8 +1,9 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jreleaser.model.Active
 
 plugins {
-    kotlin("jvm") version "1.9.0"
-    kotlin("plugin.serialization") version "1.9.0"
+    kotlin("jvm") version "1.9.20"
+    kotlin("plugin.serialization") version "1.9.20"
     application
     `maven-publish`
 
@@ -16,11 +17,7 @@ group = "io.github.agmenc"
 version = "0.1.6"
 
 kotlin {
-    jvmToolchain {
-        // TODO - upgrade to 21
-        languageVersion.set(JavaLanguageVersion.of(20))
-        vendor.set(JvmVendorSpec.ADOPTIUM)
-    }
+    jvmToolchain(21)
 }
 
 repositories {
@@ -41,21 +38,13 @@ dependencies {
 
 //    testImplementation(kotlin("test"))
 //    testImplementation("com.natpryce:hamkrest:1.8.0.1")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    implementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
-
-//tasks.withType<KotlinCompile>() {
-//    kotlinOptions.jvmTarget = "13"
-//}
-
-//application {
-//    mainClassName = "MainKt"
-//}
 
 // -------------------------------------------------------------------------------------------------------------------
 // Taken from https://dev.to/tschuehly/how-to-publish-a-kotlinjava-spring-boot-library-with-gradle-to-maven-central-complete-guide-402a#52-configure-jreleaser-maven-plugin

@@ -2,7 +2,9 @@ package com.rexspecs
 
 import com.mycompany.fixture.Calculator
 import com.rexspecs.RexSpecs.Companion.runSuite
-import com.rexspecs.connectors.*
+import com.rexspecs.connectors.DirectConnector
+import com.rexspecs.connectors.HttpConnector
+import com.rexspecs.connectors.StubbedHttpConnector
 import com.rexspecs.inputs.HtmlFileInputReader
 import com.rexspecs.inputs.SingleHtmlFileInputReader
 import com.rexspecs.inputs.SingleJsonFileInputReader
@@ -13,7 +15,6 @@ import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.http4k.core.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -146,7 +147,6 @@ class RexSpecsTest {
     fun `Runs entire suites of tests`() {
         val outputWriter = HtmlFileOutputWriter(directProps.rexspecsDirectory)
         outputWriter.prepareForOutput()
-
         assertEquals(emptyList<String>(), generatedFiles(directProps.rexspecsDirectory))
 
         runSuite(

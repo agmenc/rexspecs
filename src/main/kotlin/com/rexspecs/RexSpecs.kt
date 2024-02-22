@@ -16,7 +16,11 @@ typealias FixtureLookup = Map<String, Fixture>
 Benders:
     - TODO: Wire it in to something real.
     - Nested tables
-    - Another real candidate: STACKRR - The Stack Tree Tracker. JSON over CLI.
+    - Real candidates:
+        STACKRR - The Stack Tree Tracker. JSON over CLI.
+        UrThredz II - The Wrath of Tabs
+        Kanban in Code - a way to manage stories, epics, etc in your repo. Possibly a little app that moves STORY.mds into different sub-folders as you make changes.
+    - Generate a Suite index - this is the FEATURE MATRIX!!!
     - Build a more complicated example, with multiple steps, and some sort of state
     - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
     - Make the HTML look prettier still (need some guidance with this one)
@@ -38,7 +42,6 @@ Tasks:
     - Make Maven publishing a single script run
     - Load props from the environment
     - Push most stuff in RexSpecsTest into the specs themselves. Might mean they all need to pass.
-    - Generate a Suite index?
     - Select from available input readers based on the file extension
     - HtmlFileInputReader: should only read files with .html extension.
     - JsonFileInputReader: should only read files with .json extension.
