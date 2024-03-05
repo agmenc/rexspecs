@@ -15,6 +15,7 @@ typealias FixtureLookup = Map<String, Fixture>
 /*
 Benders:
     - TODO: Wire it in to something real.
+    - TODO: Automate publishing
     - Nested tables
     - Real candidates:
         STACKRR - The Stack Tree Tracker. JSON over CLI.
