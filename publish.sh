@@ -19,6 +19,6 @@ git commit -am "Incremented minor version to $MINOR_VERSION"
 git tag -a v0.1.$MINOR_VERSION -m "Tagging version 0.1.$MINOR_VERSION"
 
 # Push the tag to the remote repository
-git push origin master --tags
+git push origin main --tags
 
 
