@@ -15,7 +15,6 @@ typealias FixtureLookup = Map<String, Fixture>
 /*
 Benders:
     - TODO: Wire it in to something real.
-    - TODO: Automate publishing
     - Nested tables
     - Real candidates:
         STACKRR - The Stack Tree Tracker. JSON over CLI.
@@ -30,7 +29,7 @@ Benders:
     -
 
 Tasks:
-    - Client project builds and tests should fail if specs fail. Exit code? JUnit 5 failure?
+    - Suite runs should fail if there are no tests
     - Support result lists demarcated with <br/>.
     - Find any TODO and JFDI
     - Create intermediate directories in output tree if they don't exist

@@ -10,7 +10,7 @@ import com.rexspecs.utils.RexSpecPropertiesLoader
 
 // TODO: Have a test for this
 public fun RexSpecs.Companion.executeSuiteHtml(props: RexSpecProperties = RexSpecPropertiesLoader.properties()) {
-    runSuite(
+    runSuitePassFail(
         HtmlFileInputReader(props.rexspecsDirectory),
         HtmlFileOutputWriter(props.rexspecsDirectory),
         magicUp<FixtureRegistry>(props.fixtureRegistry).index(),

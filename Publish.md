@@ -5,13 +5,11 @@ I copied most of the steps from [this excellent article][1], and added a few not
 
 Repeated Steps (Every time I publish a new version)
 ---
-1. Make sure the version number in `build.gradle.kts` is correct
-2. Commit the changes locally
-3. Create a tag for the version:
+1. Run publish.sh script
 ```bash
-git tag -a v0.0.1-SNAPSHOT -m "Test Maven publishing toolchain"
+./publish.sh
 ```
-4. Wait a few minutes, then do a [quick Sonatype Search][2] for the artifact
+2Wait a few minutes, then do a [quick Sonatype Search][2] for the artifact
 
 [1]: https://dev.to/tschuehly/how-to-publish-a-kotlinjava-spring-boot-library-with-gradle-to-maven-central-complete-guide-402a#8-when-is-the-library-actually-available-to-use
 [2]: https://s01.oss.sonatype.org/#nexus-search;quick~agmenc
