@@ -1,8 +1,6 @@
 package com.rexspecs.inputs
 
-import com.rexspecs.InvalidStartingState
-import com.rexspecs.RowResult
-import com.rexspecs.TestRow
+import com.rexspecs.*
 import com.rexspecs.specs.*
 import com.rexspecs.utils.fileAsString
 import org.jsoup.Jsoup
@@ -10,7 +8,6 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.io.File
 import kotlin.io.path.Path
-import kotlin.io.path.createDirectory
 
 open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
 
@@ -60,7 +57,7 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
                     Pair(inputs.map { it.text() }, outputs.map { it.text() })
                 }
 
-        val testRows: List<TestRow> = table.selectXpath("tbody//tr")
+        val testRows: List<TestRow> = table.selectXpath("tbody/tr")
             .toList()
             .map { tableRow ->
                 val cellValues: List<String> = tableRow.children().map { elem: Element -> elem.text() }
@@ -69,7 +66,7 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
                     .partition { cellValues.indexOf(it) < inputNames.size }
 
                 TestRow(
-                    inputs,
+                    eithers(inputs),
                     RowResult(expectations)
                 )
             }

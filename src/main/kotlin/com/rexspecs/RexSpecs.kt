@@ -1,3 +1,4 @@
+@file:UseSerializers(EitherSerializer::class)
 package com.rexspecs
 
 import com.rexspecs.connectors.Connector
@@ -6,9 +7,11 @@ import com.rexspecs.inputs.InputReader
 import com.rexspecs.outputs.OutputWriter
 import com.rexspecs.specs.SpecComponent
 import com.rexspecs.specs.TabularTest
+import com.rexspecs.utils.EitherSerializer
 import com.rexspecs.utils.failed
 import com.rexspecs.utils.succeeded
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 
 typealias FixtureLookup = Map<String, Fixture>
 
@@ -16,6 +19,8 @@ typealias FixtureLookup = Map<String, Fixture>
 Benders:
     - TODO: Wire it in to something real.
     - Nested tables
+    - Remove header rows from nested tables
+    - List Fixtures - given whatever is in the header, the results should look like all the rows
     - Real candidates:
         STACKRR - The Stack Tree Tracker. JSON over CLI.
         UrThredz II - The Wrath of Tabs
@@ -37,6 +42,7 @@ Tasks:
     - Put latest version and Gradle dependency in the README.md, using whatever auto magic Github provides
     - Include the default CSS theme as a prod resource, but only write it to the suite directory if it doesn't already exist
     - Include toggle.js as a prod resource, but only write it to the suite directory if it doesn't already exist
+    - Use the -Xjdk-release Kotlin compile flag to better support my target minimum Java version (see https://jakewharton.com/kotlins-jdk-release-compatibility-flag/ )
     - Error: no tests in suite
     - Use Http4k to load props
     - Make Maven publishing a single script run
@@ -85,7 +91,19 @@ class RexSpecs {
 }
 
 @Serializable
-data class TestRow(val inputParams: List<String>, val expectedResult: RowResult) {
+sealed class Either<out L, out R> {
+    @Serializable
+    data class Left<out L>(val left: L) : Either<L, Nothing>()
+
+    @Serializable
+    data class Right<out R>(val right: R) : Either<Nothing, R>()
+}
+
+fun eithers(vararg strings: String): List<Either.Left<String>> = strings.map { Either.Left(it) }
+fun eithers(strings: List<String>): List<Either.Left<String>> = strings.map { Either.Left(it) }
+
+@Serializable
+data class TestRow(val inputParams: List<Either<String, TabularTest>>, val expectedResult: RowResult) {
     fun expectationCount() = expectedResult.cells()
 }
 

@@ -1,9 +1,6 @@
 package com.rexspecs.outputs
 
-import com.rexspecs.ExecutedSpec
-import com.rexspecs.InvalidStartingState
-import com.rexspecs.RowResult
-import com.rexspecs.TestRow
+import com.rexspecs.*
 import com.rexspecs.specs.*
 import com.rexspecs.utils.errored
 import com.rexspecs.utils.writeFile
@@ -94,7 +91,12 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             .zip(resultRow.resultValues)
             .map { (expected, actual) -> expectedButWas(expected, actual) }
 
-        return Element("tr").appendChildren(inputRow.inputParams.map { param -> Element("td").html(param) } + results)
+        return Element("tr").appendChildren(inputRow.inputParams.map { param ->
+            when (param) {
+                is Either.Left<String> -> Element("td").html(param.left)
+                is Either.Right<TabularTest> -> Element("td").html("Nested Table")
+            }
+        } + results)
     }
 
     private fun expectedButWas(expected: String, actual: String): Element =

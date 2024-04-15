@@ -62,3 +62,75 @@ private fun firstRowSucceeds(input: String) = input
 fun sanified(filePath: String): String = htmlSanitised(fileAsString(filePath))
 
 fun htmlSanitised(contents: String): String = Jsoup.parse(contents).html()
+
+// TODO - pull this out as a file, or just use Nested Tables.html
+val nestedInput = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../theme.css">
+    <script type="application/javascript" src="../toggle.js"></script>
+    <title>Nested Tables Example</title>
+</head>
+<body>
+<h1 class="title">Nested Tables Example</h1>
+<p>Turtles, all the way down.</p>
+<table>
+    <thead>
+    <tr>
+        <th>Bird Counter</th>
+    </tr>
+    <tr>
+        <th class="input">Species</th>
+        <th class="input">Observed Between</th>
+        <th>Census</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Blue Tit</td>
+        <td>
+            <table>
+                <thead>
+                <tr>
+                    <th>Time Range</th>
+                </tr>
+                <tr>
+                    <td class="input">Start</td>
+                    <td class="input">End</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Monday</td>
+                    <td>Wednesday</td>
+                </tr>
+                </tbody>
+            </table>
+        </td>
+        <td>
+            <table>
+                <thead>
+                <tr>
+                    <th>Count Type</th>
+                </tr>
+                <tr>
+                    <td class="input">Eggs</td>
+                    <td class="input">Chicks</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>2</td>
+                    <td>1</td>
+                </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
+        """.trimMargin()

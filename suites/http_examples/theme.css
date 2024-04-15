@@ -3,12 +3,15 @@
 
 /* Baby Design System*/
 :root {
-    --l1: hsl(0, 0%, 20%);
-    --l2: hsl(0, 0%, 40%);
-    --l3: hsl(0, 0%, 55%);
-    --l4: hsl(0, 0%, 70%);
-    --l5: hsl(0, 0%, 90%);
-    --l6: hsl(0, 0%, 95%);
+    --l1: hsl(0, 0%, 10%);
+    --l2: hsl(0, 0%, 20%);
+    --l3: hsl(0, 0%, 30%);
+    --l4: hsl(0, 0%, 40%);
+    --l5: hsl(0, 0%, 50%);
+    --l6: hsl(0, 0%, 60%);
+    --l7: hsl(0, 0%, 70%);
+    --l8: hsl(0, 0%, 80%);
+    --l9: hsl(0, 0%, 90%);
     --lw: hsl(0, 0%, 100%);
 
     --good: hsl(120, 100%, 40%);
@@ -54,12 +57,12 @@ h2 {
 body {
     margin: 25px 25px;
     padding: 0;
-    background-color: var(--l6);
+    background-color: var(--lw);
     font-family: "Proxima Nova", sans-serif;
 }
 
 table {
-    background-color: var(--l6);
+    background-color: var(--lw);
     border-collapse: collapse;
     font-size: 0.9em;
     font-family: sans-serif;
@@ -72,7 +75,7 @@ table thead tr:first-of-type th {
 }
 
 table thead tr {
-    background-color: var(--l4); !important;
+    background-color: var(--l5); !important;
     color: var(--lw);
     text-align: left;
 }
@@ -87,13 +90,28 @@ table tbody tr {
 }
 
 table tbody tr:hover {
-    background-color: var(--l4) !important;
+    background-color: var(--l7) !important;
 }
 
 table tbody tr:nth-of-type(even) {
-    background-color: var(--l5);
+    background-color: var(--l8);
+}
+
+table tbody tr:nth-of-type(odd) {
+    background-color: var(--l9);
 }
 
 table tbody tr:last-of-type {
     border-bottom: 2px solid var(--l4);
 }
+
+table table thead tr td {
+    background-color: var(--l5);
+    color: var(--lw);
+    text-align: left;
+}
+
+table table tbody tr td {
+    background-color: var(--lw);
+}
+

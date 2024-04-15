@@ -157,7 +157,7 @@ class RexSpecsTest {
         )
 
         assertEquals(
-            listOf("No Such Fixture.html", "Json Example.json", "Calculator Called Directly.html"),
+            listOf("No Such Fixture.html", "Json Example.json", "Calculator Called Directly.html", "Nested Tables.html"),
             generatedFiles(directProps.rexspecsDirectory)
         )
     }

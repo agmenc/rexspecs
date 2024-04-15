@@ -1,10 +1,14 @@
+@file:UseSerializers(EitherSerializer::class)
 package com.rexspecs.inputs
 
-import com.rexspecs.InvalidStartingState
+import com.rexspecs.*
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.TabularTest
 import com.rexspecs.specs.Title
 import com.rexspecs.specs.httpCalculationTest
+import com.rexspecs.utils.EitherSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions
@@ -24,8 +28,8 @@ class JsonFileInputReaderTest {
                 "inputColumns": ["First Param", "Operator", "Second Param"],
                 "expectationColumns": ["HTTP Response", "Result"],
                 "testRows": [
-                    { "inputParams": ["7", "+", "8"], "expectedResult": { "resultValues": ["200", "15"] }},
-                    { "inputParams": ["7", "x", "8"], "expectedResult": { "resultValues": ["201", "56"] }}
+                    { "inputParams": [{"Left":"7"},{"Left":"+"},{"Left":"8"}], "expectedResult": { "resultValues": ["200", "15"] }},
+                    { "inputParams": [{"Left":"7"},{"Left":"x"},{"Left":"8"}], "expectedResult": { "resultValues": ["201", "56"] }}
                 ]
             }
         """.trimIndent()
@@ -50,15 +54,15 @@ class JsonFileInputReaderTest {
               "inputColumns": ["First Param", "Operator", "Second Param"],
               "expectationColumns": ["HTTP Response", "Result"],
               "testRows": [
-                { "inputParams": ["7", "+", "8"], "expectedResult": {"resultValues": ["200", "15"]} },
-                { "inputParams": ["7", "x", "8"], "expectedResult": {"resultValues": ["201", "56"]} }
+                { "inputParams": [{ "Left": "7" }, { "Left":"+"}, {"Left":"8"}], "expectedResult": {"resultValues": ["200", "15"]} },
+                { "inputParams": [{ "Left": "7" }, { "Left":"x"}, {"Left":"8"}], "expectedResult": {"resultValues": ["201", "56"]} }
               ]
             }
           ]
         }
     """.trimIndent()
 
-    private val minifiedRawJson = """{"identifier":"JsonExample.monkeys","components":[{"type":"com.rexspecs.specs.Title","title":"An Acceptance Test"},{"type":"com.rexspecs.TabularTest","fixtureName":"Calculator","inputColumns":["First Param","Operator","Second Param"],"expectationColumns":["HTTP Response","Result"],"testRows":[{"inputParams":["7","+","8"],"expectedResult":{"resultValues":["200","15"]}},{"inputParams":["7","x","8"],"expectedResult":{"resultValues":["201","56"]}}]}]}"""
+    private val minifiedRawJson = """{"identifier":"JsonExample.monkeys","components":[{"type":"com.rexspecs.specs.Title","title":"An Acceptance Test"},{"type":"com.rexspecs.TabularTest","fixtureName":"Calculator","inputColumns":["First Param","Operator","Second Param"],"expectationColumns":["HTTP Response","Result"],"testRows":[{"inputParams":[{"Left":"7"},{"Left":"+"},{"Left":"8"}],"expectedResult":{"resultValues":["200","15"]}},{"inputParams":[{"Left":"7"},{"Left":"x"},{"Left":"8"}],"expectedResult":{"resultValues":["201","56"]}}]}]}"""
 
     @Test
     fun `Specs are Serialisable and Deserialisable`() {

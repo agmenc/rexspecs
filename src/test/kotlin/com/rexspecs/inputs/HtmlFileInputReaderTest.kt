@@ -1,16 +1,10 @@
 package com.rexspecs.inputs
 
-import com.rexspecs.InvalidStartingState
-import com.rexspecs.RowResult
-import com.rexspecs.TestRow
-import com.rexspecs.httpProps
-import com.rexspecs.outputs.HtmlFileOutputWriter
+import com.rexspecs.*
 import com.rexspecs.specs.*
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.jsoup.Jsoup
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.File
@@ -64,8 +58,8 @@ class HtmlFileInputReaderTest {
             listOf("First Param", "Operator", "Second Param"),
             listOf("HTTP Response", "Result"),
             listOf(
-                TestRow(listOf("7", "+", "8"), RowResult("200", "15")),
-                TestRow(listOf("7", "x", "8"), RowResult("201", "56"))
+                TestRow(eithers("7", "+", "8"), RowResult("200", "15")),
+                TestRow(eithers("7", "x", "8"), RowResult("201", "56"))
             )
         )
 
@@ -108,5 +102,26 @@ class HtmlFileInputReaderTest {
         assertThrows<InvalidStartingState>("Cannot find Rexspecs source directory [$tempRexSpecsDir/specs]") {
             HtmlFileInputReader(tempRexSpecsDir).prepareForInput()
         }
+    }
+
+    @Test
+    fun `Tables can contain nested tables as inputs`() {
+        val tableElement = Jsoup.parse(nestedInput).allElements
+            .toList()
+            .first { it.tagName() == "table" }
+
+        val expectedResult = TabularTest(
+            "Bird Counter",
+            listOf("Species", "Observed Between"),
+            listOf("Census"),
+            listOf(
+                // TODO - Expect more
+                TestRow(eithers("Blue Tit", "Time Range Start End Monday Wednesday"), RowResult("Count Type Eggs Chicks 2 1"))
+            )
+        )
+
+        val component = HtmlFileInputReader("Whatever").convertTableToTest(tableElement)
+
+        assertEquals(expectedResult, component)
     }
 }
