@@ -60,19 +60,40 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
         val testRows: List<TestRow> = table.selectXpath("tbody/tr")
             .toList()
             .map { tableRow ->
-                val cellValues: List<String> = tableRow.children().map { elem: Element -> elem.text() }
-                val (inputs, expectations) = tableRow.children()
-                    .map { elem: Element -> elem.text() }
-                    .partition { cellValues.indexOf(it) < inputNames.size }
+                val inputsAndExpectations = tableRow.children()
+                    .map { elem ->
+                        when (elem.children().size) {
+                            0 -> Either.Left(elem.text())
+                            1 -> Either.Right(
+                                convertTableToTest(
+                                    elem.children().first()
+                                        ?: throw InvalidStructure("Expected first child element to be table, but was <${elem.tagName()}>.")
+                                )
+                            )
+
+                            else -> throw InvalidStructure("Too many child elements inside <${elem.tagName()}>. Expected either String or nested <table>.")
+                        }
+                    }
+
+                    val (inputs, expectations) = split(inputsAndExpectations, inputNames.size)
 
                 TestRow(
-                    eithers(inputs),
-                    RowResult(expectations)
+                    inputs,
+                    RowResult(expectations.map { either ->
+                        when (either) {
+                            is Either.Left<String> -> either.left
+                            is Either.Right<TabularTest> -> "x"
+                        }
+                    })
                 )
             }
 
         return TabularTest(fixtureName.text(), inputNames, outputNames, testRows)
     }
+}
+
+fun <T> split(list: List<T>, splitAfter: Int): Pair<List<T>, List<T>> {
+    return Pair(list.take(splitAfter), list.drop(splitAfter))
 }
 
 class SingleHtmlFileInputReader(private val singleFile: String, rexspecsDirectory: String): HtmlFileInputReader(rexspecsDirectory) {

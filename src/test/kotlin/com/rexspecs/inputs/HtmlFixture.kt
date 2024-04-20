@@ -97,8 +97,8 @@ val nestedInput = """
                     <th>Time Range</th>
                 </tr>
                 <tr>
-                    <td class="input">Start</td>
-                    <td class="input">End</td>
+                    <th class="input">Start</th>
+                    <th class="input">End</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -116,8 +116,8 @@ val nestedInput = """
                     <th>Count Type</th>
                 </tr>
                 <tr>
-                    <td class="input">Eggs</td>
-                    <td class="input">Chicks</td>
+                    <th class="input">Eggs</th>
+                    <th class="input">Chicks</th>
                 </tr>
                 </thead>
                 <tbody>

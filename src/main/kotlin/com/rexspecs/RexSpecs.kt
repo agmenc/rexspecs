@@ -100,7 +100,6 @@ sealed class Either<out L, out R> {
 }
 
 fun eithers(vararg strings: String): List<Either.Left<String>> = strings.map { Either.Left(it) }
-fun eithers(strings: List<String>): List<Either.Left<String>> = strings.map { Either.Left(it) }
 
 @Serializable
 data class TestRow(val inputParams: List<Either<String, TabularTest>>, val expectedResult: RowResult) {
@@ -146,3 +145,4 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
 }
 
 class InvalidStartingState(message: String) : RuntimeException(message)
+class InvalidStructure(message: String) : RuntimeException(message)

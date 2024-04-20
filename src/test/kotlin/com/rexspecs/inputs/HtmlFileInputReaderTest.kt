@@ -1,6 +1,8 @@
 package com.rexspecs.inputs
 
 import com.rexspecs.*
+import com.rexspecs.Either.Left
+import com.rexspecs.Either.Right
 import com.rexspecs.specs.*
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.jsoup.Jsoup
@@ -110,13 +112,21 @@ class HtmlFileInputReaderTest {
             .toList()
             .first { it.tagName() == "table" }
 
+        val nestedInput = TabularTest(
+            "Time Range",
+            listOf("Start", "End"),
+            emptyList(),
+            listOf(
+                TestRow(eithers("Monday", "Wednesday"), RowResult())
+            )
+        )
+
         val expectedResult = TabularTest(
             "Bird Counter",
             listOf("Species", "Observed Between"),
             listOf("Census"),
             listOf(
-                // TODO - Expect more
-                TestRow(eithers("Blue Tit", "Time Range Start End Monday Wednesday"), RowResult("Count Type Eggs Chicks 2 1"))
+                TestRow(listOf(Left("Blue Tit"), Right(nestedInput)), RowResult("x"))
             )
         )
 
