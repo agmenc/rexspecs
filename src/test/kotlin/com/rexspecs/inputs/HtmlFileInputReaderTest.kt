@@ -31,8 +31,8 @@ class HtmlFileInputReaderTest {
             emptyList(),
             listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
             listOf(
-                TestRow(emptyList(), RowResult(listOf("7", "+", "8", "200", "15"))),
-                TestRow(emptyList(), RowResult(listOf("7", "x", "8", "201", "56")))
+                TestRow(emptyList(), RowResult(eithers("7", "+", "8", "200", "15"))),
+                TestRow(emptyList(), RowResult(eithers("7", "x", "8", "201", "56")))
             )
         )
 
@@ -60,8 +60,8 @@ class HtmlFileInputReaderTest {
             listOf("First Param", "Operator", "Second Param"),
             listOf("HTTP Response", "Result"),
             listOf(
-                TestRow(eithers("7", "+", "8"), RowResult("200", "15")),
-                TestRow(eithers("7", "x", "8"), RowResult("201", "56"))
+                TestRow(eithers("7", "+", "8"), RowResult(eithers("200", "15"))),
+                TestRow(eithers("7", "x", "8"), RowResult(eithers("201", "56")))
             )
         )
 
@@ -121,12 +121,21 @@ class HtmlFileInputReaderTest {
             )
         )
 
+        val nestedOutput = TabularTest(
+            "Count Type",
+            emptyList(),
+            listOf("Eggs", "Chicks"),
+            listOf(
+                TestRow(emptyList(), RowResult(eithers("2", "1")))
+            )
+        )
+
         val expectedResult = TabularTest(
             "Bird Counter",
             listOf("Species", "Observed Between"),
             listOf("Census"),
             listOf(
-                TestRow(listOf(Left("Blue Tit"), Right(nestedInput)), RowResult("x"))
+                TestRow(listOf(Left("Blue Tit"), Right(nestedInput)), RowResult(Right(nestedOutput)))
             )
         )
 

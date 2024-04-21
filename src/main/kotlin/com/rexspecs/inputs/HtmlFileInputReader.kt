@@ -79,12 +79,7 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
 
                 TestRow(
                     inputs,
-                    RowResult(expectations.map { either ->
-                        when (either) {
-                            is Either.Left<String> -> either.left
-                            is Either.Right<TabularTest> -> "x"
-                        }
-                    })
+                    RowResult(expectations)
                 )
             }
 

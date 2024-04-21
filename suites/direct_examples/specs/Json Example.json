@@ -12,8 +12,8 @@
       "expectationColumns": ["Result"],
       "testRows": [
 
-        { "inputParams": [{ "Left": "7" }, { "Left":"+"}, {"Left":"8"}], "expectedResult": { "resultValues": ["15"] } },
-        { "inputParams": [{ "Left": "7" }, { "Left":"x"}, {"Left":"8"}], "expectedResult": { "resultValues": ["56"] } }
+        { "inputParams": [{ "Left": "7" }, { "Left":"+"}, {"Left":"8"}], "expectedResult": { "resultValues": [{"Left": "15"}] } },
+        { "inputParams": [{ "Left": "7" }, { "Left":"x"}, {"Left":"8"}], "expectedResult": { "resultValues": [{"Left": "56"}] } }
       ]
     }
   ]

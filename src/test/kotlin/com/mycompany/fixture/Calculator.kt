@@ -2,6 +2,7 @@ package com.mycompany.fixture
 
 import com.app.calculate
 import com.rexspecs.Either
+import com.rexspecs.Either.Left
 import com.rexspecs.RowResult
 import com.rexspecs.connectors.Connector
 import com.rexspecs.connectors.DirectConnector
@@ -25,20 +26,20 @@ class Calculator: Fixture {
         }
 
     private fun connectDirectly(inputs: Map<String, Either<String, TabularTest>>): RowResult {
-        return RowResult(calculate(lefts(inputs).map { (k, v) -> Pair(k, v.left) }).value)
+        return RowResult(Left(calculate(lefts(inputs).map { (k, v) -> Pair(k, v.left) }).value))
     }
 
     // TODO - Make this typesafe and not awful
-    private fun lefts(inputs: Map<String, Either<String, TabularTest>>): Map<String, Either.Left<String>> {
-        return inputs.filter { (k, v) -> v is Either.Left<String> } as Map<String, Either.Left<String>>
+    private fun lefts(inputs: Map<String, Either<String, TabularTest>>): Map<String, Left<String>> {
+        return inputs.filter { (_, v) -> v is Left<String> } as Map<String, Left<String>>
     }
 
     private fun connectOverHttp(inputs: Map<String, Either<String, TabularTest>>, httpConnector: HttpConnector): RowResult {
         val request = calculatorRequestBuilder(inputs)
         val response = httpConnector.handler(request)
         return RowResult(
-            response.status.code.toString(),
-            response.body.payload.asString()
+            Left(response.status.code.toString()),
+            Left(response.body.payload.asString())
         )
     }
 

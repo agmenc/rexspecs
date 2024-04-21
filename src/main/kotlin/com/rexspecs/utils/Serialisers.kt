@@ -1,5 +1,6 @@
 package com.rexspecs.utils
 import com.rexspecs.Either
+import com.rexspecs.InvalidStructure
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -32,8 +33,8 @@ class EitherSerializer<L, R>(
         val jsonElement = decoder.decodeSerializableValue(JsonElement.serializer())
 
         return when {
+            jsonElement is JsonPrimitive -> throw InvalidStructure("Nup. JsonElement: $jsonElement")
             jsonElement.jsonObject.containsKey("Left") -> {
-
                 val reallyAString: String = jsonElement.jsonObject["Left"]?.jsonPrimitive?.content ?: "wurgle"
                 return Either.Left(reallyAString) as Either<L, R>
 

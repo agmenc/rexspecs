@@ -1,5 +1,6 @@
 package com.rexspecs
 
+import com.rexspecs.Either.Left
 import com.rexspecs.connectors.Connector
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.SpecComponent
@@ -31,7 +32,7 @@ class SpecRunner(
             .map { row ->
                 index[tabularTest.fixtureName]
                     ?. processRow(zipToMap(tabularTest, row), connector)
-                    ?: RowResult("Error: unrecognised fixture [${tabularTest.fixtureName}]")
+                    ?: RowResult(Left("Error: unrecognised fixture [${tabularTest.fixtureName}]"))
             }
     }
 

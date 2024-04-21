@@ -107,11 +107,11 @@ data class TestRow(val inputParams: List<Either<String, TabularTest>>, val expec
 }
 
 @Serializable
-data class RowResult(val resultValues: List<String>) {
+data class RowResult(val resultValues: List<Either<String, TabularTest>>) {
     fun cells() = resultValues.size
 
     companion object {
-        operator fun invoke(vararg resultValues: String) = RowResult(resultValues.toList())
+        operator fun invoke(vararg resultValues: Either<String, TabularTest>) = RowResult(resultValues.toList())
     }
 }
 

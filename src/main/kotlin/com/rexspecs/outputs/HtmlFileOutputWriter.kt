@@ -6,7 +6,6 @@ import com.rexspecs.utils.errored
 import com.rexspecs.utils.writeFile
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import org.jsoup.nodes.Node
 import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectory
@@ -59,7 +58,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             }
     }
 
-    private fun toTable(tabularTest: TabularTest, actualRowResults: List<RowResult>): Node {
+    private fun toTable(tabularTest: TabularTest, actualRowResults: List<RowResult>): Element {
         val table = Element("table")
         val header = Element("thead")
         header.appendElement("tr").appendElement("th").html(tabularTest.fixtureName)
@@ -89,7 +88,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
 
         val results = inputRow.expectedResult.resultValues
             .zip(resultRow.resultValues)
-            .map { (expected, actual) -> expectedButWas(expected, actual) }
+            .map { (expected, actual) -> compare(expected, actual) }
 
         return Element("tr").appendChildren(inputRow.inputParams.map { param ->
             when (param) {
@@ -99,7 +98,20 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         } + results)
     }
 
-    private fun expectedButWas(expected: String, actual: String): Element =
+    private fun compare(expected: Either<String, TabularTest>, actual: Either<String, TabularTest>): Element =
+        when (expected) {
+            is Either.Left -> compareStrings(expected.left, actual)
+            is Either.Right -> toTable(expected.right, listOf(RowResult(actual)))
+        }
+
+    private fun compareStrings(expected: String, actual: Either<String, TabularTest>): Element {
+        return when (actual) {
+            is Either.Left -> didTheyMatch(expected, actual.left)
+            is Either.Right -> error("Wasn't expecting a nested table here")
+        }
+    }
+
+    private fun didTheyMatch(expected: String, actual: String) =
         if (expected == actual)
             success(actual)
         else

@@ -116,8 +116,8 @@ val nestedInput = """
                     <th>Count Type</th>
                 </tr>
                 <tr>
-                    <th class="input">Eggs</th>
-                    <th class="input">Chicks</th>
+                    <th>Eggs</th>
+                    <th>Chicks</th>
                 </tr>
                 </thead>
                 <tbody>
