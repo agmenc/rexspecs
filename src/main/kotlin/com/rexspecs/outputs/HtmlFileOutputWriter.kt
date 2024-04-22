@@ -86,7 +86,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             return Element("tr").appendChildren(listOf(wideError("Number of expected results [${inputRow.expectationCount()}] does not match the number of actual results [${resultRow.cells()}]")))
         }
 
-        val results = inputRow.expectedResult.resultValues
+        val results = inputRow.expectedResults
             .zip(resultRow.resultValues)
             .map { (expected, actual) -> compare(expected, actual) }
 

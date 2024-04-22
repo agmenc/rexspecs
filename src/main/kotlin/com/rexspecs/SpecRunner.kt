@@ -26,12 +26,15 @@ class SpecRunner(
         }
     }
 
-    private fun executeTest(tabularTest: TabularTest, index: FixtureLookup): List<RowResult> {
+    private val nestingCallback: (TabularTest) -> ExecutedSpecComponent = { nested: TabularTest ->
+        ExecutedSpecComponent(nested, executeTest(nested, index))
+    }
 
+    private fun executeTest(tabularTest: TabularTest, index: FixtureLookup): List<RowResult> {
         return tabularTest.testRows
             .map { row ->
                 index[tabularTest.fixtureName]
-                    ?. processRow(zipToMap(tabularTest, row), connector)
+                    ?. processRow(zipToMap(tabularTest, row), connector, nestingCallback)
                     ?: RowResult(Left("Error: unrecognised fixture [${tabularTest.fixtureName}]"))
             }
     }

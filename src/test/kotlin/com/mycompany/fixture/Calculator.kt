@@ -3,6 +3,7 @@ package com.mycompany.fixture
 import com.app.calculate
 import com.rexspecs.Either
 import com.rexspecs.Either.Left
+import com.rexspecs.ExecutedSpecComponent
 import com.rexspecs.RowResult
 import com.rexspecs.connectors.Connector
 import com.rexspecs.connectors.DirectConnector
@@ -18,7 +19,11 @@ import java.net.URLEncoder
 
 // TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate
 class Calculator: Fixture {
-    override fun processRow(inputs: Map<String, Either<String, TabularTest>>, connector: Connector): RowResult =
+    override fun processRow(
+        inputs: Map<String, Either<String, TabularTest>>,
+        connector: Connector,
+        nestingCallback: (TabularTest) -> ExecutedSpecComponent
+    ): RowResult =
         when (connector) {
             is HttpConnector -> connectOverHttp(inputs, connector)
             is DirectConnector -> connectDirectly(inputs)

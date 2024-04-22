@@ -31,8 +31,8 @@ class HtmlFileInputReaderTest {
             emptyList(),
             listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
             listOf(
-                TestRow(emptyList(), RowResult(eithers("7", "+", "8", "200", "15"))),
-                TestRow(emptyList(), RowResult(eithers("7", "x", "8", "201", "56")))
+                TestRow(emptyList(), eithers("7", "+", "8", "200", "15")),
+                TestRow(emptyList(), eithers("7", "x", "8", "201", "56"))
             )
         )
 
@@ -60,8 +60,8 @@ class HtmlFileInputReaderTest {
             listOf("First Param", "Operator", "Second Param"),
             listOf("HTTP Response", "Result"),
             listOf(
-                TestRow(eithers("7", "+", "8"), RowResult(eithers("200", "15"))),
-                TestRow(eithers("7", "x", "8"), RowResult(eithers("201", "56")))
+                TestRow(eithers("7", "+", "8"), eithers("200", "15")),
+                TestRow(eithers("7", "x", "8"), eithers("201", "56"))
             )
         )
 
@@ -117,7 +117,7 @@ class HtmlFileInputReaderTest {
             listOf("Start", "End"),
             emptyList(),
             listOf(
-                TestRow(eithers("Monday", "Wednesday"), RowResult())
+                TestRow(eithers("Monday", "Wednesday"), emptyList())
             )
         )
 
@@ -126,7 +126,7 @@ class HtmlFileInputReaderTest {
             emptyList(),
             listOf("Eggs", "Chicks"),
             listOf(
-                TestRow(emptyList(), RowResult(eithers("2", "1")))
+                TestRow(emptyList(), eithers("2", "1"))
             )
         )
 
@@ -135,7 +135,7 @@ class HtmlFileInputReaderTest {
             listOf("Species", "Observed Between"),
             listOf("Census"),
             listOf(
-                TestRow(listOf(Left("Blue Tit"), Right(nestedInput)), RowResult(Right(nestedOutput)))
+                TestRow(listOf(Left("Blue Tit"), Right(nestedInput)), listOf(Right(nestedOutput)))
             )
         )
 

@@ -79,7 +79,7 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
 
                 TestRow(
                     inputs,
-                    RowResult(expectations)
+                    expectations
                 )
             }
 

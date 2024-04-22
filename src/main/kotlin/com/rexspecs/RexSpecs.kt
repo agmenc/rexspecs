@@ -92,6 +92,8 @@ class RexSpecs {
 
 @Serializable
 sealed class Either<out L, out R> {
+    // TODO - implement map(), mapLeft() and mapRight()
+
     @Serializable
     data class Left<out L>(val left: L) : Either<L, Nothing>()
 
@@ -102,10 +104,11 @@ sealed class Either<out L, out R> {
 fun eithers(vararg strings: String): List<Either.Left<String>> = strings.map { Either.Left(it) }
 
 @Serializable
-data class TestRow(val inputParams: List<Either<String, TabularTest>>, val expectedResult: RowResult) {
-    fun expectationCount() = expectedResult.cells()
+data class TestRow(val inputParams: List<Either<String, TabularTest>>, val expectedResults: List<Either<String, TabularTest>>) {
+    fun expectationCount() = expectedResults.size
 }
 
+// TODO - delete, in favour of a List<Either<String, TabularTest>>
 @Serializable
 data class RowResult(val resultValues: List<Either<String, TabularTest>>) {
     fun cells() = resultValues.size
@@ -136,8 +139,8 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
     // TODO: Find a fold() equivalent that returns immediately on the first false value
     private fun testSuccessful(tabularTest: TabularTest): Boolean {
         tabularTest.testRows
-            .map { it.expectedResult }
-            .zip(actualRowResults)
+            .map { it.expectedResults }
+            .zip(actualRowResults.map { it.resultValues })
             .forEach { (expected, actual) -> if (expected != actual) return false }
 
         return true
