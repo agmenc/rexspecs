@@ -32,8 +32,8 @@ class HtmlFileOutputWriterTest {
                     )
                 ),
                 listOf(
-                    RowResult(eithers("200", "15")),
-                    RowResult(eithers("400", "Unsupported operator: \"x\""))
+                    eithers("200", "15"),
+                    eithers("400", "Unsupported operator: \"x\"")
                 )
             )
         )

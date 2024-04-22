@@ -30,12 +30,12 @@ class SpecRunner(
         ExecutedSpecComponent(nested, executeTest(nested, index))
     }
 
-    private fun executeTest(tabularTest: TabularTest, index: FixtureLookup): List<RowResult> {
+    private fun executeTest(tabularTest: TabularTest, index: FixtureLookup): List<List<Either<String, TabularTest>>> {
         return tabularTest.testRows
-            .map { row ->
-                index[tabularTest.fixtureName]
-                    ?. processRow(zipToMap(tabularTest, row), connector, nestingCallback)
-                    ?: RowResult(Left("Error: unrecognised fixture [${tabularTest.fixtureName}]"))
+            .map { row: TestRow ->
+                (index[tabularTest.fixtureName]
+                    ?.processRow(zipToMap(tabularTest, row), connector, nestingCallback)
+                    ?: listOf(Left("Error: unrecognised fixture [${tabularTest.fixtureName}]")))
             }
     }
 

@@ -108,16 +108,6 @@ data class TestRow(val inputParams: List<Either<String, TabularTest>>, val expec
     fun expectationCount() = expectedResults.size
 }
 
-// TODO - delete, in favour of a List<Either<String, TabularTest>>
-@Serializable
-data class RowResult(val resultValues: List<Either<String, TabularTest>>) {
-    fun cells() = resultValues.size
-
-    companion object {
-        operator fun invoke(vararg resultValues: Either<String, TabularTest>) = RowResult(resultValues.toList())
-    }
-}
-
 data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {
     fun success(): Boolean = executedSpecs.fold(true) { allGood, nextSpec -> allGood && nextSpec.success() }
 }
@@ -126,7 +116,7 @@ data class ExecutedSpec(val identifier: String, val executedTests: List<Executed
     fun success(): Boolean = executedTests.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 
-data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRowResults: List<RowResult>) {
+data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRowResults: List<List<Either<String, TabularTest>>>) {
     fun success(): Boolean {
         return when (specComponent) {
             is TabularTest -> testSuccessful(specComponent)
@@ -140,7 +130,7 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
     private fun testSuccessful(tabularTest: TabularTest): Boolean {
         tabularTest.testRows
             .map { it.expectedResults }
-            .zip(actualRowResults.map { it.resultValues })
+            .zip(actualRowResults)
             .forEach { (expected, actual) -> if (expected != actual) return false }
 
         return true

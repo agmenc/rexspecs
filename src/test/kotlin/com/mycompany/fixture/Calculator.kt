@@ -4,7 +4,6 @@ import com.app.calculate
 import com.rexspecs.Either
 import com.rexspecs.Either.Left
 import com.rexspecs.ExecutedSpecComponent
-import com.rexspecs.RowResult
 import com.rexspecs.connectors.Connector
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
@@ -23,15 +22,15 @@ class Calculator: Fixture {
         inputs: Map<String, Either<String, TabularTest>>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): RowResult =
+    ): List<Either<String, TabularTest>> =
         when (connector) {
             is HttpConnector -> connectOverHttp(inputs, connector)
             is DirectConnector -> connectDirectly(inputs)
             else -> throw RuntimeException("Unsupported connector: $connector")
         }
 
-    private fun connectDirectly(inputs: Map<String, Either<String, TabularTest>>): RowResult {
-        return RowResult(Left(calculate(lefts(inputs).map { (k, v) -> Pair(k, v.left) }).value))
+    private fun connectDirectly(inputs: Map<String, Either<String, TabularTest>>): List<Either<String, TabularTest>> {
+        return listOf(Left(calculate(lefts(inputs).map { (k, v) -> Pair(k, v.left) }).value))
     }
 
     // TODO - Make this typesafe and not awful
@@ -39,10 +38,10 @@ class Calculator: Fixture {
         return inputs.filter { (_, v) -> v is Left<String> } as Map<String, Left<String>>
     }
 
-    private fun connectOverHttp(inputs: Map<String, Either<String, TabularTest>>, httpConnector: HttpConnector): RowResult {
+    private fun connectOverHttp(inputs: Map<String, Either<String, TabularTest>>, httpConnector: HttpConnector): List<Either<String, TabularTest>> {
         val request = calculatorRequestBuilder(inputs)
         val response = httpConnector.handler(request)
-        return RowResult(
+        return listOf(
             Left(response.status.code.toString()),
             Left(response.body.payload.asString())
         )
