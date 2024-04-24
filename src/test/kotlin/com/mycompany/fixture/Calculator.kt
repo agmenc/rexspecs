@@ -22,14 +22,14 @@ class Calculator: Fixture {
         inputs: Map<String, Either<String, TabularTest>>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): List<Either<String, TabularTest>> =
+    ): List<Either<String, ExecutedSpecComponent>> =
         when (connector) {
             is HttpConnector -> connectOverHttp(inputs, connector)
             is DirectConnector -> connectDirectly(inputs)
             else -> throw RuntimeException("Unsupported connector: $connector")
         }
 
-    private fun connectDirectly(inputs: Map<String, Either<String, TabularTest>>): List<Either<String, TabularTest>> {
+    private fun connectDirectly(inputs: Map<String, Either<String, TabularTest>>): List<Either<String, ExecutedSpecComponent>> {
         return listOf(Left(calculate(lefts(inputs).map { (k, v) -> Pair(k, v.left) }).value))
     }
 
@@ -38,7 +38,7 @@ class Calculator: Fixture {
         return inputs.filter { (_, v) -> v is Left<String> } as Map<String, Left<String>>
     }
 
-    private fun connectOverHttp(inputs: Map<String, Either<String, TabularTest>>, httpConnector: HttpConnector): List<Either<String, TabularTest>> {
+    private fun connectOverHttp(inputs: Map<String, Either<String, TabularTest>>, httpConnector: HttpConnector): List<Either<String, ExecutedSpecComponent>> {
         val request = calculatorRequestBuilder(inputs)
         val response = httpConnector.handler(request)
         return listOf(

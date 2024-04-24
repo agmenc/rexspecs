@@ -58,7 +58,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             }
     }
 
-    private fun toTable(tabularTest: TabularTest, actualRowResults: List<List<Either<String, TabularTest>>>): Element {
+    private fun toTable(tabularTest: TabularTest, actualRowResults: List<List<Either<String, ExecutedSpecComponent>>>): Element {
         val table = Element("table")
         val header = Element("thead")
         header.appendElement("tr").appendElement("th").html(tabularTest.fixtureName)
@@ -77,7 +77,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         return table.appendChild(header).appendChild(body)
     }
 
-    private fun toTableRow(inputRow: TestRow, resultRow: List<Either<String, TabularTest>>): Element {
+    private fun toTableRow(inputRow: TestRow, resultRow: List<Either<String, ExecutedSpecComponent>>): Element {
         if (inputRow.inputParams.isEmpty()) {
             return Element("tr").appendChildren(listOf(wideError("No input elements are defined for this table. Add class=\"input\" to relevant table columns.")))
         }
@@ -98,9 +98,9 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         } + results)
     }
 
-    private fun compare(expected: Either<String, TabularTest>, actual: Either<String, TabularTest>): Element =
+    private fun compare(expected: Either<String, TabularTest>, actual: Either<String, ExecutedSpecComponent>): Element =
         when (expected) {
-            is Either.Left -> compareStrings(expected.left, actual)
+            is Either.Left -> compareStrings(expected.left, Either.Left(assumeLeft(actual)))
             // TODO - hmmmmm, that second parameter shouldn't have to be double-listed
             is Either.Right -> toTable(expected.right, listOf(listOf(actual)))
         }

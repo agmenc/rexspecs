@@ -30,7 +30,7 @@ class SpecRunner(
         ExecutedSpecComponent(nested, executeTest(nested, index))
     }
 
-    private fun executeTest(tabularTest: TabularTest, index: FixtureLookup): List<List<Either<String, TabularTest>>> {
+    private fun executeTest(tabularTest: TabularTest, index: FixtureLookup): List<List<Either<String, ExecutedSpecComponent>>> {
         return tabularTest.testRows
             .map { row: TestRow ->
                 (index[tabularTest.fixtureName]

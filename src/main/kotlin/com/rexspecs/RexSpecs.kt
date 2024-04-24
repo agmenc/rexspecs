@@ -101,6 +101,27 @@ sealed class Either<out L, out R> {
     data class Right<out R>(val right: R) : Either<Nothing, R>()
 }
 
+// TODO - Combine and simplify assumeLeft and assumeRight
+fun <L, R> assumeLeft(value: Either<L, R>): L =
+    when (value) {
+        is Either.Left -> value.left
+        // TODO - log type information for L and R
+        else -> throw RuntimeException("Expected Either.Left, but was Either.Right")
+    }
+
+// TODO - Combine and simplify assumeLeft and assumeRight
+fun <L, R> assumeRight(value: Either<L, R>): R =
+    when (value) {
+        is Either.Right -> value.right
+        // TODO - log type information for L and R
+        else -> throw RuntimeException("Expected Either.Right, but was Either.Left")
+    }
+
+// TODO - Make this typesafe and not awful
+fun lefts(inputs: Map<String, Either<String, TabularTest>>): Map<String, Either.Left<String>> {
+    return inputs.filter { (_, v) -> v is Either.Left<String> } as Map<String, Either.Left<String>>
+}
+
 fun eithers(vararg strings: String): List<Either.Left<String>> = strings.map { Either.Left(it) }
 
 @Serializable
@@ -116,7 +137,7 @@ data class ExecutedSpec(val identifier: String, val executedTests: List<Executed
     fun success(): Boolean = executedTests.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 
-data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRowResults: List<List<Either<String, TabularTest>>>) {
+data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRowResults: List<List<Either<String, ExecutedSpecComponent>>>) {
     fun success(): Boolean {
         return when (specComponent) {
             is TabularTest -> testSuccessful(specComponent)

@@ -10,7 +10,7 @@ interface Fixture {
         inputs: Map<String, Either<String, TabularTest>>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): List<Either<String, TabularTest>>
+    ): List<Either<String, ExecutedSpecComponent>>
 }
 
 abstract class FixtureRegistry(private vararg val fixtures: Pair<String, Fixture>) {
