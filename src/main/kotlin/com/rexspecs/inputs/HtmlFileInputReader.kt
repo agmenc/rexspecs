@@ -37,6 +37,7 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
         .toList()
         .map { element ->
             when (element.tagName()) {
+                // TODO - Need to skip past the whole table, so that nested tables don't get processed twice
                 "table" -> convertTableToTest(element)
                 "title" -> Title(element.text())
                 "h1" -> Heading(element.text())
@@ -75,7 +76,7 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
                         }
                     }
 
-                    val (inputs, expectations) = split(inputsAndExpectations, inputNames.size)
+                val (inputs, expectations) = split(inputsAndExpectations, inputNames.size)
 
                 TestRow(
                     inputs,

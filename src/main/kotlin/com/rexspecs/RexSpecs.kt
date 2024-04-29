@@ -20,6 +20,9 @@ Benders:
     - TODO: Wire it in to something real.
     - Nested tables
     - Remove header rows from nested tables
+    - Process every cell, so that we can write back error messages and status colours in input cells. Something like:
+        - each row becomes a list of triples: Column Name, Execution results, data result
+        - at any point in row processing, we can access any processed value by Column Name
     - List Fixtures - given whatever is in the header, the results should look like all the rows
     - Real candidates:
         STACKRR - The Stack Tree Tracker. JSON over CLI.
@@ -34,6 +37,7 @@ Benders:
     -
 
 Tasks:
+    - Blow up if a row of column headers is not in a <th> (i.e. it is in a <td>). Or just support both. Whatever is easiest.
     - Suite runs should fail if there are no tests
     - Support result lists demarcated with <br/>.
     - Find any TODO and JFDI
@@ -102,7 +106,7 @@ sealed class Either<out L, out R> {
 }
 
 // TODO - Combine and simplify assumeLeft and assumeRight
-fun <L, R> assumeLeft(value: Either<L, R>): L =
+fun <L, R> assumeLeft(value: Either<L, R>?): L =
     when (value) {
         is Either.Left -> value.left
         // TODO - log type information for L and R
@@ -110,7 +114,7 @@ fun <L, R> assumeLeft(value: Either<L, R>): L =
     }
 
 // TODO - Combine and simplify assumeLeft and assumeRight
-fun <L, R> assumeRight(value: Either<L, R>): R =
+fun <L, R> assumeRight(value: Either<L, R>?): R =
     when (value) {
         is Either.Right -> value.right
         // TODO - log type information for L and R
