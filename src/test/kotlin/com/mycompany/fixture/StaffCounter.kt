@@ -26,7 +26,7 @@ class StaffCounter : Fixture {
                 val postings = DepartmentPostings(cock, result)
                 val breakdown = businessLogic(postings)
 
-                listOf(Either.Left(cock), Either.Right(executedSpecComponent))
+                listOf(Either.Left("Monkeys ate my code"))
             }
 
             else -> throw RuntimeException("Unsupported connector: $connector")

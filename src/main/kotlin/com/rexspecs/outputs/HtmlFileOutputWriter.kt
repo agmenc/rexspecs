@@ -86,18 +86,35 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             return Element("tr").appendChildren(listOf(wideError("Number of expected results [${inputRow.expectationCount()}] does not match the number of actual results [${resultRow.size}]")))
         }
 
-        val results = inputRow.expectedResults
-            .zip(resultRow)
-            .map { (expected, actual) -> compare(expected, actual) }
-
-        return Element("tr").appendChildren(inputRow.inputParams.map { param ->
+        val inputCells: List<Element> = inputRow.inputParams.map { param ->
             when (param) {
                 is Either.Left<String> -> Element("td").html(param.left)
                 is Either.Right<TabularTest> -> Element("td").html("Nested Table")
             }
-        } + results)
+        }
+
+        val resultsAndActuals: List<Pair<Either<String, TabularTest>, Either<String, ExecutedSpecComponent>>> =
+            inputRow.expectedResults.zip(resultRow)
+
+        // TODO - Missing the inputs in the generated HTML
+        val resultCells: List<Element> = resultsAndActuals.map { (expected, actual) ->
+//            println("Writing row")
+            if (expected is Either.Right && actual is Either.Right) {
+//                println("Processing nested table: ${expected.right.fixtureName}")
+                toTable(expected.right, actual.right.actualRowResults)
+            } else if (expected is Either.Left && actual is Either.Left) {
+//                println("Processing strings: ${expected.left} and ${actual.left}")
+                compare(expected, actual)
+            } else {
+//                println("Barf")
+                error("Expected and actual should both be Strings, or both be nested tables. Got: [$expected] and [$actual]")
+            }
+        }
+
+        return Element("tr").appendChildren(inputCells + resultCells)
     }
 
+    // TODO - This should be all about Strings, because nested tables will be broken down to rows and Stringly compared anyway
     private fun compare(expected: Either<String, TabularTest>, actual: Either<String, ExecutedSpecComponent>): Element =
         when (expected) {
             is Either.Left -> compareStrings(expected.left, Either.Left(assumeLeft(actual)))

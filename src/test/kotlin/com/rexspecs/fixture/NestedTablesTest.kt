@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class NestedTablesTest {
-    @Disabled
     @Test
     fun `Nested tables are processed as input and result data`() {
         RexSpecs.runSuite(
@@ -22,8 +21,8 @@ class NestedTablesTest {
             HtmlFileOutputWriter(directProps.rexspecsDirectory),
             mapOf(
                 "Staff Counter" to StaffCounter(),
-                "Time Range" to StaffDatabase(),
-                "Count Type" to StaffPivotTable()
+                "Staff" to StaffDatabase(),
+                "Breakdown" to StaffPivotTable()
             ),
             DirectConnector()
         )
