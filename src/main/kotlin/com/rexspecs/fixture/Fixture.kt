@@ -7,7 +7,7 @@ import com.rexspecs.specs.TabularTest
 
 interface Fixture {
     fun processRow(
-        inputs: Map<String, Either<String, TabularTest>>,
+        inputsAndExpectedResults: Map<String, Either<String, TabularTest>>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
     ): List<Either<String, ExecutedSpecComponent>>

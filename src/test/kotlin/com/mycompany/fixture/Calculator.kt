@@ -19,13 +19,13 @@ import java.net.URLEncoder
 // TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate
 class Calculator: Fixture {
     override fun processRow(
-        inputs: Map<String, Either<String, TabularTest>>,
+        inputsAndExpectedResults: Map<String, Either<String, TabularTest>>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
     ): List<Either<String, ExecutedSpecComponent>> =
         when (connector) {
-            is HttpConnector -> connectOverHttp(inputs, connector)
-            is DirectConnector -> connectDirectly(inputs)
+            is HttpConnector -> connectOverHttp(inputsAndExpectedResults, connector)
+            is DirectConnector -> connectDirectly(inputsAndExpectedResults)
             else -> throw RuntimeException("Unsupported connector: $connector")
         }
 
@@ -39,7 +39,10 @@ class Calculator: Fixture {
     }
 
     private fun connectOverHttp(inputs: Map<String, Either<String, TabularTest>>, httpConnector: HttpConnector): List<Either<String, ExecutedSpecComponent>> {
-        val request = calculatorRequestBuilder(inputs)
+        val request = calculatorRequestBuilder(inputs
+            .filter { (k, _) ->
+                listOf("First Param", "Operator", "Second Param").contains(k)
+            })
         val response = httpConnector.handler(request)
         return listOf(
             Left(response.status.code.toString()),

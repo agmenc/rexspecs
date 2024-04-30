@@ -11,22 +11,26 @@ import com.rexspecs.specs.TabularTest
 
 class StaffCounter : Fixture {
     override fun processRow(
-        inputs: Map<String, Either<String, TabularTest>>,
+        inputsAndExpectedResults: Map<String, Either<String, TabularTest>>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
     ): List<Either<String, ExecutedSpecComponent>> =
         when (connector) {
             is DirectConnector -> {
-                val cock: String = assumeLeft(inputs["Department"])
-                val bull: TabularTest = assumeRight(inputs["Staff"])
-                val executedSpecComponent: ExecutedSpecComponent = nestingCallback(bull)
+                val deptName: String = assumeLeft(inputsAndExpectedResults["Department"])
+                val staffRoles: TabularTest = assumeRight(inputsAndExpectedResults["Staff"])
+                val executedStaffRoles: ExecutedSpecComponent = nestingCallback(staffRoles)
 
                 // TODO - This bit next: populate the result table
-                val result = interpret(executedSpecComponent)
-                val postings = DepartmentPostings(cock, result)
+                val result = interpret(executedStaffRoles)
+                val postings = DepartmentPostings(deptName, result)
                 val breakdown = businessLogic(postings)
 
-                listOf(Either.Left("Monkeys ate my code"))
+                // TODO - use our nestingCallback to process the expected result table
+
+                listOf(
+                    Either.Right(executedStaffRoles)
+                )
             }
 
             else -> throw RuntimeException("Unsupported connector: $connector")
@@ -35,7 +39,7 @@ class StaffCounter : Fixture {
 
 class StaffDatabase: Fixture {
     override fun processRow(
-        inputs: Map<String, Either<String, TabularTest>>,
+        inputsAndExpectedResults: Map<String, Either<String, TabularTest>>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
     ): List<Either<String, ExecutedSpecComponent>> {
@@ -65,7 +69,7 @@ fun interpret(executedSpecComponent: ExecutedSpecComponent): List<Pair<String, S
 
 class StaffPivotTable: Fixture {
     override fun processRow(
-        inputs: Map<String, Either<String, TabularTest>>,
+        inputsAndExpectedResults: Map<String, Either<String, TabularTest>>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
     ): List<Either<String, ExecutedSpecComponent>> {
