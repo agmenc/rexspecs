@@ -13,13 +13,9 @@ class StaffCounter : Fixture {
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
     ): Either<String, ExecutedSpecComponent> {
-        when (value) {
-            is Either.Left -> {
-                return value
-            }
-            is Either.Right -> {
-                return Either.Right(nestingCallback(value.right))
-            }
+        return when (value) {
+            is Either.Left -> value
+            is Either.Right -> Either.Right(nestingCallback(value.right))
         }
     }
 
@@ -30,13 +26,9 @@ class StaffCounter : Fixture {
         nestingCallback: (TabularTest) -> ExecutedSpecComponent,
         rowDescriptor: RowDescriptor
     ): Either<String, ExecutedSpecComponent> {
-        when (value) {
-            is Either.Left -> {
-                return value
-            }
-            is Either.Right -> {
-                return Either.Right(nestingCallback(value.right))
-            }
+        return when (value) {
+            is Either.Left -> value
+            is Either.Right -> Either.Right(nestingCallback(value.right))
         }
     }
 
@@ -55,6 +47,7 @@ class StaffCounter : Fixture {
             return breakdown
         }
 
+        // TODO - Better null check above, so this can die
         return "Monkeys ate it again"
     }
 }
@@ -67,13 +60,9 @@ class StaffDatabase: Fixture {
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
     ): Either<String, ExecutedSpecComponent> {
-        when (value) {
-            is Either.Left -> {
-                return value
-            }
-            is Either.Right -> {
-                return Either.Right(nestingCallback(value.right))
-            }
+        return when (value) {
+            is Either.Left -> value
+            is Either.Right -> Either.Right(nestingCallback(value.right))
         }
     }
 
@@ -115,13 +104,9 @@ class StaffPivotTable: Fixture {
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
     ): Either<String, ExecutedSpecComponent> {
-        when (value) {
-            is Either.Left -> {
-                return value
-            }
-            is Either.Right -> {
-                return Either.Right(nestingCallback(value.right))
-            }
+        return when (value) {
+            is Either.Left -> value
+            is Either.Right -> Either.Right(nestingCallback(value.right))
         }
     }
 

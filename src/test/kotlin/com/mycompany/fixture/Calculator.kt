@@ -20,13 +20,9 @@ class Calculator: Fixture {
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
     ): Either<String, ExecutedSpecComponent> {
-        when (value) {
-            is Either.Left -> {
-                return value
-            }
-            is Either.Right -> {
-                return Either.Right(nestingCallback(value.right))
-            }
+        return when (value) {
+            is Either.Left -> value
+            is Either.Right -> Either.Right(nestingCallback(value.right))
         }
     }
 
@@ -51,16 +47,10 @@ class Calculator: Fixture {
 
         val result = rowDescriptor.executionResult as CalculationResult
 
-        when (columnName) {
-            "HTTP Response" -> {
-                return Either.Left(result.status.code.toString())
-            }
-            "Result" -> {
-                return Either.Left(result.value)
-            }
-            else -> {
-                return Either.Left("Unknown column name: $columnName")
-            }
+        return when (columnName) {
+            "HTTP Response" -> Either.Left(result.status.code.toString())
+            "Result" -> Either.Left(result.value)
+            else -> Either.Left("Unknown column name: $columnName")
         }
     }
 
