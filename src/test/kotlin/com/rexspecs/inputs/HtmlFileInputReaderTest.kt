@@ -6,6 +6,7 @@ import com.rexspecs.Either.Right
 import com.rexspecs.specs.*
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -108,9 +109,7 @@ class HtmlFileInputReaderTest {
 
     @Test
     fun `Tables can contain nested tables as inputs`() {
-        val tableElement = Jsoup.parse(nestedInput).allElements
-            .toList()
-            .first { it.tagName() == "table" }
+        val inputDocument: Document = Jsoup.parse(nestedInput)
 
         val nestedInput = TabularTest(
             "Time Range",
@@ -130,17 +129,25 @@ class HtmlFileInputReaderTest {
             )
         )
 
-        val expectedResult = TabularTest(
-            "Bird Counter",
-            listOf("Species", "Observed Between"),
-            listOf("Census"),
-            listOf(
-                TestRow(listOf(Left("Blue Tit"), Right(nestedInput)), listOf(Right(nestedOutput)))
+        val expectedSpecComponents = listOf(
+            Title("Nested Tables Example"),
+            Heading("Nested Tables Example"),
+            Description("Turtles, all the way down."),
+            TabularTest(
+                "Bird Counter",
+                listOf("Species", "Observed Between"),
+                listOf("Census"),
+                listOf(
+                    TestRow(
+                        listOf(Left("Blue Tit"), Right(nestedInput)),
+                        listOf(Right(nestedOutput))
+                    )
+                )
             )
         )
 
-        val component = HtmlFileInputReader("Whatever").convertTableToTest(tableElement)
+        val actualSpecComponents = HtmlFileInputReader("Whatever").htmlToSpecComponents(inputDocument)
 
-        assertEquals(expectedResult, component)
+        assertEquals(expectedSpecComponents, actualSpecComponents)
     }
 }

@@ -33,12 +33,19 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
         }
     }
 
-    private fun htmlToSpecComponents(inputDocument: Document): List<SpecComponent> = inputDocument.allElements
+    // TODO: Privatise
+    fun htmlToSpecComponents(inputDocument: Document): List<SpecComponent> = inputDocument.allElements
         .toList()
         .map { element ->
             when (element.tagName()) {
                 // TODO - Need to skip past the whole table, so that nested tables don't get processed twice
-                "table" -> convertTableToTest(element)
+                "table" -> {
+                    // TODO - Find a better way to do null checks, without having to duplicate the convertTableToTest(element) call
+                    element.parent()?.let { parent ->
+                        if (parent.tagName() == "td") Ignorable()
+                        else convertTableToTest(element)
+                    } ?: convertTableToTest(element)
+                }
                 "title" -> Title(element.text())
                 "h1" -> Heading(element.text())
                 "p" -> Description(element.text())
