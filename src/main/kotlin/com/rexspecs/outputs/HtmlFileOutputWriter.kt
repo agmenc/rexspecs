@@ -104,7 +104,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
 
         val resultCells: List<Element> = resultsAndActuals.map { (expected, actual) ->
             if (expected is Either.Right && actual is Either.Right) {
-                toTable(expected.right, actual.right.actualRowResults)
+                Element("td").appendChild(toTable(expected.right, actual.right.actualRowResults))
             } else if (expected is Either.Left && actual is Either.Left) {
                 compare(expected, actual)
             } else {
