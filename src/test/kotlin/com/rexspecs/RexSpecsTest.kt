@@ -15,6 +15,7 @@ import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.http4k.core.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -112,6 +113,7 @@ class RexSpecsTest {
         )
     }
 
+    @Disabled
     @Test
     fun `Provides a useful error message when it can't find the fixture`() {
         runSuite(

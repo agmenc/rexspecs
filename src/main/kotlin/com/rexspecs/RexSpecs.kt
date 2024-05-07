@@ -110,7 +110,7 @@ fun <L, R> assumeLeft(value: Either<L, R>?): L =
     when (value) {
         is Either.Left -> value.left
         // TODO - log type information for L and R
-        else -> throw RuntimeException("Expected Either.Left, but was Either.Right")
+        else -> throw RuntimeException("Expected Either.Left, but was ${value}")
     }
 
 // TODO - Combine and simplify assumeLeft and assumeRight
@@ -118,11 +118,11 @@ fun <L, R> assumeRight(value: Either<L, R>?): R =
     when (value) {
         is Either.Right -> value.right
         // TODO - log type information for L and R
-        else -> throw RuntimeException("Expected Either.Right, but was Either.Left")
+        else -> throw RuntimeException("Expected Either.Right, but was ${value}")
     }
 
 // TODO - Make this typesafe and not awful
-fun lefts(inputs: Map<String, Either<String, TabularTest>>): Map<String, Either.Left<String>> {
+fun <T> lefts(inputs: Map<String, Either<String, T>>): Map<String, Either.Left<String>> {
     return inputs.filter { (_, v) -> v is Either.Left<String> } as Map<String, Either.Left<String>>
 }
 
@@ -154,7 +154,7 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
     // TODO: Find a fold() equivalent that returns immediately on the first false value
     private fun testSuccessful(tabularTest: TabularTest): Boolean {
         tabularTest.testRows
-            .map { it.expectedResults }
+            .map { it.inputParams + it.expectedResults }
             .zip(actualRowResults)
             .forEach { (expected, actual) -> if (expected != actual) return false }
 
@@ -164,3 +164,7 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
 
 class InvalidStartingState(message: String) : RuntimeException(message)
 class InvalidStructure(message: String) : RuntimeException(message)
+
+fun <T> T.debugged() = also {
+    println(it)
+}

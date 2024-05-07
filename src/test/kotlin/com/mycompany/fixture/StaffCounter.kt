@@ -1,49 +1,94 @@
 package com.mycompany.fixture
 
-import com.rexspecs.Either
-import com.rexspecs.ExecutedSpecComponent
-import com.rexspecs.assumeLeft
-import com.rexspecs.assumeRight
+import com.rexspecs.*
 import com.rexspecs.connectors.Connector
-import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.fixture.Fixture
 import com.rexspecs.specs.TabularTest
 
 class StaffCounter : Fixture {
-    override fun processRow(
-        inputsAndExpectedResults: Map<String, Either<String, TabularTest>>,
+
+    override fun processInput(
+        columnName: String,
+        value: Either<String, TabularTest>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): List<Either<String, ExecutedSpecComponent>> =
-        when (connector) {
-            is DirectConnector -> {
-                val deptName: String = assumeLeft(inputsAndExpectedResults["Department"])
-                val staffRoles: TabularTest = assumeRight(inputsAndExpectedResults["Staff"])
-                val executedStaffRoles: ExecutedSpecComponent = nestingCallback(staffRoles)
+    ): Either<String, ExecutedSpecComponent> {
+        when (value) {
+            is Either.Left -> {
+                return value
+            }
+            is Either.Right -> {
+                return Either.Right(nestingCallback(value.right))
+            }
+        }
+    }
 
-                // TODO - This bit next: populate the result table
-                val result = interpret(executedStaffRoles)
-                val postings = DepartmentPostings(deptName, result)
-                val breakdown = businessLogic(postings)
+    override fun processResult(
+        columnName: String,
+        value: Either<String, TabularTest>,
+        connector: Connector,
+        nestingCallback: (TabularTest) -> ExecutedSpecComponent,
+        rowDescriptor: RowDescriptor
+    ): Either<String, ExecutedSpecComponent> {
+        when (value) {
+            is Either.Left -> {
+                return value
+            }
+            is Either.Right -> {
+                return Either.Right(nestingCallback(value.right))
+            }
+        }
+    }
 
-                // TODO - use our nestingCallback to process the expected result table
-
-                listOf(
-                    Either.Right(executedStaffRoles)
-                )
+    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Any {
+        val dept = assumeLeft(rowDescriptor.inputResults["Department"])
+        rowDescriptor.inputResults["Staff"]?.let { staffDB: Either<String, ExecutedSpecComponent> ->
+            val staffDbStrings: ExecutedSpecComponent = assumeRight(staffDB)
+            val listList = staffDbStrings.actualRowResults.map { row ->
+                val (x, y) = row.map { assumeLeft(it) }
+                Pair(x, y)
             }
 
-            else -> throw RuntimeException("Unsupported connector: $connector")
+            val postings = DepartmentPostings(dept, listList)
+            val breakdown: DepartmentBreakdown = businessLogic(postings)
+
+            return breakdown
         }
+
+        return "Monkeys ate it again"
+    }
 }
 
 class StaffDatabase: Fixture {
-    override fun processRow(
-        inputsAndExpectedResults: Map<String, Either<String, TabularTest>>,
+
+    override fun processInput(
+        columnName: String,
+        value: Either<String, TabularTest>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): List<Either<String, ExecutedSpecComponent>> {
-        return emptyList()
+    ): Either<String, ExecutedSpecComponent> {
+        when (value) {
+            is Either.Left -> {
+                return value
+            }
+            is Either.Right -> {
+                return Either.Right(nestingCallback(value.right))
+            }
+        }
+    }
+
+    override fun processResult(
+        columnName: String,
+        value: Either<String, TabularTest>,
+        connector: Connector,
+        nestingCallback: (TabularTest) -> ExecutedSpecComponent,
+        rowDescriptor: RowDescriptor
+    ): Either<String, ExecutedSpecComponent> {
+        TODO("Not required - input only")
+    }
+
+    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Any {
+        TODO("Not required - input only")
     }
 }
 
@@ -62,17 +107,35 @@ fun businessLogic(departmentPostings: DepartmentPostings): DepartmentBreakdown {
     }
 }
 
-// TODO - Make a companion on StaffDatabase?
-fun interpret(executedSpecComponent: ExecutedSpecComponent): List<Pair<String, String>> {
-    return emptyList<Pair<String, String>>()
-}
-
 class StaffPivotTable: Fixture {
-    override fun processRow(
-        inputsAndExpectedResults: Map<String, Either<String, TabularTest>>,
+
+    override fun processInput(
+        columnName: String,
+        value: Either<String, TabularTest>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): List<Either<String, ExecutedSpecComponent>> {
-        return emptyList()
+    ): Either<String, ExecutedSpecComponent> {
+        when (value) {
+            is Either.Left -> {
+                return value
+            }
+            is Either.Right -> {
+                return Either.Right(nestingCallback(value.right))
+            }
+        }
+    }
+
+    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Any {
+        return "StaffPivotTable.execute"
+    }
+
+    override fun processResult(
+        columnName: String,
+        value: Either<String, TabularTest>,
+        connector: Connector,
+        nestingCallback: (TabularTest) -> ExecutedSpecComponent,
+        rowDescriptor: RowDescriptor
+    ): Either<String, ExecutedSpecComponent> {
+        return Either.Left("StaffPivotTable.processResult")
     }
 }

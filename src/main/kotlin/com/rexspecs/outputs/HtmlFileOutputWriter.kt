@@ -78,35 +78,36 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
     }
 
     private fun toTableRow(inputRow: TestRow, resultRow: List<Either<String, ExecutedSpecComponent>>): Element {
+
+        // TODO - We probably want to compare the processing result of the input cells with the inputs themselves, so
+        //        that we can show processing errors. Then we can run a compare on all cells, further below, and ditch
+        //        this.
+        val hackyActualResults: List<Either<String, ExecutedSpecComponent>> = resultRow.drop(inputRow.inputParams.size)
+
         if (inputRow.inputParams.isEmpty()) {
             return Element("tr").appendChildren(listOf(wideError("No input elements are defined for this table. Add class=\"input\" to relevant table columns.")))
         }
 
-        if (inputRow.expectationCount() != resultRow.size) {
-            return Element("tr").appendChildren(listOf(wideError("Number of expected results [${inputRow.expectationCount()}] does not match the number of actual results [${resultRow.size}]")))
+        if (inputRow.expectationCount() != hackyActualResults.size) {
+            return Element("tr").appendChildren(listOf(wideError("Number of expected results [${inputRow.expectationCount()}] does not match the number of actual results [${hackyActualResults.size}]")))
         }
 
         val inputCells: List<Element> = inputRow.inputParams.map { param ->
             when (param) {
                 is Either.Left<String> -> Element("td").html(param.left)
-                is Either.Right<TabularTest> -> Element("td").html("Nested Table")
+                is Either.Right<TabularTest> -> Element("td").appendChild(toTable(param.right, listOf(hackyActualResults)))
             }
         }
 
         val resultsAndActuals: List<Pair<Either<String, TabularTest>, Either<String, ExecutedSpecComponent>>> =
-            inputRow.expectedResults.zip(resultRow)
+            inputRow.expectedResults.zip(hackyActualResults)
 
-        // TODO - Missing the inputs in the generated HTML
         val resultCells: List<Element> = resultsAndActuals.map { (expected, actual) ->
-//            println("Writing row")
             if (expected is Either.Right && actual is Either.Right) {
-//                println("Processing nested table: ${expected.right.fixtureName}")
                 toTable(expected.right, actual.right.actualRowResults)
             } else if (expected is Either.Left && actual is Either.Left) {
-//                println("Processing strings: ${expected.left} and ${actual.left}")
                 compare(expected, actual)
             } else {
-//                println("Barf")
                 error("Expected and actual should both be Strings, or both be nested tables. Got: [$expected] and [$actual]")
             }
         }

@@ -1,60 +1,85 @@
 package com.mycompany.fixture
 
+import com.app.CalculationResult
 import com.app.calculate
-import com.rexspecs.Either
-import com.rexspecs.Either.Left
-import com.rexspecs.ExecutedSpecComponent
+import com.rexspecs.*
 import com.rexspecs.connectors.Connector
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.fixture.Fixture
 import com.rexspecs.specs.TabularTest
 import org.http4k.asString
-import org.http4k.core.HttpMessage
-import org.http4k.core.Method
-import org.http4k.core.Request
-import org.http4k.core.Uri
+import org.http4k.core.*
 import java.net.URLEncoder
 
 // TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate
 class Calculator: Fixture {
-    override fun processRow(
-        inputsAndExpectedResults: Map<String, Either<String, TabularTest>>,
+    override fun processInput(
+        columnName: String,
+        value: Either<String, TabularTest>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): List<Either<String, ExecutedSpecComponent>> =
-        when (connector) {
-            is HttpConnector -> connectOverHttp(inputsAndExpectedResults, connector)
-            is DirectConnector -> connectDirectly(inputsAndExpectedResults)
+    ): Either<String, ExecutedSpecComponent> {
+        when (value) {
+            is Either.Left -> {
+                return value
+            }
+            is Either.Right -> {
+                return Either.Right(nestingCallback(value.right))
+            }
+        }
+    }
+
+    // TODO - Type this. No more Any. Should return a CalculationResult
+    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Any {
+        val params: List<Pair<String, String>> = lefts(rowDescriptor.inputResults).map { (k, v) -> Pair(k, v.left) }
+
+        return when (connector) {
+            is HttpConnector -> connectOverHttp(params, connector)
+            is DirectConnector -> calculate(params)
             else -> throw RuntimeException("Unsupported connector: $connector")
         }
-
-    private fun connectDirectly(inputs: Map<String, Either<String, TabularTest>>): List<Either<String, ExecutedSpecComponent>> {
-        return listOf(Left(calculate(lefts(inputs).map { (k, v) -> Pair(k, v.left) }).value))
     }
 
-    // TODO - Make this typesafe and not awful
-    private fun lefts(inputs: Map<String, Either<String, TabularTest>>): Map<String, Left<String>> {
-        return inputs.filter { (_, v) -> v is Left<String> } as Map<String, Left<String>>
+    override fun processResult(
+        columnName: String,
+        value: Either<String, TabularTest>,
+        connector: Connector,
+        nestingCallback: (TabularTest) -> ExecutedSpecComponent,
+        rowDescriptor: RowDescriptor
+    ): Either<String, ExecutedSpecComponent> {
+
+        val result = rowDescriptor.executionResult as CalculationResult
+
+        when (columnName) {
+            "HTTP Response" -> {
+                return Either.Left(result.status.code.toString())
+            }
+            "Result" -> {
+                return Either.Left(result.value)
+            }
+            else -> {
+                return Either.Left("Unknown column name: $columnName")
+            }
+        }
     }
 
-    private fun connectOverHttp(inputs: Map<String, Either<String, TabularTest>>, httpConnector: HttpConnector): List<Either<String, ExecutedSpecComponent>> {
-        val request = calculatorRequestBuilder(inputs
-            .filter { (k, _) ->
-                listOf("First Param", "Operator", "Second Param").contains(k)
-            })
-        val response = httpConnector.handler(request)
-        return listOf(
-            Left(response.status.code.toString()),
-            Left(response.body.payload.asString())
+    private fun connectOverHttp(params: List<Pair<String, String>>, httpConnector: HttpConnector): CalculationResult {
+        val request = calculatorRequestBuilder(params)
+
+        val response: Response = httpConnector.handler(request)
+
+        return CalculationResult(
+            value = response.body.payload.asString(),
+            response.status
         )
     }
 
-    private fun calculatorRequestBuilder(params: Map<String, Either<String, TabularTest>>): Request {
+    private fun calculatorRequestBuilder(newParams: List<Pair<String, String>>): Request {
         // TODO: shouldn't need to provide a URI at this point, that is the HttpConnector's job
         val uri = Uri.of("http://not-actually-a-real-host.com/")
             .path("/target")
-            .query(lefts(params).map { (k, v) -> "${encodePlus(k)}=${encodePlus(v.left)}" }.joinToString("&"))
+            .query(newParams.map { (k, v) -> "${encodePlus(k)}=${encodePlus(v)}" }.joinToString("&"))
         return Request(Method.GET, uri, version = HttpMessage.HTTP_1_1)
     }
 
