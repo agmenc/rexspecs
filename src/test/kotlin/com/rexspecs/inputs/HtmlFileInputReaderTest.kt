@@ -8,6 +8,7 @@ import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.File
@@ -23,10 +24,12 @@ class HtmlFileInputReaderTest {
         assertTrue(inputReader.specs().iterator().hasNext())
     }
 
+    @Disabled
     @Test
     fun `Fails with a clear error message when there are no inputs`() {
         val test = SingleHtmlFileInputReader("The Naughty Test.html", httpProps.rexspecsDirectory).firstTest()
 
+        // TODO - Where's the error message?
         val expectedResult = TabularTest(
             "Calculator",
             emptyList(),

@@ -37,30 +37,33 @@ class SpecRunner(
         index: FixtureLookup,
         rowDescriptor: RowDescriptor
     ): List<List<Either<String, ExecutedSpecComponent>>> {
+//        println("Running TabularTest: ${tabularTest.fixtureName}")
         return tabularTest.testRows
             .map { row: TestRow ->
                 if (!index.containsKey(tabularTest.fixtureName)) {
                     listOf(Left("Error: unrecognised fixture [${tabularTest.fixtureName}]"))
                 } else {
+                    // TODO - !!
                     val fixture: Fixture = index[tabularTest.fixtureName]!!
                     val columnValues: Map<String, Either<String, TabularTest>> = zipToMap(tabularTest, row)
 
                     val processedRow: RowDescriptor = columnValues.toList()
                         .fold(rowDescriptor) { acc, (columnName, value: Either<String, TabularTest>) ->
                             if (acc.inputColumns.contains(columnName)) {
-//                                println("Processing input ${columnName}")
-                                acc + Pair(
+                                println("Processing input ${columnName}")
+                                val inputResultAcc = acc + Pair(
                                     columnName,
                                     fixture.processInput(columnName, value, connector, nestingCallback)
                                 )
+
+                                // TODO - Better test, to check that all the input columns have been processed
+                                if (inputResultAcc.inputResults.size == acc.inputColumns.size) {
+//                                    println("Executing after column [${columnName}] with rowDescriptor = ${acc}")
+                                    val executionResult = fixture.execute(inputResultAcc, connector)
+                                    inputResultAcc.copy(executionResult = executionResult)
+                                } else inputResultAcc
                             } else if (acc.expectationColumns.contains(columnName)) {
-
-                                val newAcc = if (acc.executionResult == null) {
-//                                    println("Executing [${columnName}] with rowDescriptor = ${acc}")
-                                    val executionResult = fixture.execute(acc, connector)
-
-                                    acc.copy(executionResult = executionResult)
-                                } else acc
+                                val newAcc = acc
 
 //                                println("Processing result [${columnName}] with rowDescriptor = ${newAcc}")
                                 newAcc + Pair(

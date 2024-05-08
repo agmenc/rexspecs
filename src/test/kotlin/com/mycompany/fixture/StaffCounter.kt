@@ -30,9 +30,8 @@ class StaffCounter : Fixture {
             }
 
             val postings = DepartmentPostings(dept, listList)
-            val breakdown: DepartmentBreakdown = businessLogic(postings)
 
-            return breakdown
+            return calculateDepartmentBreakdown(postings)
         }
 
         // TODO - Better null check above, so this can die
@@ -41,6 +40,10 @@ class StaffCounter : Fixture {
 }
 
 class StaffDatabase: Fixture {
+
+    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Any {
+        TODO("Not required - input only")
+    }
 
     override fun processResult(
         columnName: String,
@@ -51,16 +54,12 @@ class StaffDatabase: Fixture {
     ): Either<String, ExecutedSpecComponent> {
         TODO("Not required - input only")
     }
-
-    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Any {
-        TODO("Not required - input only")
-    }
 }
 
 data class DepartmentPostings(val department: String, val staffRoles: List<Pair<String, String>>)
 data class DepartmentBreakdown(val department: String, val staffTally: Map<String, Int>)
 
-fun businessLogic(departmentPostings: DepartmentPostings): DepartmentBreakdown {
+fun calculateDepartmentBreakdown(departmentPostings: DepartmentPostings): DepartmentBreakdown =
     with (departmentPostings) {
         return staffRoles.fold(DepartmentBreakdown(department, emptyMap())) { acc, (role: String, _: String) ->
             acc.staffTally[role]?.let {
@@ -70,12 +69,11 @@ fun businessLogic(departmentPostings: DepartmentPostings): DepartmentBreakdown {
             } ?: acc
         }
     }
-}
 
 class StaffPivotTable: Fixture {
 
     override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Any {
-
+//        println("rowDescriptor = ${rowDescriptor}")
         return "StaffPivotTable.execute"
     }
 
@@ -86,7 +84,6 @@ class StaffPivotTable: Fixture {
         nestingCallback: (TabularTest) -> ExecutedSpecComponent,
         rowDescriptor: RowDescriptor
     ): Either<String, ExecutedSpecComponent> {
-
         return Either.Left("StaffPivotTable.processResult")
     }
 }
