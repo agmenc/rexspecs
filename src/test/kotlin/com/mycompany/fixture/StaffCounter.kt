@@ -7,18 +7,6 @@ import com.rexspecs.specs.TabularTest
 
 class StaffCounter : Fixture {
 
-    override fun processInput(
-        columnName: String,
-        value: Either<String, TabularTest>,
-        connector: Connector,
-        nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): Either<String, ExecutedSpecComponent> {
-        return when (value) {
-            is Either.Left -> value
-            is Either.Right -> Either.Right(nestingCallback(value.right))
-        }
-    }
-
     override fun processResult(
         columnName: String,
         value: Either<String, TabularTest>,
@@ -54,18 +42,6 @@ class StaffCounter : Fixture {
 
 class StaffDatabase: Fixture {
 
-    override fun processInput(
-        columnName: String,
-        value: Either<String, TabularTest>,
-        connector: Connector,
-        nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): Either<String, ExecutedSpecComponent> {
-        return when (value) {
-            is Either.Left -> value
-            is Either.Right -> Either.Right(nestingCallback(value.right))
-        }
-    }
-
     override fun processResult(
         columnName: String,
         value: Either<String, TabularTest>,
@@ -98,19 +74,8 @@ fun businessLogic(departmentPostings: DepartmentPostings): DepartmentBreakdown {
 
 class StaffPivotTable: Fixture {
 
-    override fun processInput(
-        columnName: String,
-        value: Either<String, TabularTest>,
-        connector: Connector,
-        nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): Either<String, ExecutedSpecComponent> {
-        return when (value) {
-            is Either.Left -> value
-            is Either.Right -> Either.Right(nestingCallback(value.right))
-        }
-    }
-
     override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Any {
+
         return "StaffPivotTable.execute"
     }
 
@@ -121,6 +86,7 @@ class StaffPivotTable: Fixture {
         nestingCallback: (TabularTest) -> ExecutedSpecComponent,
         rowDescriptor: RowDescriptor
     ): Either<String, ExecutedSpecComponent> {
+
         return Either.Left("StaffPivotTable.processResult")
     }
 }

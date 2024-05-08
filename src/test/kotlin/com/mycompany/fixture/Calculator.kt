@@ -14,18 +14,6 @@ import java.net.URLEncoder
 
 // TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate
 class Calculator: Fixture {
-    override fun processInput(
-        columnName: String,
-        value: Either<String, TabularTest>,
-        connector: Connector,
-        nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): Either<String, ExecutedSpecComponent> {
-        return when (value) {
-            is Either.Left -> value
-            is Either.Right -> Either.Right(nestingCallback(value.right))
-        }
-    }
-
     // TODO - Type this. No more Any. Should return a CalculationResult
     override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Any {
         val params: List<Pair<String, String>> = lefts(rowDescriptor.inputResults).map { (k, v) -> Pair(k, v.left) }

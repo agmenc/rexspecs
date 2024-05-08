@@ -12,7 +12,12 @@ interface Fixture {
         value: Either<String, TabularTest>,
         connector: Connector,
         nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): Either<String, ExecutedSpecComponent>
+    ): Either<String, ExecutedSpecComponent> {
+        return when (value) {
+            is Either.Left -> value
+            is Either.Right -> Either.Right(nestingCallback(value.right))
+        }
+    }
 
     fun processResult(
         columnName: String,
