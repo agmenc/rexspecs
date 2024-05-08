@@ -1,6 +1,5 @@
 package com.rexspecs
 
-import com.rexspecs.Either.Left
 import com.rexspecs.connectors.Connector
 import com.rexspecs.fixture.Fixture
 import com.rexspecs.specs.Spec
@@ -41,7 +40,7 @@ class SpecRunner(
         return tabularTest.testRows
             .map { row: TestRow ->
                 if (!index.containsKey(tabularTest.fixtureName)) {
-                    listOf(Left("Error: unrecognised fixture [${tabularTest.fixtureName}]"))
+                    listOf(Either.Left("Error: unrecognised fixture [${tabularTest.fixtureName}]"))
                 } else {
                     // TODO - !!
                     val fixture: Fixture = index[tabularTest.fixtureName]!!
@@ -50,7 +49,7 @@ class SpecRunner(
                     val processedRow: RowDescriptor = columnValues.toList()
                         .fold(rowDescriptor) { acc, (columnName, value: Either<String, TabularTest>) ->
                             if (acc.inputColumns.contains(columnName)) {
-                                println("Processing input ${columnName}")
+//                                println("Processing input ${columnName}")
                                 val inputResultAcc = acc + Pair(
                                     columnName,
                                     fixture.processInput(columnName, value, connector, nestingCallback)
@@ -58,18 +57,16 @@ class SpecRunner(
 
                                 // TODO - Better test, to check that all the input columns have been processed
                                 if (inputResultAcc.inputResults.size == acc.inputColumns.size) {
-//                                    println("Executing after column [${columnName}] with rowDescriptor = ${acc}")
-                                    val executionResult = fixture.execute(inputResultAcc, connector)
+//                                    println("Executing after column [${columnName}] with rowDescriptor = ${inputResultAcc}")
+
+                                    // TODO - Don't need executionResult, just make these the expectationResults, all in a dump here, and can the call to Fixture.processResult()
+                                    val executionResult: Map<String, Either<String, ExecutedSpecComponent>> = fixture.execute(inputResultAcc, connector)
                                     inputResultAcc.copy(executionResult = executionResult)
                                 } else inputResultAcc
                             } else if (acc.expectationColumns.contains(columnName)) {
-                                val newAcc = acc
-
-//                                println("Processing result [${columnName}] with rowDescriptor = ${newAcc}")
-                                newAcc + Pair(
-                                    columnName,
-                                    fixture.processResult(columnName, value, connector, nestingCallback, newAcc)
-                                )
+                                val columnResult = acc.executionResult?.get(columnName)
+                                    ?: Either.Left("No result for column $columnName")
+                                acc + Pair(columnName, columnResult)
                             } else {
                                 throw RuntimeException("Column [${columnName}] is not in inputColumns or expectationColumns")
                             }
@@ -90,7 +87,7 @@ data class RowDescriptor(
     val expectationColumns: List<String>,
     val inputResults: Map<String, Either<String, ExecutedSpecComponent>>,
     val expectationResults: Map<String, Either<String, ExecutedSpecComponent>>,
-    val executionResult: Any? = null
+    val executionResult: Map<String, Either<String, ExecutedSpecComponent>>? = null
 ) {
     operator fun plus(pair: Pair<String, Either<String, ExecutedSpecComponent>>): RowDescriptor {
         return when {

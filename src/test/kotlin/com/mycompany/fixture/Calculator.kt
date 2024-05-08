@@ -11,18 +11,37 @@ import com.rexspecs.specs.TabularTest
 import org.http4k.asString
 import org.http4k.core.*
 import java.net.URLEncoder
-
 // TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate
 class Calculator: Fixture {
     // TODO - Type this. No more Any. Should return a CalculationResult
-    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Any {
+    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Map<String, Either<String, ExecutedSpecComponent>> {
         val params: List<Pair<String, String>> = lefts(rowDescriptor.inputResults).map { (k, v) -> Pair(k, v.left) }
 
         return when (connector) {
             is HttpConnector -> connectOverHttp(params, connector)
-            is DirectConnector -> calculate(params)
+            is DirectConnector -> connectDirectly(params)
             else -> throw RuntimeException("Unsupported connector: $connector")
         }
+    }
+
+    private fun connectDirectly(params: List<Pair<String, String>>): Map<String, Either<String, ExecutedSpecComponent>> {
+        val calculate: CalculationResult = calculate(params)
+
+        return mapOf(
+            "HTTP Response" to Either.Left("200"),
+            "Result" to Either.Left(calculate.value)
+        )
+    }
+
+    private fun connectOverHttp(params: List<Pair<String, String>>, httpConnector: HttpConnector): Map<String, Either<String, ExecutedSpecComponent>> {
+        val request = calculatorRequestBuilder(params)
+
+        val response: Response = httpConnector.handler(request)
+
+        return mapOf(
+            "HTTP Response" to Either.Left(response.status.code.toString()),
+            "Result" to Either.Left(response.bodyString())
+        )
     }
 
     override fun processResult(
@@ -33,6 +52,8 @@ class Calculator: Fixture {
         rowDescriptor: RowDescriptor
     ): Either<String, ExecutedSpecComponent> {
 
+        // TODO - Specs are the world of Strings. We don't need CalculationResult
+
         val result = rowDescriptor.executionResult as CalculationResult
 
         return when (columnName) {
@@ -40,17 +61,6 @@ class Calculator: Fixture {
             "Result" -> Either.Left(result.value)
             else -> Either.Left("Unknown column name: $columnName")
         }
-    }
-
-    private fun connectOverHttp(params: List<Pair<String, String>>, httpConnector: HttpConnector): CalculationResult {
-        val request = calculatorRequestBuilder(params)
-
-        val response: Response = httpConnector.handler(request)
-
-        return CalculationResult(
-            value = response.body.payload.asString(),
-            response.status
-        )
     }
 
     private fun calculatorRequestBuilder(newParams: List<Pair<String, String>>): Request {
@@ -64,3 +74,4 @@ class Calculator: Fixture {
     // TODO Should this be done for free by RexSpec?
     private fun encodePlus(param: String) = URLEncoder.encode(param, "UTF-8")
 }
+
