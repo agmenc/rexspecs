@@ -8,13 +8,16 @@ import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.fixture.Fixture
 import com.rexspecs.specs.TabularTest
-import org.http4k.asString
 import org.http4k.core.*
 import java.net.URLEncoder
 // TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate
 class Calculator: Fixture {
     // TODO - Type this. No more Any. Should return a CalculationResult
-    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Map<String, Either<String, ExecutedSpecComponent>> {
+    override fun execute(
+        rowDescriptor: RowDescriptor,
+        connector: Connector,
+        columnValues: Map<String, Either<String, TabularTest>>
+    ): Map<String, Either<String, ExecutedSpecComponent>> {
         val params: List<Pair<String, String>> = lefts(rowDescriptor.inputResults).map { (k, v) -> Pair(k, v.left) }
 
         return when (connector) {

@@ -7,6 +7,35 @@ import com.rexspecs.specs.TabularTest
 
 class StaffCounter : Fixture {
 
+    override fun execute(
+        rowDescriptor: RowDescriptor,
+        connector: Connector,
+        columnValues: Map<String, Either<String, TabularTest>>
+    ): Map<String, Either<String, ExecutedSpecComponent>> {
+        val dept = assumeLeft(rowDescriptor.inputResults["Department"])
+        return rowDescriptor.inputResults["Staff"]?.let { staffDB: Either<String, ExecutedSpecComponent> ->
+            val staffDbStrings: ExecutedSpecComponent = assumeRight(staffDB)
+            val staffRoles = staffDbStrings.actualRowResults.map { row ->
+                val (x, y) = row.map { assumeLeft(it) }
+                Posting(x, y)
+            }
+
+            val calculatedDepartmentBreakdown: DepartmentBreakdown =
+                calculateDepartmentBreakdown(DepartmentPostings(dept, staffRoles))
+
+            // TODO - Don't need DepartmentPostings or DepartmentBreakdown, just tally up each role
+            val specComp = ExecutedSpecComponent(
+                assumeRight(columnValues["Breakdown"]),
+                calculatedDepartmentBreakdown.staffTally.entries.map { (role: String, tally: Int) ->
+                    listOf(Either.Left(role), Either.Left(tally.toString()))
+                })
+
+            mapOf(
+                "Breakdown" to Either.Right(specComp)
+            )
+        } ?: mapOf("Breakdown" to Either.Left("Monkeys ate it again"))
+    }
+
     override fun processResult(
         columnName: String,
         value: Either<String, TabularTest>,
@@ -19,28 +48,15 @@ class StaffCounter : Fixture {
             is Either.Right -> Either.Right(nestingCallback(value.right))
         }
     }
-
-    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Map<String, Either<String, ExecutedSpecComponent>> {
-        val dept = assumeLeft(rowDescriptor.inputResults["Department"])
-        return rowDescriptor.inputResults["Staff"]?.let { staffDB: Either<String, ExecutedSpecComponent> ->
-            val staffDbStrings: ExecutedSpecComponent = assumeRight(staffDB)
-            val staffRoles = staffDbStrings.actualRowResults.map { row ->
-                val (x, y) = row.map { assumeLeft(it) }
-                Posting(x, y)
-            }
-
-            val calculateDepartmentBreakdown: DepartmentBreakdown = calculateDepartmentBreakdown(DepartmentPostings(dept, staffRoles))
-
-            mapOf(
-                "Breakdown" to Either.Left("Need to convert a tally into a nested table structure")
-            )
-        } ?: mapOf("Breakdown" to Either.Left("Monkeys ate it again"))
-    }
 }
 
 class StaffDatabase: Fixture {
 
-    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Map<String, Either<String, ExecutedSpecComponent>> {
+    override fun execute(
+        rowDescriptor: RowDescriptor,
+        connector: Connector,
+        columnValues: Map<String, Either<String, TabularTest>>
+    ): Map<String, Either<String, ExecutedSpecComponent>> {
         return mapOf(
             "Staff" to Either.Left("StaffDatabase.execute is not yet implemented. Should this be a null op?")
         )
@@ -61,20 +77,25 @@ data class Posting(val name: String, val role: String)
 data class DepartmentPostings(val department: String, val staffRolls: List<Posting>)
 data class DepartmentBreakdown(val department: String, val staffTally: Map<String, Int>)
 
-fun calculateDepartmentBreakdown(departmentPostings: DepartmentPostings): DepartmentBreakdown =
-    with (departmentPostings) {
-        return staffRolls.fold(DepartmentBreakdown(department, emptyMap())) { acc, (role: String, _: String) ->
+fun calculateDepartmentBreakdown(departmentPostings: DepartmentPostings): DepartmentBreakdown {
+    with(departmentPostings) {
+        return staffRolls.fold(DepartmentBreakdown(department, emptyMap())) { acc, (name: String, role: String) ->
             acc.staffTally[role]?.let {
-                acc.copy(staffTally = acc.staffTally.map { (k: String, v: Int)  ->
-                    if (k == role) Pair(k, v+1) else Pair(k, v)
+                acc.copy(staffTally = acc.staffTally.map { (tallyRole: String, tallyCount: Int) ->
+                    if (tallyRole == role) Pair(tallyRole, tallyCount + 1) else Pair(tallyRole, tallyCount)
                 }.toMap())
-            } ?: acc
+            } ?: acc.copy(staffTally = acc.staffTally + Pair(role, 1))
         }
     }
+}
 
 class StaffPivotTable: Fixture {
 
-    override fun execute(rowDescriptor: RowDescriptor, connector: Connector): Map<String, Either<String, ExecutedSpecComponent>> {
+    override fun execute(
+        rowDescriptor: RowDescriptor,
+        connector: Connector,
+        columnValues: Map<String, Either<String, TabularTest>>
+    ): Map<String, Either<String, ExecutedSpecComponent>> {
         println("StaffPivotTable.execute() ==> rowDescriptor = ${rowDescriptor}")
         return mapOf(
             "StaffPivotTable" to Either.Left("StaffPivotTable.execute is also not yet implemented")

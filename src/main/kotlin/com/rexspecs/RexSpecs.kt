@@ -165,6 +165,13 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
 class InvalidStartingState(message: String) : RuntimeException(message)
 class InvalidStructure(message: String) : RuntimeException(message)
 
+@Deprecated("Remove usages before commit", ReplaceWith(""))
 fun <T> T.debugged() = also {
     println(it)
 }
+
+@Deprecated("Remove usages before commit", ReplaceWith(""))
+fun <T> T.printed() = also(::println)
+
+@Deprecated("Remove usages before commit", ReplaceWith(""))
+fun <T> T.printed(blah: String) = also { println(blah) }

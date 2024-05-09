@@ -27,7 +27,11 @@ interface Fixture {
         rowDescriptor: RowDescriptor
     ): Either<String, ExecutedSpecComponent>
 
-    fun execute(rowDescriptor: RowDescriptor, connector: Connector): Map<String, Either<String, ExecutedSpecComponent>>
+    fun execute(
+        rowDescriptor: RowDescriptor,
+        connector: Connector,
+        columnValues: Map<String, Either<String, TabularTest>>
+    ): Map<String, Either<String, ExecutedSpecComponent>>
 }
 
 abstract class FixtureRegistry(private vararg val fixtures: Pair<String, Fixture>) {

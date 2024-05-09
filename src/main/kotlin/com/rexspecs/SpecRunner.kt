@@ -49,7 +49,6 @@ class SpecRunner(
                     val processedRow: RowDescriptor = columnValues.toList()
                         .fold(rowDescriptor) { acc, (columnName, value: Either<String, TabularTest>) ->
                             if (acc.inputColumns.contains(columnName)) {
-//                                println("Processing input ${columnName}")
                                 val inputResultAcc = acc + Pair(
                                     columnName,
                                     fixture.processInput(columnName, value, connector, nestingCallback)
@@ -57,10 +56,8 @@ class SpecRunner(
 
                                 // TODO - Better test, to check that all the input columns have been processed
                                 if (inputResultAcc.inputResults.size == acc.inputColumns.size) {
-//                                    println("Executing after column [${columnName}] with rowDescriptor = ${inputResultAcc}")
-
                                     // TODO - Don't need executionResult, just make these the expectationResults, all in a dump here, and can the call to Fixture.processResult()
-                                    val executionResult: Map<String, Either<String, ExecutedSpecComponent>> = fixture.execute(inputResultAcc, connector)
+                                    val executionResult: Map<String, Either<String, ExecutedSpecComponent>> = fixture.execute(inputResultAcc, connector, columnValues)
                                     inputResultAcc.copy(executionResult = executionResult)
                                 } else inputResultAcc
                             } else if (acc.expectationColumns.contains(columnName)) {
