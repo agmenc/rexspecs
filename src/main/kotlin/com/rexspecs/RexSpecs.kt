@@ -151,14 +151,11 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
         }
     }
 
-    // TODO: Find a fold() equivalent that returns immediately on the first false value
     private fun testSuccessful(tabularTest: TabularTest): Boolean {
         tabularTest.testRows
             .map { it.inputParams + it.expectedResults }
             .zip(actualRowResults)
-            .forEach { (expected, actual) -> if (expected != actual) return false }
-
-        return true
+            .find { (expected, actual) -> expected != actual }?.let { return false } ?: return true
     }
 }
 

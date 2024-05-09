@@ -89,8 +89,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         }
 
         if (inputRow.expectationCount() != hackyActualResults.size) {
-            debugged()
-//            return Element("tr").appendChildren(listOf(wideError("Number of expected results [${inputRow.expectationCount()}] does not match the number of actual results [${hackyActualResults.size}]")))
+            return Element("tr").appendChildren(listOf(wideError("Number of expected results [${inputRow.expectationCount()}] does not match the number of actual results [${hackyActualResults.size}]")))
         }
 
         val inputCells: List<Element> = inputRow.inputParams.map { param ->
