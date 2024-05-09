@@ -19,14 +19,6 @@ interface Fixture {
         }
     }
 
-    fun processResult(
-        columnName: String,
-        value: Either<String, TabularTest>,
-        connector: Connector,
-        nestingCallback: (TabularTest) -> ExecutedSpecComponent,
-        rowDescriptor: RowDescriptor
-    ): Either<String, ExecutedSpecComponent>
-
     fun execute(
         rowDescriptor: RowDescriptor,
         connector: Connector,

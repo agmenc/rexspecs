@@ -36,18 +36,6 @@ class StaffCounter : Fixture {
         } ?: mapOf("Breakdown" to Either.Left("Monkeys ate it again"))
     }
 
-    override fun processResult(
-        columnName: String,
-        value: Either<String, TabularTest>,
-        connector: Connector,
-        nestingCallback: (TabularTest) -> ExecutedSpecComponent,
-        rowDescriptor: RowDescriptor
-    ): Either<String, ExecutedSpecComponent> {
-        return when (value) {
-            is Either.Left -> value
-            is Either.Right -> Either.Right(nestingCallback(value.right))
-        }
-    }
 }
 
 class StaffDatabase: Fixture {
@@ -62,15 +50,6 @@ class StaffDatabase: Fixture {
         )
     }
 
-    override fun processResult(
-        columnName: String,
-        value: Either<String, TabularTest>,
-        connector: Connector,
-        nestingCallback: (TabularTest) -> ExecutedSpecComponent,
-        rowDescriptor: RowDescriptor
-    ): Either<String, ExecutedSpecComponent> {
-        TODO("Not required - input only")
-    }
 }
 
 data class Posting(val name: String, val role: String)
@@ -102,16 +81,4 @@ class StaffPivotTable: Fixture {
         )
     }
 
-    override fun processResult(
-        columnName: String,
-        value: Either<String, TabularTest>,
-        connector: Connector,
-        nestingCallback: (TabularTest) -> ExecutedSpecComponent,
-        rowDescriptor: RowDescriptor
-    ): Either<String, ExecutedSpecComponent> {
-        return when (value) {
-            is Either.Left -> value
-            is Either.Right -> Either.Right(nestingCallback(value.right))
-        }
-    }
 }

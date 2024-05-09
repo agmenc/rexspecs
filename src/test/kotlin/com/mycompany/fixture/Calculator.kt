@@ -31,7 +31,6 @@ class Calculator: Fixture {
         val calculate: CalculationResult = calculate(params)
 
         return mapOf(
-            "HTTP Response" to Either.Left("200"),
             "Result" to Either.Left(calculate.value)
         )
     }
@@ -45,25 +44,6 @@ class Calculator: Fixture {
             "HTTP Response" to Either.Left(response.status.code.toString()),
             "Result" to Either.Left(response.bodyString())
         )
-    }
-
-    override fun processResult(
-        columnName: String,
-        value: Either<String, TabularTest>,
-        connector: Connector,
-        nestingCallback: (TabularTest) -> ExecutedSpecComponent,
-        rowDescriptor: RowDescriptor
-    ): Either<String, ExecutedSpecComponent> {
-
-        // TODO - Specs are the world of Strings. We don't need CalculationResult
-
-        val result = rowDescriptor.executionResult as CalculationResult
-
-        return when (columnName) {
-            "HTTP Response" -> Either.Left(result.status.code.toString())
-            "Result" -> Either.Left(result.value)
-            else -> Either.Left("Unknown column name: $columnName")
-        }
     }
 
     private fun calculatorRequestBuilder(newParams: List<Pair<String, String>>): Request {

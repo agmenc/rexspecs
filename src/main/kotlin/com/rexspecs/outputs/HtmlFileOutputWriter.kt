@@ -89,7 +89,8 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         }
 
         if (inputRow.expectationCount() != hackyActualResults.size) {
-            return Element("tr").appendChildren(listOf(wideError("Number of expected results [${inputRow.expectationCount()}] does not match the number of actual results [${hackyActualResults.size}]")))
+            debugged()
+//            return Element("tr").appendChildren(listOf(wideError("Number of expected results [${inputRow.expectationCount()}] does not match the number of actual results [${hackyActualResults.size}]")))
         }
 
         val inputCells: List<Element> = inputRow.inputParams.map { param ->
@@ -98,6 +99,8 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
                 is Either.Right<TabularTest> -> Element("td").appendChild(toTable(param.right, listOf(hackyActualResults)))
             }
         }
+
+        // TODO - Just compare inputRow with resultsRow? Forget the hackyActualResults.
 
         val resultsAndActuals: List<Pair<Either<String, TabularTest>, Either<String, ExecutedSpecComponent>>> =
             inputRow.expectedResults.zip(hackyActualResults)
@@ -108,7 +111,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             } else if (expected is Either.Left && actual is Either.Left) {
                 compare(expected, actual)
             } else {
-                error("Expected and actual should both be Strings, or both be nested tables. Got: [$expected] and [$actual]")
+                error("Expected and actual should both be Strings, or both be nested tables.<br/>Expected: [$expected]<br/>Actual: [$actual]")
             }
         }
 

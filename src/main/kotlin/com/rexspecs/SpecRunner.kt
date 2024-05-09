@@ -36,7 +36,6 @@ class SpecRunner(
         index: FixtureLookup,
         rowDescriptor: RowDescriptor
     ): List<List<Either<String, ExecutedSpecComponent>>> {
-//        println("Running TabularTest: ${tabularTest.fixtureName}")
         return tabularTest.testRows
             .map { row: TestRow ->
                 if (!index.containsKey(tabularTest.fixtureName)) {
@@ -58,12 +57,10 @@ class SpecRunner(
                                 if (inputResultAcc.inputResults.size == acc.inputColumns.size) {
                                     // TODO - Don't need executionResult, just make these the expectationResults, all in a dump here, and can the call to Fixture.processResult()
                                     val executionResult: Map<String, Either<String, ExecutedSpecComponent>> = fixture.execute(inputResultAcc, connector, columnValues)
-                                    inputResultAcc.copy(executionResult = executionResult)
+                                    inputResultAcc.copy(expectationResults = executionResult)
                                 } else inputResultAcc
                             } else if (acc.expectationColumns.contains(columnName)) {
-                                val columnResult = acc.executionResult?.get(columnName)
-                                    ?: Either.Left("No result for column $columnName")
-                                acc + Pair(columnName, columnResult)
+                                acc
                             } else {
                                 throw RuntimeException("Column [${columnName}] is not in inputColumns or expectationColumns")
                             }
