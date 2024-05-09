@@ -1,8 +1,6 @@
 package com.rexspecs.inputs
 
 import com.rexspecs.*
-import com.rexspecs.Either.Left
-import com.rexspecs.Either.Right
 import com.rexspecs.specs.*
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.jsoup.Jsoup
@@ -64,8 +62,22 @@ class HtmlFileInputReaderTest {
             listOf("First Param", "Operator", "Second Param"),
             listOf("HTTP Response", "Result"),
             listOf(
-                TestRow(eithers("7", "+", "8"), eithers("200", "15")),
-                TestRow(eithers("7", "x", "8"), eithers("201", "56"))
+                TestRow(
+                    3,
+                    "First Param" to "7",
+                    "Operator" to "+",
+                    "Second Param" to "8",
+                    "HTTP Response" to "200",
+                    "Result" to "15"
+                ),
+                TestRow(
+                    3,
+                    "First Param" to "7",
+                    "Operator" to "x",
+                    "Second Param" to "8",
+                    "HTTP Response" to "201",
+                    "Result" to "56"
+                )
             )
         )
 
@@ -119,7 +131,11 @@ class HtmlFileInputReaderTest {
             listOf("Start", "End"),
             emptyList(),
             listOf(
-                TestRow(eithers("Monday", "Wednesday"), emptyList())
+                TestRow(
+                    eithers("Monday", "Wednesday"),
+                    emptyList(),
+                    mapOf("Start" to Either.Left("Monday"), "End" to Either.Left("Wednesday"))
+                )
             )
         )
 
@@ -128,7 +144,11 @@ class HtmlFileInputReaderTest {
             emptyList(),
             listOf("Eggs", "Chicks"),
             listOf(
-                TestRow(emptyList(), eithers("2", "1"))
+                TestRow(
+                    emptyList(),
+                    eithers("2", "1"),
+                    mapOf("Eggs" to Either.Left("2"), "Chicks" to Either.Left("1"))
+                )
             )
         )
 
@@ -142,8 +162,9 @@ class HtmlFileInputReaderTest {
                 listOf("Census"),
                 listOf(
                     TestRow(
-                        listOf(Left("Blue Tit"), Right(nestedInput)),
-                        listOf(Right(nestedOutput))
+                        listOf(Either.Left("Blue Tit"), Either.Right(nestedInput)),
+                        listOf(Either.Right(nestedOutput)),
+                        mapOf("Species" to Either.Left("Blue Tit"), "Observed Between" to Either.Right(nestedInput), "Census" to Either.Right(nestedOutput))
                     )
                 )
             )

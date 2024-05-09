@@ -58,7 +58,7 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
     fun convertTableToTest(table: Element): TabularTest {
         val (firstHeaderRow, secondHeaderRow) = table.selectXpath("thead//tr").toList()
         val fixtureName = firstHeaderRow.selectXpath("th").toList().first()
-        val (inputNames: List<String>, outputNames: List<String>) =
+        val (inputNames: List<String>, resultNames: List<String>) =
             secondHeaderRow.selectXpath("th")
                 .toList()
                 .partition { it.attr("class") == "input" }.let { (inputs, outputs) ->
@@ -68,7 +68,7 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
         val testRows: List<TestRow> = table.selectXpath("tbody/tr")
             .toList()
             .map { tableRow ->
-                val inputsAndExpectations = tableRow.children()
+                val inputsAndExpectations: List<Either<String, TabularTest>> = tableRow.children()
                     .map { elem ->
                         when (elem.children().size) {
                             0 -> Either.Left(elem.text())
@@ -87,11 +87,12 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
 
                 TestRow(
                     inputs,
-                    expectations
+                    expectations,
+                    (inputNames + resultNames).zip(inputsAndExpectations).toMap()
                 )
             }
 
-        return TabularTest(fixtureName.text(), inputNames, outputNames, testRows)
+        return TabularTest(fixtureName.text(), inputNames, resultNames, testRows)
     }
 }
 

@@ -8,8 +8,22 @@ val httpCalculationTest = TabularTest(
     listOf("First Param", "Operator", "Second Param"),
     listOf("HTTP Response", "Result"),
     listOf(
-        TestRow(eithers("7", "+", "8"), eithers("200", "15")),
-        TestRow(eithers("7", "x", "8"), eithers("201", "56"))
+        TestRow(
+            3,
+            "First Param" to "7",
+            "Operator" to "+",
+            "Second Param" to "8",
+            "HTTP Response" to "200",
+            "Result" to "15"
+        ),
+        TestRow(
+            3,
+            "First Param" to "7",
+            "Operator" to "x",
+            "Second Param" to "8",
+            "HTTP Response" to "201",
+            "Result" to "56"
+        )
     )
 )
 
