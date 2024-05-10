@@ -171,10 +171,14 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
     }
 
     private fun testSuccessful(tabularTest: TabularTest): Boolean {
-        tabularTest.testRows
-            .map { it.inputParams + it.expectedResults }
-            .zip(actualRowResults)
-            .find { (expected, actual) -> expected != actual }?.let { return false } ?: return true
+        tabularTest.testRows.zip(actualRowResults)
+            .forEach { (row: TestRow, resultSet: List<Either<String, ExecutedSpecComponent>>) ->
+                row.allTheParams.values.toList().zip(resultSet)
+                    .find { (expected, actual) -> expected != actual }
+                    ?.let { return false }
+            }
+
+        return true
     }
 }
 

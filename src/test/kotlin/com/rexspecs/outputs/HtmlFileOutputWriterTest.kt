@@ -27,8 +27,26 @@ class HtmlFileOutputWriterTest {
                     listOf("First Param", "Operator", "Second Param"),
                     listOf("HTTP Response", "Result"),
                     listOf(
-                        TestRow(3, eithers("7", "+", "8"), eithers("200", "15")),
-                        TestRow(3, eithers("7", "x", "8"), eithers("201", "56"))
+                        TestRow(
+                            3,
+                            mapOf(
+                                "First Param" to Either.Left("7"),
+                                "Operator" to Either.Left("+"),
+                                "Second Param" to Either.Left("8"),
+                                "HTTP Response" to Either.Left("200"),
+                                "Result" to Either.Left("15")
+                            )
+                        ),
+                        TestRow(
+                            3,
+                            mapOf(
+                                "First Param" to Either.Left("7"),
+                                "Operator" to Either.Left("x"),
+                                "Second Param" to Either.Left("8"),
+                                "HTTP Response" to Either.Left("201"),
+                                "Result" to Either.Left("56")
+                            )
+                        )
                     )
                 ),
                 listOf(

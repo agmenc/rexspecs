@@ -33,8 +33,22 @@ class HtmlFileInputReaderTest {
             emptyList(),
             listOf("First Param", "Operator", "Second Param", "HTTP Response", "Result"),
             listOf(
-                TestRow(0, emptyList(), eithers("7", "+", "8", "200", "15")),
-                TestRow(0, emptyList(), eithers("7", "x", "8", "201", "56"))
+                TestRow(
+                    0,
+                    "First Param" to "7",
+                    "Operator" to "+",
+                    "Second Param" to "8",
+                    "HTTP Response" to "200",
+                    "Result" to "15"
+                ),
+                TestRow(
+                    0,
+                    "First Param" to "7",
+                    "Operator" to "x",
+                    "Second Param" to "8",
+                    "HTTP Response" to "201",
+                    "Result" to "56"
+                )
             )
         )
 
@@ -133,9 +147,8 @@ class HtmlFileInputReaderTest {
             listOf(
                 TestRow(
                     2,
-                    eithers("Monday", "Wednesday"),
-                    emptyList(),
-                    mapOf("Start" to Either.Left("Monday"), "End" to Either.Left("Wednesday"))
+                    "Start" to "Monday",
+                    "End" to "Wednesday"
                 )
             )
         )
@@ -147,9 +160,8 @@ class HtmlFileInputReaderTest {
             listOf(
                 TestRow(
                     0,
-                    emptyList(),
-                    eithers("2", "1"),
-                    mapOf("Eggs" to Either.Left("2"), "Chicks" to Either.Left("1"))
+                    "Eggs" to "2",
+                    "Chicks" to "1"
                 )
             )
         )
@@ -165,9 +177,11 @@ class HtmlFileInputReaderTest {
                 listOf(
                     TestRow(
                         2,
-                        listOf(Either.Left("Blue Tit"), Either.Right(nestedInput)),
-                        listOf(Either.Right(nestedOutput)),
-                        mapOf("Species" to Either.Left("Blue Tit"), "Observed Between" to Either.Right(nestedInput), "Census" to Either.Right(nestedOutput))
+                        mapOf(
+                            "Species" to Either.Left("Blue Tit"),
+                            "Observed Between" to Either.Right(nestedInput),
+                            "Census" to Either.Right(nestedOutput)
+                        )
                     )
                 )
             )
