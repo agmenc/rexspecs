@@ -43,7 +43,7 @@ class SpecRunner(
                 } else {
                     // TODO - !!
                     val fixture: Fixture = index[tabularTest.fixtureName]!!
-                    val columnValues: Map<String, Either<String, TabularTest>> = zipToMap(tabularTest, row)
+                    val columnValues: Map<String, Either<String, TabularTest>> = row.allTheParams
 
                     val processedRow: RowDescriptor = columnValues.toList()
                         .fold(rowDescriptor) { acc, (columnName, value: Either<String, TabularTest>) ->
@@ -69,10 +69,6 @@ class SpecRunner(
                     processedRow.inputResults.values.toList() + processedRow.expectationResults.values.toList()
                 }
             }
-    }
-
-    private fun zipToMap(tabularTest: TabularTest, row: TestRow): Map<String, Either<String, TabularTest>> {
-        return tabularTest.inputColumns.zip(row.inputParams).toMap() + tabularTest.expectationColumns.zip(row.expectedResults).toMap()
     }
 }
 
