@@ -130,6 +130,7 @@ fun eithers(vararg strings: String): List<Either.Left<String>> = strings.map { E
 
 @Serializable
 data class TestRow(
+    val inputCount: Int,
     val inputParams: List<Either<String, TabularTest>>,
     val expectedResults: List<Either<String, TabularTest>>,
     val allTheParams: Map<String, Either<String, TabularTest>> = emptyMap()
@@ -138,12 +139,17 @@ data class TestRow(
 }
 
 fun TestRow(inputCount: Int, vararg inputs: Pair<String, String>): TestRow {
-    with(eitherLefts(inputs)) {
-        return TestRow(values.toList().take(inputCount), values.toList().drop(inputCount), this)
+    return TestRow(inputCount, eitherLefts(inputs.toList()).toMap())
+}
+
+fun TestRow(inputCount: Int, inputs: Map<String, Either<String, TabularTest>>): TestRow {
+    val receiver: Map<String, Either<String, TabularTest>> = inputs
+    with(receiver) {
+        return TestRow(inputCount, values.toList().take(inputCount), values.toList().drop(inputCount), this)
     }
 }
 
-private fun eitherLefts(allCells: Array<out Pair<String, String>>) =
+private fun eitherLefts(allCells: List<Pair<String, String>>) =
     allCells.associate { (name, value) -> name to Either.Left(value) }
 
 data class ExecutedSuite(val executedSpecs: List<ExecutedSpec>) {

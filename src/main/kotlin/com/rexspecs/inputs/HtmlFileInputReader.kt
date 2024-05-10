@@ -83,21 +83,14 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
                         }
                     }
 
-                val (inputs, expectations) = split(inputsAndExpectations, inputNames.size)
-
                 TestRow(
-                    inputs,
-                    expectations,
+                    inputNames.size,
                     (inputNames + resultNames).zip(inputsAndExpectations).toMap()
                 )
             }
 
         return TabularTest(fixtureName.text(), inputNames, resultNames, testRows)
     }
-}
-
-fun <T> split(list: List<T>, splitAfter: Int): Pair<List<T>, List<T>> {
-    return Pair(list.take(splitAfter), list.drop(splitAfter))
 }
 
 class SingleHtmlFileInputReader(private val singleFile: String, rexspecsDirectory: String): HtmlFileInputReader(rexspecsDirectory) {

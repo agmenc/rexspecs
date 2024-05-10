@@ -27,8 +27,8 @@ class HtmlFileOutputWriterTest {
                     listOf("First Param", "Operator", "Second Param"),
                     listOf("HTTP Response", "Result"),
                     listOf(
-                        TestRow(eithers("7", "+", "8"), eithers("200", "15")),
-                        TestRow(eithers("7", "x", "8"), eithers("201", "56"))
+                        TestRow(3, eithers("7", "+", "8"), eithers("200", "15")),
+                        TestRow(3, eithers("7", "x", "8"), eithers("201", "56"))
                     )
                 ),
                 listOf(
