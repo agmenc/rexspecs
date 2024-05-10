@@ -27,7 +27,7 @@ class SpecRunner(
     }
 
     private val nestingCallback: (TabularTest) -> ExecutedSpecComponent = { nested: TabularTest ->
-        val descriptor = cleanRow(nested.inputColumns, nested.expectationColumns)
+        val descriptor = cleanRow(nested.inputColumns.size, nested.inputColumns, nested.expectationColumns)
         ExecutedSpecComponent(nested, executeTest(nested, index, descriptor))
     }
 
@@ -35,11 +35,12 @@ class SpecRunner(
         tabularTest: TabularTest,
         index: FixtureLookup,
         rowDescriptor: RowDescriptor
-    ): List<List<Either<String, ExecutedSpecComponent>>> {
+    ): List<Map<String, Either<String, ExecutedSpecComponent>>> {
         return tabularTest.testRows
             .map { row: TestRow ->
+                val firstColumnName = row.allTheParams.keys.toList().first()
                 if (!index.containsKey(tabularTest.fixtureName)) {
-                    listOf(Either.Left("Error: unrecognised fixture [${tabularTest.fixtureName}]"))
+                    mapOf(firstColumnName to Either.Left("Error: unrecognised fixture [${tabularTest.fixtureName}]"))
                 } else {
                     // TODO - !!
                     val fixture: Fixture = index[tabularTest.fixtureName]!!
@@ -55,9 +56,9 @@ class SpecRunner(
 
                                 // TODO - Better test, to check that all the input columns have been processed
                                 if (inputResultAcc.inputResults.size == acc.inputColumns.size) {
-                                    // TODO - Don't need executionResult, just make these the expectationResults, all in a dump here, and can the call to Fixture.processResult()
-                                    val executionResult: Map<String, Either<String, ExecutedSpecComponent>> = fixture.execute(inputResultAcc, connector, columnValues)
-                                    inputResultAcc.copy(expectationResults = executionResult)
+                                    val execResult: Map<String, Either<String, ExecutedSpecComponent>> =
+                                        fixture.execute(inputResultAcc, connector, columnValues)
+                                    inputResultAcc + execResult
                                 } else inputResultAcc
                             } else if (acc.expectationColumns.contains(columnName)) {
                                 acc
@@ -66,29 +67,41 @@ class SpecRunner(
                             }
                         }
 
-                    processedRow.inputResults.values.toList() + processedRow.expectationResults.values.toList()
+                    processedRow.executionResult
+                        ?: mapOf(firstColumnName to Either.Left("Error: no execution result for row in [${tabularTest.fixtureName}]"))
                 }
             }
     }
 }
 
 data class RowDescriptor(
+    val inputCount: Int,
     val inputColumns: List<String>,
     val expectationColumns: List<String>,
     val inputResults: Map<String, Either<String, ExecutedSpecComponent>>,
     val expectationResults: Map<String, Either<String, ExecutedSpecComponent>>,
     val executionResult: Map<String, Either<String, ExecutedSpecComponent>>? = null
 ) {
-    operator fun plus(pair: Pair<String, Either<String, ExecutedSpecComponent>>): RowDescriptor {
+    operator fun plus(cellResult: Pair<String, Either<String, ExecutedSpecComponent>>): RowDescriptor {
         return when {
-            inputColumns.contains(pair.first) -> copy(inputResults = inputResults + pair)
-            expectationColumns.contains(pair.first) -> copy(expectationResults = expectationResults + pair)
-            else -> throw RuntimeException("Column [${pair.first}] is not in inputColumns or expectationColumns")
+            inputColumns.contains(cellResult.first) -> copy(inputResults = inputResults + cellResult, executionResult = add(executionResult, cellResult))
+            expectationColumns.contains(cellResult.first) -> copy(expectationResults = expectationResults + cellResult, executionResult = add(executionResult, cellResult))
+            else -> throw RuntimeException("Column [${cellResult.first}] is not in inputColumns or expectationColumns")
         }
     }
 
+    operator fun plus(cellResults: Map<String, Either<String, ExecutedSpecComponent>>): RowDescriptor {
+        return cellResults.entries.fold(this) { acc, (k, v) -> acc + Pair(k, v) }
+    }
+
+    private fun add(
+        map: Map<String, Either<String, ExecutedSpecComponent>>?,
+        pair: Pair<String, Either<String, ExecutedSpecComponent>>
+    ): Map<String, Either<String, ExecutedSpecComponent>> {
+        return map?.plus(pair) ?: mapOf(pair)
+    }
 }
 
-fun cleanRow(inputColumns: List<String>, expectationColumns: List<String>): RowDescriptor {
-    return RowDescriptor(inputColumns, expectationColumns, emptyMap(), emptyMap())
+fun cleanRow(inputCount: Int,inputColumns: List<String>, expectationColumns: List<String>): RowDescriptor {
+    return RowDescriptor(inputCount, inputColumns, expectationColumns, emptyMap(), emptyMap())
 }

@@ -160,7 +160,7 @@ data class ExecutedSpec(val identifier: String, val executedTests: List<Executed
     fun success(): Boolean = executedTests.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 
-data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRowResults: List<List<Either<String, ExecutedSpecComponent>>>) {
+data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRowResults: List<Map<String, Either<String, ExecutedSpecComponent>>>) {
     fun success(): Boolean {
         return when (specComponent) {
             is TabularTest -> testSuccessful(specComponent)
@@ -172,10 +172,15 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
 
     private fun testSuccessful(tabularTest: TabularTest): Boolean {
         tabularTest.testRows.zip(actualRowResults)
-            .forEach { (row: TestRow, resultSet: List<Either<String, ExecutedSpecComponent>>) ->
-                row.allTheParams.values.toList().zip(resultSet)
-                    .find { (expected, actual) -> expected != actual }
-                    ?.let { return false }
+            .forEach { (row: TestRow, resultSet: Map<String, Either<String, ExecutedSpecComponent>>) ->
+                resultSet.map { (col, value: Either<String, ExecutedSpecComponent>) ->
+                    row.allTheParams[col]?.let { expected: Either<String, TabularTest> ->
+                        when (value) {
+                            is Either.Left -> if (assumeLeft(expected) != value.left) return false
+                            is Either.Right -> if (assumeRight(expected) != value.right.specComponent) return false
+                        }
+                    }
+                }
             }
 
         return true

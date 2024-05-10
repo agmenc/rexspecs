@@ -58,7 +58,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
             }
     }
 
-    private fun toTable(tabularTest: TabularTest, actualRowResults: List<List<Either<String, ExecutedSpecComponent>>>): Element {
+    private fun toTable(tabularTest: TabularTest, actualRowResults: List<Map<String, Either<String, ExecutedSpecComponent>>>): Element {
         val table = Element("table")
         val header = Element("thead")
         header.appendElement("tr").appendElement("th").html(tabularTest.fixtureName)
@@ -77,44 +77,18 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         return table.appendChild(header).appendChild(body)
     }
 
-    private fun toTableRow(inputRow: TestRow, resultRow: List<Either<String, ExecutedSpecComponent>>): Element {
-
-        // TODO - We probably want to compare the processing result of the input cells with the inputs themselves, so
-        //        that we can show processing errors. Then we can run a compare on all cells, further below, and ditch
-        //        this.
-        val hackyActualResults: List<Either<String, ExecutedSpecComponent>> = resultRow.drop(inputRow.inputParams.size)
-
+    private fun toTableRow(inputRow: TestRow, resultRow: Map<String, Either<String, ExecutedSpecComponent>>): Element {
         if (inputRow.inputParams.isEmpty()) {
             return Element("tr").appendChildren(listOf(wideError("No input elements are defined for this table. Add class=\"input\" to relevant table columns.")))
         }
 
-        if (inputRow.expectationCount() != hackyActualResults.size) {
-            return Element("tr").appendChildren(listOf(wideError("Number of expected results [${inputRow.expectationCount()}] does not match the number of actual results [${hackyActualResults.size}]")))
+        val comparedCells = inputRow.allTheParams.map { (colName, inputCell) ->
+            resultRow[colName]
+                ?. let {compare(inputCell, it)}
+                ?: error("Expected column [$colName] not found in actual results")
         }
 
-        val inputCells: List<Element> = inputRow.inputParams.map { param ->
-            when (param) {
-                is Either.Left<String> -> Element("td").html(param.left)
-                is Either.Right<TabularTest> -> Element("td").appendChild(toTable(param.right, listOf(hackyActualResults)))
-            }
-        }
-
-        // TODO - Just compare inputRow with resultsRow? Forget the hackyActualResults.
-
-        val resultsAndActuals: List<Pair<Either<String, TabularTest>, Either<String, ExecutedSpecComponent>>> =
-            inputRow.expectedResults.zip(hackyActualResults)
-
-        val resultCells: List<Element> = resultsAndActuals.map { (expected, actual) ->
-            if (expected is Either.Right && actual is Either.Right) {
-                Element("td").appendChild(toTable(expected.right, actual.right.actualRowResults))
-            } else if (expected is Either.Left && actual is Either.Left) {
-                compare(expected, actual)
-            } else {
-                error("Expected and actual should both be Strings, or both be nested tables.<br/>Expected: [$expected]<br/>Actual: [$actual]")
-            }
-        }
-
-        return Element("tr").appendChildren(inputCells + resultCells)
+        return Element("tr").appendChildren(comparedCells)
     }
 
     // TODO - This should be all about Strings, because nested tables will be broken down to rows and Stringly compared anyway
@@ -122,7 +96,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         when (expected) {
             is Either.Left -> compareStrings(expected.left, Either.Left(assumeLeft(actual)))
             // TODO - hmmmmm, that second parameter shouldn't have to be double-listed
-            is Either.Right -> toTable(expected.right, listOf(listOf(actual)))
+            is Either.Right -> toTable(expected.right, assumeRight(actual).actualRowResults)
         }
 
     private fun compareStrings(expected: String, actual: Either<String, TabularTest>): Element {

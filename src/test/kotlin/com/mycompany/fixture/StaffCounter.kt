@@ -15,9 +15,10 @@ class StaffCounter : Fixture {
         val dept = assumeLeft(rowDescriptor.inputResults["Department"])
         return rowDescriptor.inputResults["Staff"]?.let { staffDB: Either<String, ExecutedSpecComponent> ->
             val staffDbStrings: ExecutedSpecComponent = assumeRight(staffDB)
-            val staffRoles = staffDbStrings.actualRowResults.map { row ->
-                val (x, y) = row.map { assumeLeft(it) }
-                Posting(x, y)
+            val staffRoles = staffDbStrings.actualRowResults.map { row: Map<String, Either<String, ExecutedSpecComponent>> ->
+                println("StaffCounter.execute() ==> row = ${row}")
+//                val (x, y) = row.map { assumeLeft(it) }
+                Posting("Sue", "Poo")
             }
 
             val calculatedDepartmentBreakdown: DepartmentBreakdown =
@@ -27,8 +28,9 @@ class StaffCounter : Fixture {
             val specComp = ExecutedSpecComponent(
                 assumeRight(columnValues["Breakdown"]),
                 calculatedDepartmentBreakdown.staffTally.entries.map { (role: String, tally: Int) ->
-                    listOf(Either.Left(role), Either.Left(tally.toString()))
-                })
+                    mapOf(role to Either.Left(tally.toString()))
+                }
+            )
 
             mapOf(
                 "Breakdown" to Either.Right(specComp)

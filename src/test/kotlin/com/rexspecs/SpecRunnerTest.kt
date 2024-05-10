@@ -46,6 +46,7 @@ class SpecRunnerTest {
         val executedSpec = spec.execute()
 
         assertEquals(expectedOutputWithSuccess, HtmlFileOutputWriter("whatever").generateHtml(executedSpec))
+
         assertTrue(executedSpec.success())
     }
 

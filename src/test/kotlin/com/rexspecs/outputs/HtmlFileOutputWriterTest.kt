@@ -50,8 +50,20 @@ class HtmlFileOutputWriterTest {
                     )
                 ),
                 listOf(
-                    eithers("7", "+", "8", "200", "15"),
-                    eithers("7", "x", "8", "400", "Unsupported operator: \"x\"")
+                    mapOf(
+                        "First Param" to Either.Left("7"),
+                        "Operator" to Either.Left("+"),
+                        "Second Param" to Either.Left("8"),
+                        "HTTP Response" to Either.Left("200"),
+                        "Result" to Either.Left("15")
+                    ),
+                    mapOf(
+                        "First Param" to Either.Left("7"),
+                        "Operator" to Either.Left("x"),
+                        "Second Param" to Either.Left("8"),
+                        "HTTP Response" to Either.Left("400"),
+                        "Result" to Either.Left("Unsupported operator: \"x\"")
+                    )
                 )
             )
         )

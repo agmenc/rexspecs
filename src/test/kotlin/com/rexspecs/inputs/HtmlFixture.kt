@@ -56,6 +56,10 @@ val expectedOutputWithSuccess = firstRowSucceeds(sampleInput)
     .replace("<td>201</td>", "<td class=\"success\">201</td>")
 
 private fun firstRowSucceeds(input: String) = input
+    .replace("<td>7</td>", "<td class=\"success\">7</td>")
+    .replace("<td>+</td>", "<td class=\"success\">+</td>")
+    .replace("<td>x</td>", "<td class=\"success\">x</td>")
+    .replace("<td>8</td>", "<td class=\"success\">8</td>")
     .replace("<td>15</td>", "<td class=\"success\">15</td>")
     .replace("<td>200</td>", "<td class=\"success\">200</td>")
 
