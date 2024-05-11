@@ -78,7 +78,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
     }
 
     private fun toTableRow(inputRow: TestRow, resultRow: Map<String, Either<String, ExecutedSpecComponent>>): Element {
-        if (inputRow.inputParams.isEmpty()) {
+        if (inputRow.inputCount == 0) {
             return Element("tr").appendChildren(listOf(wideError("No input elements are defined for this table. Add class=\"input\" to relevant table columns.")))
         }
 

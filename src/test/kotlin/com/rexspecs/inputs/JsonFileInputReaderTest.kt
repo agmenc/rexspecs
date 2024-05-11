@@ -29,12 +29,10 @@ class JsonFileInputReaderTest {
                 "testRows": [
                   { 
                     "inputCount": 3,
-                    "inputParams": [{ "Left": "7" }, { "Left":"+"}, {"Left":"8"}],
                     "allTheParams":{"First Param":{"Left":"7"},"Operator":{"Left":"+"},"Second Param":{"Left":"8"},"HTTP Response":{"Left":"200"},"Result":{"Left":"15"}}
                   },
                   {
                     "inputCount": 3,
-                    "inputParams": [{ "Left": "7" }, { "Left":"x"}, {"Left":"8"}],
                     "allTheParams":{"First Param":{"Left":"7"},"Operator":{"Left":"x"},"Second Param":{"Left":"8"},"HTTP Response":{"Left":"201"},"Result":{"Left":"56"}}
                   }
                 ]
@@ -63,12 +61,10 @@ class JsonFileInputReaderTest {
               "testRows": [
                 { 
                   "inputCount": 3,
-                  "inputParams": [{ "Left": "7" }, { "Left":"+"}, {"Left":"8"}],
                   "allTheParams":{"First Param":{"Left":"7"},"Operator":{"Left":"+"},"Second Param":{"Left":"8"},"HTTP Response":{"Left":"200"},"Result":{"Left":"15"}}
                 },
                 {
                   "inputCount": 3,
-                  "inputParams": [{ "Left": "7" }, { "Left":"x"}, {"Left":"8"}],
                   "allTheParams":{"First Param":{"Left":"7"},"Operator":{"Left":"x"},"Second Param":{"Left":"8"},"HTTP Response":{"Left":"201"},"Result":{"Left":"56"}}
                 }
               ]
@@ -77,7 +73,7 @@ class JsonFileInputReaderTest {
         }
     """.trimIndent()
 
-    private val minifiedRawJson = """{"identifier":"JsonExample.monkeys","components":[{"type":"com.rexspecs.specs.Title","title":"An Acceptance Test"},{"type":"com.rexspecs.TabularTest","fixtureName":"Calculator","inputColumns":["First Param","Operator","Second Param"],"expectationColumns":["HTTP Response","Result"],"testRows":[{"inputCount":3,"inputParams":[{"Left":"7"},{"Left":"+"},{"Left":"8"}],"allTheParams":{"First Param":{"Left":"7"},"Operator":{"Left":"+"},"Second Param":{"Left":"8"},"HTTP Response":{"Left":"200"},"Result":{"Left":"15"}}},{"inputCount":3,"inputParams":[{"Left":"7"},{"Left":"x"},{"Left":"8"}],"allTheParams":{"First Param":{"Left":"7"},"Operator":{"Left":"x"},"Second Param":{"Left":"8"},"HTTP Response":{"Left":"201"},"Result":{"Left":"56"}}}]}]}"""
+    private val minifiedRawJson = """{"identifier":"JsonExample.monkeys","components":[{"type":"com.rexspecs.specs.Title","title":"An Acceptance Test"},{"type":"com.rexspecs.TabularTest","fixtureName":"Calculator","inputColumns":["First Param","Operator","Second Param"],"expectationColumns":["HTTP Response","Result"],"testRows":[{"inputCount":3,"allTheParams":{"First Param":{"Left":"7"},"Operator":{"Left":"+"},"Second Param":{"Left":"8"},"HTTP Response":{"Left":"200"},"Result":{"Left":"15"}}},{"inputCount":3,"allTheParams":{"First Param":{"Left":"7"},"Operator":{"Left":"x"},"Second Param":{"Left":"8"},"HTTP Response":{"Left":"201"},"Result":{"Left":"56"}}}]}]}"""
 
     @Test
     fun `Specs are Serialisable and Deserialisable`() {

@@ -129,19 +129,11 @@ fun <T> lefts(inputs: Map<String, Either<String, T>>): Map<String, Either.Left<S
 @Serializable
 data class TestRow(
     val inputCount: Int,
-    val inputParams: List<Either<String, TabularTest>>,
     val allTheParams: Map<String, Either<String, TabularTest>> = emptyMap()
 )
 
-fun TestRow(inputCount: Int, vararg inputs: Pair<String, String>): TestRow {
-    return TestRow(inputCount, eitherLefts(inputs.toList()).toMap())
-}
-
-fun TestRow(inputCount: Int, inputs: Map<String, Either<String, TabularTest>>): TestRow {
-    val receiver: Map<String, Either<String, TabularTest>> = inputs
-    with(receiver) {
-        return TestRow(inputCount, values.toList().take(inputCount), this)
-    }
+fun TestRow(inputCount: Int, vararg params: Pair<String, String>): TestRow {
+    return TestRow(inputCount, eitherLefts(params.toList()).toMap())
 }
 
 private fun eitherLefts(allCells: List<Pair<String, String>>) =
