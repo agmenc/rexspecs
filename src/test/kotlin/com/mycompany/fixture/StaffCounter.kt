@@ -16,9 +16,9 @@ class StaffCounter : Fixture {
         return rowDescriptor.inputResults["Staff"]?.let { staffDB: Either<String, ExecutedSpecComponent> ->
             val staffDbStrings: ExecutedSpecComponent = assumeRight(staffDB)
             val staffRoles = staffDbStrings.actualRowResults.map { row: Map<String, Either<String, ExecutedSpecComponent>> ->
-                println("StaffCounter.execute() ==> row = ${row}")
-//                val (x, y) = row.map { assumeLeft(it) }
-                Posting("Sue", "Poo")
+                val name = row["Name"]?.let { assumeLeft(it) } ?: "No name in cell"
+                val role = row["Role"]?.let { assumeLeft(it) } ?: "No role in cell"
+                Posting(name, role)
             }
 
             val calculatedDepartmentBreakdown: DepartmentBreakdown =
@@ -47,9 +47,7 @@ class StaffDatabase: Fixture {
         connector: Connector,
         columnValues: Map<String, Either<String, TabularTest>>
     ): Map<String, Either<String, ExecutedSpecComponent>> {
-        return mapOf(
-            "Staff" to Either.Left("StaffDatabase.execute is not yet implemented. Should this be a null op?")
-        )
+        return emptyMap()
     }
 
 }
