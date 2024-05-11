@@ -1,7 +1,6 @@
 package com.rexspecs.specs
 
 import com.rexspecs.TestRow
-import com.rexspecs.eithers
 
 val httpCalculationTest = TabularTest(
     "Calculator",

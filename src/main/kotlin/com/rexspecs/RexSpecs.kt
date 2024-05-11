@@ -126,17 +126,12 @@ fun <T> lefts(inputs: Map<String, Either<String, T>>): Map<String, Either.Left<S
     return inputs.filter { (_, v) -> v is Either.Left<String> } as Map<String, Either.Left<String>>
 }
 
-fun eithers(vararg strings: String): List<Either.Left<String>> = strings.map { Either.Left(it) }
-
 @Serializable
 data class TestRow(
     val inputCount: Int,
     val inputParams: List<Either<String, TabularTest>>,
-    val expectedResults: List<Either<String, TabularTest>>,
     val allTheParams: Map<String, Either<String, TabularTest>> = emptyMap()
-) {
-    fun expectationCount() = expectedResults.size
-}
+)
 
 fun TestRow(inputCount: Int, vararg inputs: Pair<String, String>): TestRow {
     return TestRow(inputCount, eitherLefts(inputs.toList()).toMap())
@@ -145,7 +140,7 @@ fun TestRow(inputCount: Int, vararg inputs: Pair<String, String>): TestRow {
 fun TestRow(inputCount: Int, inputs: Map<String, Either<String, TabularTest>>): TestRow {
     val receiver: Map<String, Either<String, TabularTest>> = inputs
     with(receiver) {
-        return TestRow(inputCount, values.toList().take(inputCount), values.toList().drop(inputCount), this)
+        return TestRow(inputCount, values.toList().take(inputCount), this)
     }
 }
 
