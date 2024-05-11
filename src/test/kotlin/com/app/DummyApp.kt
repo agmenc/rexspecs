@@ -23,13 +23,16 @@ fun unpack(calculationResult: CalculationResult): Response {
 
 data class CalculationResult(val value: String, val status: Status = OK)
 
-// TODO - Stop any of the HTTP API gubbins from polluting application code (specifically Status)
 fun calculate(params: Parameters): CalculationResult {
     val lookup = params.associate { it.first to it.second }
     val operand1 = lookup["First Param"]?.toInt() ?: 0
     val operand2 = lookup["Second Param"]?.toInt() ?: 0
     val operator = lookup["Operator"] ?: "+"
 
+    return calculate(operand1, operator, operand2)
+}
+
+fun calculate(operand1: Int, operator: String, operand2: Int ): CalculationResult {
     return when (operator) {
         "+" -> CalculationResult((operand1 + operand2).toString(), OK)
         "*" -> CalculationResult((operand1 * operand2).toString(), OK)

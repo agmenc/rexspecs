@@ -12,7 +12,6 @@ import org.http4k.core.*
 import java.net.URLEncoder
 // TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate
 class Calculator: Fixture {
-    // TODO - Type this. No more Any. Should return a CalculationResult
     override fun execute(
         rowDescriptor: RowDescriptor,
         connector: Connector,
@@ -20,18 +19,26 @@ class Calculator: Fixture {
     ): Map<String, Either<String, ExecutedSpecComponent>> {
         val params: List<Pair<String, String>> = lefts(rowDescriptor.inputResults).map { (k, v) -> Pair(k, v.left) }
 
+        val allResultsSoFar: Map<String, Either<String, ExecutedSpecComponent>> = rowDescriptor.allResults ?: emptyMap()
+
         return when (connector) {
             is HttpConnector -> connectOverHttp(params, connector)
-            is DirectConnector -> connectDirectly(params)
+            is DirectConnector -> connectDirectly(allResultsSoFar)
             else -> throw RuntimeException("Unsupported connector: $connector")
         }
     }
 
-    private fun connectDirectly(params: List<Pair<String, String>>): Map<String, Either<String, ExecutedSpecComponent>> {
-        val calculate: CalculationResult = calculate(params)
+    private fun connectDirectly(params: Map<String, Either<String, ExecutedSpecComponent>>): Map<String, Either<String, ExecutedSpecComponent>> {
+
+        // TODO - Check the input types parse correctly when processing the input params, meaning we don't have to check them here
+        val operand1 = assumeLeft(params["First Param"]).toInt()
+        val operand2 = assumeLeft(params["Second Param"]).toInt()
+        val operator = assumeLeft(params["Operator"]).toString()
+
+        val calculated: CalculationResult = calculate(operand1, operator, operand2)
 
         return mapOf(
-            "Result" to Either.Left(calculate.value)
+            "Result" to Either.Left(calculated.value)
         )
     }
 

@@ -67,7 +67,7 @@ class SpecRunner(
                             }
                         }
 
-                    processedRow.executionResult
+                    processedRow.allResults
                         ?: mapOf(firstColumnName to Either.Left("Error: no execution result for row in [${tabularTest.fixtureName}]"))
                 }
             }
@@ -80,12 +80,12 @@ data class RowDescriptor(
     val expectationColumns: List<String>,
     val inputResults: Map<String, Either<String, ExecutedSpecComponent>>,
     val expectationResults: Map<String, Either<String, ExecutedSpecComponent>>,
-    val executionResult: Map<String, Either<String, ExecutedSpecComponent>>? = null
+    val allResults: Map<String, Either<String, ExecutedSpecComponent>>? = null
 ) {
     operator fun plus(cellResult: Pair<String, Either<String, ExecutedSpecComponent>>): RowDescriptor {
         return when {
-            inputColumns.contains(cellResult.first) -> copy(inputResults = inputResults + cellResult, executionResult = add(executionResult, cellResult))
-            expectationColumns.contains(cellResult.first) -> copy(expectationResults = expectationResults + cellResult, executionResult = add(executionResult, cellResult))
+            inputColumns.contains(cellResult.first) -> copy(inputResults = inputResults + cellResult, allResults = add(allResults, cellResult))
+            expectationColumns.contains(cellResult.first) -> copy(expectationResults = expectationResults + cellResult, allResults = add(allResults, cellResult))
             else -> throw RuntimeException("Column [${cellResult.first}] is not in inputColumns or expectationColumns")
         }
     }
