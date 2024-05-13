@@ -12,23 +12,17 @@ class StaffCounter : Fixture {
         connector: Connector,
         columnValues: Map<String, Either<String, TabularTest>>
     ): Map<String, Either<String, ExecutedSpecComponent>> {
-        val dept = assumeLeft(rowDescriptor.inputResults["Department"])
         return rowDescriptor.inputResults["Staff"]?.let { staffDB: Either<String, ExecutedSpecComponent> ->
-            val staffDbStrings: ExecutedSpecComponent = assumeRight(staffDB)
-            val staffRoles = staffDbStrings.actualRowResults.map { row: Map<String, Either<String, ExecutedSpecComponent>> ->
-                val name = row["Name"]?.let { assumeLeft(it) } ?: "No name in cell"
-                val role = row["Grade"]?.let { assumeLeft(it) } ?: "No role in cell"
-                Posting(name, role)
-            }
+            val lookup: Map<String, Int> =
+                assumeRight(staffDB).actualRowResults.fold(emptyMap()) { acc, row ->
+                    val grade = row["Grade"]?.let { assumeLeft(it) } ?: "No grade in table row"
+                    acc + (grade to (acc[grade]?.plus(1) ?: 1))
+                }
 
-            val calculatedDepartmentBreakdown: DepartmentBreakdown =
-                calculateDepartmentBreakdown(DepartmentPostings(dept, staffRoles))
-
-            // TODO - Don't need DepartmentPostings or DepartmentBreakdown, just tally up each role
-
+            // TODO - directly call execute on the StaffPivotTable fixture. Maybe.
             val specComp = ExecutedSpecComponent(
                 assumeRight(columnValues["Breakdown"]),
-                calculatedDepartmentBreakdown.staffTally.entries.map { (type: String, tally: Int) ->
+                lookup.map { (type: String, tally: Int) ->
                     mapOf(
                         "Type" to Either.Left(type),
                         "Tally" to Either.Left(tally.toString())
@@ -53,22 +47,6 @@ class StaffDatabase: Fixture {
         return emptyMap()
     }
 
-}
-
-data class Posting(val name: String, val role: String)
-data class DepartmentPostings(val department: String, val staffRolls: List<Posting>)
-data class DepartmentBreakdown(val department: String, val staffTally: Map<String, Int>)
-
-fun calculateDepartmentBreakdown(departmentPostings: DepartmentPostings): DepartmentBreakdown {
-    with(departmentPostings) {
-        return staffRolls.fold(DepartmentBreakdown(department, emptyMap())) { acc, (name: String, role: String) ->
-            acc.staffTally[role]?.let {
-                acc.copy(staffTally = acc.staffTally.map { (tallyRole: String, tallyCount: Int) ->
-                    if (tallyRole == role) Pair(tallyRole, tallyCount + 1) else Pair(tallyRole, tallyCount)
-                }.toMap())
-            } ?: acc.copy(staffTally = acc.staffTally + Pair(role, 1))
-        }
-    }
 }
 
 class StaffPivotTable: Fixture {
