@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class NestedTablesTest {
-    @Disabled
     @Test
     fun `Nested tables are processed as input and result data`() {
         RexSpecs.runSuite(

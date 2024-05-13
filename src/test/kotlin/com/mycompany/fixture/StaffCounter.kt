@@ -56,11 +56,6 @@ class StaffPivotTable: Fixture {
         connector: Connector,
         columnValues: Map<String, Either<String, TabularTest>>
     ): Map<String, Either<String, ExecutedSpecComponent>> {
-        println("StaffPivotTable.execute() ==> rowDescriptor = ${rowDescriptor}")
-        return mapOf(
-            "Type" to Either.Left("StaffPivotTable.execute is also not yet implemented"),
-            "Tally" to Either.Left("StaffPivotTable.execute is also not yet implemented")
-        )
+        return emptyMap()
     }
-
 }

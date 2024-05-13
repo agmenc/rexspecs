@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../theme.css">
+  <script type="application/javascript" src="../toggle.js"></script>
+  <title>Nested Tables Example</title>
+ </head>
+ <body>
+  <h1 class="title">Nested Tables Example</h1>
+  <p>Turtles, all the way down.</p>
+  <table>
+   <thead>
+    <tr>
+     <th>Staff Counter</th>
+    </tr>
+    <tr>
+     <th class="input">Department</th>
+     <th class="input">Staff</th>
+     <th>Breakdown</th>
+    </tr>
+   </thead>
+   <tbody>
+    <tr>
+     <td class="success">Planning</td>
+     <td>
+      <table>
+       <thead>
+        <tr>
+         <th>Staff</th>
+        </tr>
+        <tr>
+         <th class="input">Name</th>
+         <th class="input">Grade</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td class="success">Sally</td>
+         <td class="success">Manager</td>
+        </tr>
+        <tr>
+         <td class="success">Joe</td>
+         <td class="success">Lion Tamer</td>
+        </tr>
+        <tr>
+         <td class="success">James</td>
+         <td class="success">Manager</td>
+        </tr>
+       </tbody>
+      </table></td>
+     <td>
+      <table>
+       <thead>
+        <tr>
+         <th>Breakdown</th>
+        </tr>
+        <tr>
+         <th class="input">Type</th>
+         <th>Tally</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td class="success">Manager</td>
+         <td class="success">2</td>
+        </tr>
+        <tr>
+         <td class="fail">Expected [Worker] but was: [Lion Tamer]</td>
+         <td class="fail">Expected [0] but was: [1]</td>
+        </tr>
+       </tbody>
+      </table></td>
+    </tr>
+    <tr>
+     <td class="success">Doing</td>
+     <td>
+      <table>
+       <thead>
+        <tr>
+         <th>Staff</th>
+        </tr>
+        <tr>
+         <th class="input">Name</th>
+         <th class="input">Grade</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td class="success">Sally</td>
+         <td class="success">Manager</td>
+        </tr>
+        <tr>
+         <td class="success">Fred</td>
+         <td class="success">Worker</td>
+        </tr>
+        <tr>
+         <td class="success">Sue</td>
+         <td class="success">Worker</td>
+        </tr>
+        <tr>
+         <td class="success">Bob</td>
+         <td class="success">Worker</td>
+        </tr>
+       </tbody>
+      </table></td>
+     <td>
+      <table>
+       <thead>
+        <tr>
+         <th>Breakdown</th>
+        </tr>
+        <tr>
+         <th class="input">Type</th>
+         <th>Tally</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td class="success">Manager</td>
+         <td class="success">1</td>
+        </tr>
+        <tr>
+         <td class="success">Worker</td>
+         <td class="success">3</td>
+        </tr>
+       </tbody>
+      </table></td>
+    </tr>
+   </tbody>
+  </table>
+ </body>
+</html>
