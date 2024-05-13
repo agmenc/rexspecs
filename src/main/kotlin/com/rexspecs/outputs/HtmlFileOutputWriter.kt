@@ -91,12 +91,9 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         return Element("tr").appendChildren(comparedCells)
     }
 
-
-    // TODO - This should be all about Strings, because nested tables will be broken down to rows and Stringly compared anyway
     private fun compare(expected: Either<String, TabularTest>, actual: Either<String, ExecutedSpecComponent>): Element =
         when (expected) {
             is Either.Left -> compareStrings(expected.left, Either.Left(assumeLeft(actual)))
-            // TODO - hmmmmm, that second parameter shouldn't have to be double-listed
             is Either.Right -> Element("td").appendChild(toTable(expected.right, assumeRight(actual).actualRowResults))
         }
 

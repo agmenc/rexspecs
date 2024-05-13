@@ -17,7 +17,7 @@ class StaffCounter : Fixture {
             val staffDbStrings: ExecutedSpecComponent = assumeRight(staffDB)
             val staffRoles = staffDbStrings.actualRowResults.map { row: Map<String, Either<String, ExecutedSpecComponent>> ->
                 val name = row["Name"]?.let { assumeLeft(it) } ?: "No name in cell"
-                val role = row["Role"]?.let { assumeLeft(it) } ?: "No role in cell"
+                val role = row["Grade"]?.let { assumeLeft(it) } ?: "No role in cell"
                 Posting(name, role)
             }
 
@@ -25,10 +25,14 @@ class StaffCounter : Fixture {
                 calculateDepartmentBreakdown(DepartmentPostings(dept, staffRoles))
 
             // TODO - Don't need DepartmentPostings or DepartmentBreakdown, just tally up each role
+
             val specComp = ExecutedSpecComponent(
                 assumeRight(columnValues["Breakdown"]),
-                calculatedDepartmentBreakdown.staffTally.entries.map { (role: String, tally: Int) ->
-                    mapOf(role to Either.Left(tally.toString()))
+                calculatedDepartmentBreakdown.staffTally.entries.map { (type: String, tally: Int) ->
+                    mapOf(
+                        "Type" to Either.Left(type),
+                        "Tally" to Either.Left(tally.toString())
+                    )
                 }
             )
 
@@ -37,7 +41,6 @@ class StaffCounter : Fixture {
             )
         } ?: mapOf("Breakdown" to Either.Left("Monkeys ate it again"))
     }
-
 }
 
 class StaffDatabase: Fixture {
@@ -77,7 +80,8 @@ class StaffPivotTable: Fixture {
     ): Map<String, Either<String, ExecutedSpecComponent>> {
         println("StaffPivotTable.execute() ==> rowDescriptor = ${rowDescriptor}")
         return mapOf(
-            "StaffPivotTable" to Either.Left("StaffPivotTable.execute is also not yet implemented")
+            "Type" to Either.Left("StaffPivotTable.execute is also not yet implemented"),
+            "Tally" to Either.Left("StaffPivotTable.execute is also not yet implemented")
         )
     }
 
