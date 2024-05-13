@@ -48,14 +48,3 @@ class StaffDatabase: Fixture {
     }
 
 }
-
-class StaffPivotTable: Fixture {
-
-    override fun execute(
-        rowDescriptor: RowDescriptor,
-        connector: Connector,
-        columnValues: Map<String, Either<String, TabularTest>>
-    ): Map<String, Either<String, ExecutedSpecComponent>> {
-        return emptyMap()
-    }
-}

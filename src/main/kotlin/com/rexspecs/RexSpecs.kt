@@ -18,12 +18,12 @@ typealias FixtureLookup = Map<String, Fixture>
 /*
 Benders:
     - TODO: Wire it in to something real.
-    - Nested tables
     - Remove header rows from nested tables
+    - Have better support for easily processing actuals into ExecutedTestComponents. Consider bouncing down to nested Fixtures.
     - Process every cell, so that we can write back error messages and status colours in input cells. Something like:
         - each row becomes a list of triples: Column Name, Execution results, data result
         - at any point in row processing, we can access any processed value by Column Name
-    - List Fixtures - given whatever is in the header, the results should look like all the rows
+    - List Fixtures - given whatever is in the header, the results should look like all the rows. Show rows where there are no results.
     - Real candidates:
         STACKRR - The Stack Tree Tracker. JSON over CLI.
         UrThredz II - The Wrath of Tabs
@@ -37,6 +37,7 @@ Benders:
     -
 
 Tasks:
+    - Remove most things from the RowDescriptor
     - Blow up if a row of column headers is not in a <th> (i.e. it is in a <td>). Or just support both. Whatever is easiest.
     - Suite runs should fail if there are no tests
     - Support result lists demarcated with <br/>.
