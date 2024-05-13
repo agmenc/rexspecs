@@ -19,7 +19,6 @@ class StaffCounter : Fixture {
                     acc + (grade to (acc[grade]?.plus(1) ?: 1))
                 }
 
-            // TODO - directly call execute on the StaffPivotTable fixture. Maybe.
             val specComp = ExecutedSpecComponent(
                 assumeRight(columnValues["Breakdown"]),
                 lookup.map { (type: String, tally: Int) ->
