@@ -55,10 +55,14 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
 
     // TODO: Privatise
     fun convertTableToTest(table: Element): TabularTest {
-        val (firstHeaderRow, secondHeaderRow) = table.selectXpath("thead//tr").toList()
-        val fixtureName = firstHeaderRow.selectXpath("th").toList().first()
+        val headers = table.selectXpath("thead//tr").toList()
+        val fixtureName = when {
+            headers.size > 1 -> headers.first().selectXpath("th").toList().first().text()
+            else -> null
+        }
+
         val (inputNames: List<String>, resultNames: List<String>) =
-            secondHeaderRow.selectXpath("th")
+            headers.last().selectXpath("th")
                 .toList()
                 .partition { it.attr("class") == "input" }.let { (inputs, outputs) ->
                     Pair(inputs.map { it.text() }, outputs.map { it.text() })
@@ -88,7 +92,7 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
                 )
             }
 
-        return TabularTest(fixtureName.text(), inputNames, resultNames, testRows)
+        return TabularTest(fixtureName, inputNames, resultNames, testRows)
     }
 }
 

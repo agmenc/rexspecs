@@ -141,7 +141,7 @@ class HtmlFileInputReaderTest {
         val inputDocument: Document = Jsoup.parse(nestedInput)
 
         val nestedInput = TabularTest(
-            "Time Range",
+            null,
             listOf("Start", "End"),
             emptyList(),
             listOf(
@@ -172,14 +172,14 @@ class HtmlFileInputReaderTest {
             Description("Turtles, all the way down."),
             TabularTest(
                 "Bird Counter",
-                listOf("Species", "Observed Between"),
+                listOf("Species", "Time Range"),
                 listOf("Census"),
                 listOf(
                     TestRow(
                         2,
                         mapOf(
                             "Species" to Either.Left("Blue Tit"),
-                            "Observed Between" to Either.Right(nestedInput),
+                            "Time Range" to Either.Right(nestedInput),
                             "Census" to Either.Right(nestedOutput)
                         )
                     )

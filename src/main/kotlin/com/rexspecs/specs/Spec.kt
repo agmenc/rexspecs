@@ -13,7 +13,7 @@ sealed class SpecComponent
 @Serializable
 @SerialName("com.rexspecs.TabularTest")
 data class TabularTest(
-    val fixtureName: String,
+    val fixtureName: String?,
     val inputColumns: List<String>,
     val expectationColumns: List<String>,
     val testRows: List<TestRow>

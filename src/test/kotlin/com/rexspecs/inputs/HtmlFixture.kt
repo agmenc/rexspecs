@@ -87,7 +87,7 @@ val nestedInput = """
     </tr>
     <tr>
         <th class="input">Species</th>
-        <th class="input">Observed Between</th>
+        <th class="input">Time Range</th>
         <th>Census</th>
     </tr>
     </thead>
@@ -97,9 +97,6 @@ val nestedInput = """
         <td>
             <table>
                 <thead>
-                <tr>
-                    <th>Time Range</th>
-                </tr>
                 <tr>
                     <th class="input">Start</th>
                     <th class="input">End</th>
