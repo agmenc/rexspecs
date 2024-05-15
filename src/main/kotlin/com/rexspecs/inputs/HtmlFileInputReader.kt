@@ -38,7 +38,6 @@ open class HtmlFileInputReader(rexspecsDirectory: String): InputReader {
         .toList()
         .map { element ->
             when (element.tagName()) {
-                // TODO - Need to skip past the whole table, so that nested tables don't get processed twice
                 "table" -> {
                     // TODO - Find a better way to do null checks, without having to duplicate the convertTableToTest(element) call
                     element.parent()?.let { parent ->

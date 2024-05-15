@@ -7,18 +7,6 @@ import com.rexspecs.connectors.Connector
 import com.rexspecs.specs.TabularTest
 
 interface Fixture {
-    fun processInput(
-        columnName: String,
-        value: Either<String, TabularTest>,
-        connector: Connector,
-        nestingCallback: (TabularTest) -> ExecutedSpecComponent
-    ): Either<String, ExecutedSpecComponent> {
-        return when (value) {
-            is Either.Left -> value
-            is Either.Right -> Either.Right(nestingCallback(value.right))
-        }
-    }
-
     fun execute(
         rowDescriptor: RowDescriptor,
         connector: Connector,

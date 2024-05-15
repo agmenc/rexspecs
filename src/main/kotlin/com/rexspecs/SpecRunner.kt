@@ -51,7 +51,10 @@ class SpecRunner(
                             if (acc.inputColumns.contains(columnName)) {
                                 val inputResultAcc = acc + Pair(
                                     columnName,
-                                    fixture.processInput(columnName, value, connector, nestingCallback)
+                                    when (value) {
+                                        is Either.Left -> value
+                                        is Either.Right -> Either.Right(nestingCallback(value.right))
+                                    }
                                 )
 
                                 // TODO - Better test, to check that all the input columns have been processed
