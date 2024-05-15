@@ -69,8 +69,11 @@ table {
     border-radius: 5px;
 }
 
-table thead tr:first-of-type th {
+table thead tr:first-of-type th:first-of-type {
     border-top-left-radius: 5px;
+}
+
+table thead tr th:last-of-type {
     border-top-right-radius: 5px;
 }
 
@@ -105,7 +108,7 @@ table tbody tr:last-of-type {
     border-bottom: 2px solid var(--l4);
 }
 
-table table thead tr td {
+table table thead tr th {
     background-color: var(--l5);
     color: var(--lw);
     text-align: left;
