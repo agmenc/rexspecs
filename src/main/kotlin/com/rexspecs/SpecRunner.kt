@@ -54,8 +54,7 @@ class SpecRunner(
                                     value.mapBoth(::identity) { nestingCallback(it) }
                                 )
 
-                                // TODO - Better test, to check that all the input columns have been processed
-                                if (inputResultAcc.inputResults.size == acc.inputColumns.size) {
+                                if (inputResultAcc.inputsComplete()) {
                                     val execResult: Map<String, Either<String, ExecutedSpecComponent>> =
                                         fixture.execute(inputResultAcc, connector, columnValues)
                                     inputResultAcc + execResult
@@ -80,27 +79,22 @@ data class RowDescriptor(
     val expectationColumns: List<String>,
     val inputResults: Map<String, Either<String, ExecutedSpecComponent>>,
     val expectationResults: Map<String, Either<String, ExecutedSpecComponent>>,
+    // TODO - Why is this nullable?
     val allResults: Map<String, Either<String, ExecutedSpecComponent>>? = null
 ) {
-    operator fun plus(cellResult: Pair<String, Either<String, ExecutedSpecComponent>>): RowDescriptor {
-        return when {
-            inputColumns.contains(cellResult.first) -> copy(inputResults = inputResults + cellResult, allResults = add(allResults, cellResult))
-            expectationColumns.contains(cellResult.first) -> copy(expectationResults = expectationResults + cellResult, allResults = add(allResults, cellResult))
-            else -> throw RuntimeException("Column [${cellResult.first}] is not in inputColumns or expectationColumns")
-        }
+    operator fun plus(cellResult: Pair<String, Either<String, ExecutedSpecComponent>>): RowDescriptor = when {
+        inputColumns.contains(cellResult.first) -> copy(inputResults = inputResults + cellResult, allResults = cellResult + allResults)
+        expectationColumns.contains(cellResult.first) -> copy(expectationResults = expectationResults + cellResult, allResults = cellResult + allResults)
+        else -> throw RuntimeException("Column [${cellResult.first}] is not in inputColumns or expectationColumns")
     }
 
     operator fun plus(cellResults: Map<String, Either<String, ExecutedSpecComponent>>): RowDescriptor {
         return cellResults.entries.fold(this) { acc, (k, v) -> acc + Pair(k, v) }
     }
-
-    private fun add(
-        map: Map<String, Either<String, ExecutedSpecComponent>>?,
-        pair: Pair<String, Either<String, ExecutedSpecComponent>>
-    ): Map<String, Either<String, ExecutedSpecComponent>> {
-        return map?.plus(pair) ?: mapOf(pair)
-    }
 }
+
+fun RowDescriptor.inputsComplete(): Boolean =
+    allResults?.let { allResults.size == inputColumns.size } ?: (inputColumns.isEmpty())
 
 fun cleanRow(inputCount: Int,inputColumns: List<String>, expectationColumns: List<String>): RowDescriptor {
     return RowDescriptor(inputCount, inputColumns, expectationColumns, emptyMap(), emptyMap())

@@ -113,7 +113,6 @@ fun <L, R, LL, RR> Either<L, R>.mapBoth(leftOp: (L) -> LL, rightOp: (R) -> RR): 
 
 fun <I> identity(i: I): I = i
 
-
 // TODO - Combine and simplify assumeLeft and assumeRight
 fun <L, R> assumeLeft(value: Either<L, R>?): L =
     when (value) {
@@ -134,6 +133,9 @@ fun <L, R> assumeRight(value: Either<L, R>?): R =
 fun <T> lefts(inputs: Map<String, Either<String, T>>): Map<String, Either.Left<String>> {
     return inputs.filter { (_, v) -> v is Either.Left<String> } as Map<String, Either.Left<String>>
 }
+
+/** Add a pair to a nullable [map], creating a new map if necessary. */
+operator fun <K,V> Pair<K, V>.plus(map: Map<K, V>?): Map<K, V> = map?.plus(this) ?: mapOf(this)
 
 @Serializable
 data class TestRow(
