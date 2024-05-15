@@ -12,7 +12,7 @@ class RowDescriptorTest {
             listOf("Output One", "Output Two"),
             emptyMap(),
             emptyMap(),
-            null
+            emptyMap()
         )
 
         assertFalse(rowDescriptor.inputsComplete())

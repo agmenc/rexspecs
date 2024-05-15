@@ -79,8 +79,7 @@ data class RowDescriptor(
     val expectationColumns: List<String>,
     val inputResults: Map<String, Either<String, ExecutedSpecComponent>>,
     val expectationResults: Map<String, Either<String, ExecutedSpecComponent>>,
-    // TODO - Why is this nullable?
-    val allResults: Map<String, Either<String, ExecutedSpecComponent>>? = null
+    val allResults: Map<String, Either<String, ExecutedSpecComponent>>
 ) {
     operator fun plus(cellResult: Pair<String, Either<String, ExecutedSpecComponent>>): RowDescriptor = when {
         inputColumns.contains(cellResult.first) -> copy(inputResults = inputResults + cellResult, allResults = cellResult + allResults)
@@ -93,9 +92,8 @@ data class RowDescriptor(
     }
 }
 
-fun RowDescriptor.inputsComplete(): Boolean =
-    allResults?.let { allResults.size == inputColumns.size } ?: (inputColumns.isEmpty())
+fun RowDescriptor.inputsComplete(): Boolean = allResults.size == inputColumns.size
 
 fun cleanRow(inputCount: Int,inputColumns: List<String>, expectationColumns: List<String>): RowDescriptor {
-    return RowDescriptor(inputCount, inputColumns, expectationColumns, emptyMap(), emptyMap())
+    return RowDescriptor(inputCount, inputColumns, expectationColumns, emptyMap(), emptyMap(), emptyMap())
 }
