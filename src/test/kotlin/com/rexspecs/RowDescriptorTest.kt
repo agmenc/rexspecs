@@ -10,8 +10,6 @@ class RowDescriptorTest {
             2,
             listOf("Input One", "Input Two"),
             listOf("Output One", "Output Two"),
-            emptyMap(),
-            emptyMap(),
             emptyMap()
         )
 

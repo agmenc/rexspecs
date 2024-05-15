@@ -12,7 +12,7 @@ class StaffCounter : Fixture {
         connector: Connector,
         columnValues: Map<String, Either<String, TabularTest>>
     ): Map<String, Either<String, ExecutedSpecComponent>> {
-        return rowDescriptor.inputResults["Staff"]?.let { staffDB: Either<String, ExecutedSpecComponent> ->
+        return rowDescriptor.allResults["Staff"]?.let { staffDB: Either<String, ExecutedSpecComponent> ->
             val lookup: Map<String, Int> =
                 assumeRight(staffDB).actualRowResults.fold(emptyMap()) { acc, row ->
                     val grade = row["Grade"]?.let { assumeLeft(it) } ?: "No grade in table row"
