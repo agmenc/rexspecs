@@ -51,10 +51,7 @@ class SpecRunner(
                             if (acc.inputColumns.contains(columnName)) {
                                 val inputResultAcc = acc + Pair(
                                     columnName,
-                                    when (value) {
-                                        is Either.Left -> value
-                                        is Either.Right -> Either.Right(nestingCallback(value.right))
-                                    }
+                                    value.mapBoth(::identity) { nestingCallback(it) }
                                 )
 
                                 // TODO - Better test, to check that all the input columns have been processed

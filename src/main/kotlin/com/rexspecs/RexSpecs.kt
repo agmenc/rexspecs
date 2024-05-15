@@ -106,6 +106,14 @@ sealed class Either<out L, out R> {
     data class Right<out R>(val right: R) : Either<Nothing, R>()
 }
 
+fun <L, R, LL, RR> Either<L, R>.mapBoth(leftOp: (L) -> LL, rightOp: (R) -> RR): Either<LL, RR> = when (this) {
+    is Either.Left -> Either.Left(leftOp(left))
+    is Either.Right -> Either.Right(rightOp(right))
+}
+
+fun <I> identity(i: I): I = i
+
+
 // TODO - Combine and simplify assumeLeft and assumeRight
 fun <L, R> assumeLeft(value: Either<L, R>?): L =
     when (value) {
