@@ -154,7 +154,7 @@ class HtmlFileInputReaderTest {
         )
 
         val nestedOutput = TabularTest(
-            "Count Type",
+            null,
             emptyList(),
             listOf("Eggs", "Chicks"),
             listOf(
@@ -173,14 +173,14 @@ class HtmlFileInputReaderTest {
             TabularTest(
                 "Bird Counter",
                 listOf("Species", "Time Range"),
-                listOf("Census"),
+                listOf("Count Type"),
                 listOf(
                     TestRow(
                         2,
                         mapOf(
                             "Species" to Either.Left("Blue Tit"),
                             "Time Range" to Either.Right(nestedInput),
-                            "Census" to Either.Right(nestedOutput)
+                            "Count Type" to Either.Right(nestedOutput)
                         )
                     )
                 )
