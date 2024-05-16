@@ -5,10 +5,7 @@ import com.rexspecs.fixture.Fixture
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.SpecComponent
 import com.rexspecs.specs.TabularTest
-import com.rexspecs.utils.Either
-import com.rexspecs.utils.identity
-import com.rexspecs.utils.mapBoth
-import com.rexspecs.utils.plus
+import com.rexspecs.utils.*
 
 class SpecRunner(
     private val spec: Spec,
@@ -40,25 +37,7 @@ class SpecRunner(
         index: FixtureLookup,
         rowDescriptor: RowDescriptor
     ): List<Map<String, Either<String, ExecutedSpecComponent>>> {
-
-
-        // TODO - introduce my own scope variable for blatting through null checks
-        val fixture: Fixture? = when {
-            index[tabularTest.fixtureName] != null -> index[tabularTest.fixtureName]!!
-            rowDescriptor.parentColumn != null -> index[rowDescriptor.parentColumn]!!
-            else -> null
-        }
-
-        /*
-        chain 1: tabularTest.fixtureName AND index[tabularTest.fixtureName] AND-not-null
-        chain 2: rowDescriptor.parentColumn AND index[rowDescriptor.parentColumn] AND-not-null
-
-        chain 1 orThen chain 2 orThen ...
-
-        orThen is nullable receiver, returning identity or executing the next block
-         */
-
-        // TODO - Write something that lets Elvis take a block
+        val fixture: Fixture? = index[tabularTest.fixtureName] ?: index[rowDescriptor.parentColumn]
         return tabularTest.testRows
             .map { row: TestRow ->
                 fixture?.let {
@@ -71,10 +50,7 @@ class SpecRunner(
                                 )
 
                                 if (inputResultAcc.inputsComplete()) {
-                                    val execResult: Map<String, Either<String, ExecutedSpecComponent>> =
-                                        fixture.execute(inputResultAcc, connector, row.allTheParams)
-                                    inputResultAcc + execResult
-
+                                    inputResultAcc + fixture.execute(inputResultAcc, connector, row.allTheParams)
                                 } else inputResultAcc
                             } else if (acc.expectationColumns.contains(columnName)) {
                                 // TODO - Can't we just treat outputs the same as inputs, if they have access to the execution results?

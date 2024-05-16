@@ -54,3 +54,13 @@ fun <T> T.printed() = also(::println)
 
 @Deprecated("Remove usages before commit", ReplaceWith(""))
 fun <T> T.printed(blah: String) = also { println(blah) }
+
+// Playing with some chaining that allows better fluidity that the Elvis operator
+fun <T,U> T?.andThen(nullableBlock: (T) -> U?): U? {
+    return if (this == null) null
+    else nullableBlock(this)
+}
+
+fun <T> T?.orElse(nullableBlock: () -> T?): T? {
+    return this ?: nullableBlock()
+}
