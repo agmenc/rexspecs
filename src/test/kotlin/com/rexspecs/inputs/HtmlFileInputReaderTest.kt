@@ -2,6 +2,7 @@ package com.rexspecs.inputs
 
 import com.rexspecs.*
 import com.rexspecs.specs.*
+import com.rexspecs.utils.Either
 import com.rexspecs.utils.RexSpecPropertiesLoader
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document

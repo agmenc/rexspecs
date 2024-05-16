@@ -8,6 +8,9 @@ import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.fixture.Fixture
 import com.rexspecs.specs.TabularTest
+import com.rexspecs.utils.Either
+import com.rexspecs.utils.assumeLeft
+import com.rexspecs.utils.lefts
 import org.http4k.core.*
 import java.net.URLEncoder
 // TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate

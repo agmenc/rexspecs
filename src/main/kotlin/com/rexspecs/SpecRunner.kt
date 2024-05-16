@@ -5,6 +5,10 @@ import com.rexspecs.fixture.Fixture
 import com.rexspecs.specs.Spec
 import com.rexspecs.specs.SpecComponent
 import com.rexspecs.specs.TabularTest
+import com.rexspecs.utils.Either
+import com.rexspecs.utils.identity
+import com.rexspecs.utils.mapBoth
+import com.rexspecs.utils.plus
 
 class SpecRunner(
     private val spec: Spec,
@@ -37,6 +41,7 @@ class SpecRunner(
         rowDescriptor: RowDescriptor
     ): List<Map<String, Either<String, ExecutedSpecComponent>>> {
 
+
         // TODO - introduce my own scope variable for blatting through null checks
         val fixture: Fixture? = when {
             index[tabularTest.fixtureName] != null -> index[tabularTest.fixtureName]!!
@@ -44,6 +49,16 @@ class SpecRunner(
             else -> null
         }
 
+        /*
+        chain 1: tabularTest.fixtureName AND index[tabularTest.fixtureName] AND-not-null
+        chain 2: rowDescriptor.parentColumn AND index[rowDescriptor.parentColumn] AND-not-null
+
+        chain 1 orThen chain 2 orThen ...
+
+        orThen is nullable receiver, returning identity or executing the next block
+         */
+
+        // TODO - Write something that lets Elvis take a block
         return tabularTest.testRows
             .map { row: TestRow ->
                 fixture?.let {

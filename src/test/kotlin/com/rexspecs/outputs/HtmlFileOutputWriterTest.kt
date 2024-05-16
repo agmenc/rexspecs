@@ -5,6 +5,7 @@ import com.rexspecs.inputs.expectedOutputWithFailure
 import com.rexspecs.inputs.htmlSanitised
 import com.rexspecs.specs.TabularTest
 import com.rexspecs.specs.Title
+import com.rexspecs.utils.Either
 import com.rexspecs.utils.fileAsString
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

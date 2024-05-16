@@ -4,6 +4,9 @@ import com.rexspecs.*
 import com.rexspecs.connectors.Connector
 import com.rexspecs.fixture.Fixture
 import com.rexspecs.specs.TabularTest
+import com.rexspecs.utils.Either
+import com.rexspecs.utils.assumeLeft
+import com.rexspecs.utils.assumeRight
 
 class StaffCounter : Fixture {
 

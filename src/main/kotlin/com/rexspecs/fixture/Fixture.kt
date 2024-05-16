@@ -1,6 +1,6 @@
 package com.rexspecs.fixture
 
-import com.rexspecs.Either
+import com.rexspecs.utils.Either
 import com.rexspecs.ExecutedSpecComponent
 import com.rexspecs.RowDescriptor
 import com.rexspecs.connectors.Connector

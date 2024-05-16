@@ -1,5 +1,6 @@
 package com.rexspecs
 
+import com.rexspecs.utils.Either
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 

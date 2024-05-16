@@ -2,8 +2,7 @@ package com.rexspecs.outputs
 
 import com.rexspecs.*
 import com.rexspecs.specs.*
-import com.rexspecs.utils.errored
-import com.rexspecs.utils.writeFile
+import com.rexspecs.utils.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import java.io.File

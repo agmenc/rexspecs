@@ -1,5 +1,4 @@
 package com.rexspecs.utils
-import com.rexspecs.Either
 import com.rexspecs.InvalidStructure
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
