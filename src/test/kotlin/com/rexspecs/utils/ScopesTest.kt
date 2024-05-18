@@ -14,7 +14,7 @@ internal class ScopesTest {
 
         val chainResult = nullKey.andThen { lookup[it] }
             .orElse { missingKey.andThen { lookup[it] } }
-            .orElse { actualKey.andThen { lookup[actualKey] } }
+            .orElse { actualKey.andThen { lookup[it] } }
 
         assertEquals(7, chainResult)
     }

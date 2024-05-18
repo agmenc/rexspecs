@@ -20,9 +20,9 @@ class Calculator: Fixture {
         connector: Connector,
         columnValues: Map<String, Either<String, TabularTest>>
     ): Map<String, Either<String, ExecutedSpecComponent>> {
-        val params: List<Pair<String, String>> = lefts(rowDescriptor.allResults).map { (k, v) -> Pair(k, v.left) }
+        val params: List<Pair<String, String>> = lefts(rowDescriptor.actualResults).map { (k, v) -> Pair(k, v.left) }
 
-        val allResultsSoFar: Map<String, Either<String, ExecutedSpecComponent>> = rowDescriptor.allResults
+        val allResultsSoFar: Map<String, Either<String, ExecutedSpecComponent>> = rowDescriptor.actualResults
 
         return when (connector) {
             is HttpConnector -> connectOverHttp(params, connector)
