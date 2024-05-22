@@ -112,7 +112,7 @@ data class ExecutedSpec(val identifier: String, val executedTests: List<Executed
     fun success(): Boolean = executedTests.fold(true) { allGood, nextTable -> allGood && nextTable.success() }
 }
 
-data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRowResults: List<Map<String, Either<String, ExecutedSpecComponent>>>) {
+data class ExecutedSpecComponent(val specComponent: SpecComponent, val resultsForAllRows: List<Map<String, Either<String, ExecutedSpecComponent>>>) {
     fun success(): Boolean {
         return when (specComponent) {
             is TabularTest -> testSuccessful(specComponent)
@@ -123,7 +123,7 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
     }
 
     private fun testSuccessful(tabularTest: TabularTest): Boolean {
-        tabularTest.testRows.zip(actualRowResults)
+        tabularTest.testRows.zip(resultsForAllRows)
             .forEach { (row: TestRow, resultSet: Map<String, Either<String, ExecutedSpecComponent>>) ->
                 resultSet.map { (col, value: Either<String, ExecutedSpecComponent>) ->
                     row.allTheParams[col]?.let { expected: Either<String, TabularTest> ->
@@ -141,4 +141,3 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val actualRow
 
 class InvalidStartingState(message: String) : RuntimeException(message)
 class InvalidStructure(message: String) : RuntimeException(message)
-

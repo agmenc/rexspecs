@@ -33,7 +33,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         executedSpec.executedTests.forEach { test ->
             when (test.specComponent) {
                 is Title -> simplerDocument.head().appendElement("title").html(test.specComponent.title)
-                is TabularTest -> simplerDocument.body().appendChild(toTable(test.specComponent, test.actualRowResults))
+                is TabularTest -> simplerDocument.body().appendChild(toTable(test.specComponent, test.resultsForAllRows))
                 is Heading -> simplerDocument.body().appendElement("h1").html(test.specComponent.words).addClass("title")
                 is Description -> simplerDocument.body().appendElement("p").html(test.specComponent.words)
                 is Ignorable -> Unit
@@ -93,7 +93,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
     private fun compare(expected: Either<String, TabularTest>, actual: Either<String, ExecutedSpecComponent>): Element =
         when (expected) {
             is Either.Left -> compareStrings(expected.left, Either.Left(assumeLeft(actual)))
-            is Either.Right -> Element("td").appendChild(toTable(expected.right, assumeRight(actual).actualRowResults))
+            is Either.Right -> Element("td").appendChild(toTable(expected.right, assumeRight(actual).resultsForAllRows))
         }
 
     private fun compareStrings(expected: String, actual: Either<String, TabularTest>): Element {

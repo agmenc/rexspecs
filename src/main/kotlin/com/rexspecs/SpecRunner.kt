@@ -60,7 +60,7 @@ class SpecRunner(
                             }
                         }
 
-                    processedRow.actualResults
+                    processedRow.resultsForThisRow
                 } ?: unrecognisedFixture(rowDescriptor, tabularTest)
             }
     }
@@ -73,12 +73,12 @@ data class RowDescriptor(
     val inputCount: Int,
     val inputColumns: List<String>,
     val expectationColumns: List<String>,
-    val actualResults: Map<String, Either<String, ExecutedSpecComponent>>,
+    val resultsForThisRow: Map<String, Either<String, ExecutedSpecComponent>>,
     val parentColumn: String? = null
 ) {
     operator fun plus(cellResult: Pair<String, Either<String, ExecutedSpecComponent>>): RowDescriptor = when {
-        inputColumns.contains(cellResult.first) -> copy(actualResults = cellResult + actualResults)
-        expectationColumns.contains(cellResult.first) -> copy(actualResults = cellResult + actualResults)
+        inputColumns.contains(cellResult.first) -> copy(resultsForThisRow = cellResult + resultsForThisRow)
+        expectationColumns.contains(cellResult.first) -> copy(resultsForThisRow = cellResult + resultsForThisRow)
         else -> throw RuntimeException("Column [${cellResult.first}] is not in inputColumns or expectationColumns")
     }
 
@@ -87,8 +87,9 @@ data class RowDescriptor(
     }
 }
 
-fun RowDescriptor.inputsComplete(): Boolean = actualResults.size == inputColumns.size
+fun RowDescriptor.inputsComplete(): Boolean = resultsForThisRow.size == inputColumns.size
 
-fun cleanRow(inputCount: Int,inputColumns: List<String>, expectationColumns: List<String>): RowDescriptor {
-    return RowDescriptor(inputCount, inputColumns, expectationColumns, emptyMap())
-}
+fun RowDescriptor.tableRowsFor(name: String): List<Map<String, Either<String, ExecutedSpecComponent>>>? =
+    this.resultsForThisRow[name]?.let { table: Either<String, ExecutedSpecComponent> ->
+        assumeRight(table).resultsForAllRows
+    }
