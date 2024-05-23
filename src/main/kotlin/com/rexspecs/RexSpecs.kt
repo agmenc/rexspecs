@@ -16,17 +16,17 @@ typealias FixtureLookup = Map<String, Fixture>
 /*
 Benders:
     - TODO: Wire it in to something real.
+    - Build a more complicated example, with multiple steps, and some sort of state
     - Have better support for easily processing actuals into ExecutedTestComponents.
     - Process every cell, so that we can write back error messages and status colours in input cells. Something like:
         - each row becomes a list of triples: Column Name, Execution results, data result
-        - at any point in row processing, we can access any processed value by Column Name
+        - at any point in row processing, we can access any processed value by Column Name. A navigational tree.
     - List Fixtures - given whatever is in the header, the results should look like all the rows. Show rows where there are no results.
     - Real candidates:
         STACKRR - The Stack Tree Tracker. JSON over CLI.
         UrThredz II - The Wrath of Tabs
         Kanban in Code - a way to manage stories, epics, etc in your repo. Possibly a little app that moves STORY.mds into different sub-folders as you make changes.
     - Generate a Suite index - this is the FEATURE MATRIX!!!
-    - Build a more complicated example, with multiple steps, and some sort of state
     - Make the fixture lookup use magic, so that we don't need to provide one. Probably class.forName() from some specified root package.
     - Make the HTML look prettier still (need some guidance with this one)
     - Document the stuff below (marked ***HERE***) in the README.md Mermaid diagrams

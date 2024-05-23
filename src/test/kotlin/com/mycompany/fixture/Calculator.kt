@@ -7,11 +7,14 @@ import com.rexspecs.connectors.Connector
 import com.rexspecs.connectors.DirectConnector
 import com.rexspecs.connectors.HttpConnector
 import com.rexspecs.fixture.Fixture
+import com.rexspecs.fixture.extract
+import com.rexspecs.fixture.missingFieldError
 import com.rexspecs.specs.TabularTest
 import com.rexspecs.utils.Either
 import com.rexspecs.utils.assumeLeft
 import com.rexspecs.utils.lefts
 import org.http4k.core.*
+import org.http4k.urlEncoded
 import java.net.URLEncoder
 // TODO: Allow Fixture classes to provide a selection of supported Connectors, so that there is less boilerplate
 class Calculator: Fixture {
@@ -32,11 +35,16 @@ class Calculator: Fixture {
     }
 
     private fun connectDirectly(params: Map<String, Either<String, ExecutedSpecComponent>>): Map<String, Either<String, ExecutedSpecComponent>> {
-
         // TODO - Check the input types parse correctly when processing the input params, meaning we don't have to check them here
-        val operand1 = assumeLeft(params["First Param"]).toInt()
+        // TODO - Choose something simpler, so that library users can pull params without boilerplate
+        
+        // TODO - Option 1
+        val operand1 = params.extract("First Param") { it.toInt() } ?: return missingFieldError("Result", "First Param")
+
+        // TODO - Option 2
         val operand2 = assumeLeft(params["Second Param"]).toInt()
-        val operator = assumeLeft(params["Operator"]).toString()
+
+        val operator = params.extract("Operator") { it } ?: return missingFieldError("Result", "Operator")
 
         val calculated: CalculationResult = calculate(operand1, operator, operand2)
 
@@ -60,11 +68,8 @@ class Calculator: Fixture {
         // TODO: shouldn't need to provide a URI at this point, that is the HttpConnector's job
         val uri = Uri.of("http://not-actually-a-real-host.com/")
             .path("/target")
-            .query(newParams.map { (k, v) -> "${encodePlus(k)}=${encodePlus(v)}" }.joinToString("&"))
+            .query(newParams.map { (k, v) -> "${k.urlEncoded()}=${v.urlEncoded()}" }.joinToString("&"))
         return Request(Method.GET, uri, version = HttpMessage.HTTP_1_1)
     }
-
-    // TODO Should this be done for free by RexSpec?
-    private fun encodePlus(param: String) = URLEncoder.encode(param, "UTF-8")
 }
 
