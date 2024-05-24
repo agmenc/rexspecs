@@ -46,7 +46,7 @@ class SpecRunner(
                             if (acc.inputColumns.contains(columnName)) {
                                 val inputResultAcc = acc + Pair(
                                     columnName,
-                                    value.mapBoth(::identity) { nestingCallback(it, columnName) }
+                                    value.mapRight { nestingCallback(it, columnName) }
                                 )
 
                                 if (inputResultAcc.inputsComplete()) {

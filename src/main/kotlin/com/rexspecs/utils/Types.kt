@@ -13,8 +13,13 @@ sealed class Either<out L, out R> {
     data class Right<out R>(val right: R) : Either<Nothing, R>()
 }
 
-fun <L, R, LL, RR> Either<L, R>.mapBoth(leftOp: (L) -> LL, rightOp: (R) -> RR): Either<LL, RR> = when (this) {
+fun <L, R, LL> Either<L, R>.mapLeft(leftOp: (L) -> LL): Either<LL, R> = when (this) {
     is Either.Left -> Either.Left(leftOp(left))
+    is Either.Right -> this
+}
+
+fun <L, R, RR> Either<L, R>.mapRight(rightOp: (R) -> RR): Either<L, RR> = when (this) {
+    is Either.Left -> this
     is Either.Right -> Either.Right(rightOp(right))
 }
 
