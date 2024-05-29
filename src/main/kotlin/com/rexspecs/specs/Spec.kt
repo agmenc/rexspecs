@@ -16,7 +16,7 @@ data class TabularTest(
     val fixtureName: String?,
     val inputColumns: List<String>,
     val expectationColumns: List<String>,
-    val testRows: List<TestRow>
+    val expectationsForAllRows: List<TestRow>
 ): SpecComponent()
 
 @Serializable

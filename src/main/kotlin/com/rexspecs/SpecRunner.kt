@@ -38,7 +38,7 @@ class SpecRunner(
         rowDescriptor: RowDescriptor
     ): List<Map<String, Either<String, ExecutedSpecComponent>>> {
         val fixture: Fixture? = index[tabularTest.fixtureName] ?: index[rowDescriptor.parentColumn]
-        return tabularTest.testRows
+        return tabularTest.expectationsForAllRows
             .map { row: TestRow ->
                 fixture?.let {
                     val processedRow: RowDescriptor = row.allTheParams.toList()

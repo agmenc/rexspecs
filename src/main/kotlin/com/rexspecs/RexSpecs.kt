@@ -123,10 +123,10 @@ data class ExecutedSpecComponent(val specComponent: SpecComponent, val resultsFo
     }
 
     private fun testSuccessful(tabularTest: TabularTest): Boolean {
-        tabularTest.testRows.zip(resultsForAllRows)
-            .forEach { (row: TestRow, resultSet: Map<String, Either<String, ExecutedSpecComponent>>) ->
-                resultSet.map { (col, value: Either<String, ExecutedSpecComponent>) ->
-                    row.allTheParams[col]?.let { expected: Either<String, TabularTest> ->
+        tabularTest.expectationsForAllRows.zip(resultsForAllRows)
+            .forEach { (expectedRow: TestRow, resultRow: Map<String, Either<String, ExecutedSpecComponent>>) ->
+                resultRow.map { (columnName, value: Either<String, ExecutedSpecComponent>) ->
+                    expectedRow.allTheParams[columnName]?.let { expected: Either<String, TabularTest> ->
                         when (value) {
                             is Either.Left -> if (assumeLeft(expected) != value.left) return false
                             is Either.Right -> if (assumeRight(expected) != value.right.specComponent) return false

@@ -10,7 +10,7 @@
       "fixtureName": "Calculator",
       "inputColumns": ["First Param", "Operator", "Second Param"],
       "expectationColumns": ["Result"],
-      "testRows": [
+      "expectationsForAllRows": [
         {
           "inputCount": 3,
           "allTheParams":{"First Param":{"Left":"7"},"Operator":{"Left":"+"},"Second Param":{"Left":"8"},"Result":{"Left":"15"}}

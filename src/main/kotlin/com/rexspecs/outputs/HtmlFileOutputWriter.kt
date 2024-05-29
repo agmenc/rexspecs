@@ -67,7 +67,7 @@ open class HtmlFileOutputWriter(private val rexspecsDirectory: String) : OutputW
         )
 
         val body = Element("tbody")
-        val bodyRows: List<Element> = tabularTest.testRows
+        val bodyRows: List<Element> = tabularTest.expectationsForAllRows
             .zip(actualRowResults)
             .map { (inputRow, resultRow) -> toTableRow(inputRow, resultRow) }
 
