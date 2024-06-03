@@ -115,28 +115,36 @@ data class ExecutedSpec(val identifier: String, val executedTests: List<Executed
 data class ExecutedSpecComponent(val specComponent: SpecComponent, val resultsForAllRows: List<Map<String, Either<String, ExecutedSpecComponent>>>) {
     fun success(): Boolean {
         return when (specComponent) {
-            is TabularTest -> testSuccessful(specComponent)
+            is TabularTest -> testSuccessful(specComponent, resultsForAllRows)
             /* is GraphicalTest -> ... */
             /* is MermaidTest -> ... */
             else -> true
         }
     }
 
-    private fun testSuccessful(tabularTest: TabularTest): Boolean {
-        tabularTest.expectationsForAllRows.zip(resultsForAllRows)
-            .forEach { (expectedRow: TestRow, resultRow: Map<String, Either<String, ExecutedSpecComponent>>) ->
-                resultRow.map { (columnName, value: Either<String, ExecutedSpecComponent>) ->
-                    expectedRow.allTheParams[columnName]?.let { expected: Either<String, TabularTest> ->
-                        when (value) {
-                            is Either.Left -> if (assumeLeft(expected) != value.left) return false
-                            is Either.Right -> if (assumeRight(expected) != value.right.specComponent) return false
-                        }
-                    }
-                }
-            }
+}
 
-        return true
-    }
+// TODO - Currently maps through results, to find matches in the expectations. Should also fail for unmet expectations.
+private fun testSuccessful(
+    tabularTest: TabularTest,
+    resultsAllRows: List<Map<String, Either<String, ExecutedSpecComponent>>>
+): Boolean {
+    tabularTest.expectationsForAllRows.zip(resultsAllRows)
+        .forEach { (expectedRow: TestRow, resultRow: Map<String, Either<String, ExecutedSpecComponent>>) ->
+            resultRow.map { (columnName, resultValue: Either<String, ExecutedSpecComponent>) ->
+                expectedRow.allTheParams[columnName]?.let { expected: Either<String, TabularTest> ->
+                    when (resultValue) {
+                        is Either.Left -> if (assumeLeft(expected) != resultValue.left) return false
+                        is Either.Right -> if (!testSuccessful(
+                                assumeRight(expected),
+                                resultValue.right.resultsForAllRows
+                            )) return false
+                    }
+                } ?: return false
+            }
+        }
+
+    return true
 }
 
 class InvalidStartingState(message: String) : RuntimeException(message)
